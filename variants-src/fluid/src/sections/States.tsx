@@ -22,7 +22,7 @@ export function States() {
             <p className="font-medium">No archived projects</p>
             <p className="text-muted-foreground text-sm">Projects you archive show up here. Nothing is deleted.</p>
           </div>
-          <Button variant="outline" size="sm">View active projects</Button>
+          <Button variant="tertiary" size="compact">View active projects</Button>
         </CardContent>
       </Card>
 
@@ -57,7 +57,7 @@ export function States() {
               </div>
             ))
           )}
-          <Button variant="ghost" size="sm" onClick={() => setLoading(!loading)}>
+          <Button variant="ghost" size="compact" onClick={() => setLoading(!loading)}>
             {loading ? "Finish loading" : "Show loading again"}
           </Button>
         </CardContent>

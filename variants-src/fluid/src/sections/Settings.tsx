@@ -1,17 +1,24 @@
 import { useState } from "react"
-import { Loader2 } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Input } from "@/components/ui/input"
+import { CheckboxGroup, CheckboxItem } from "@/components/ui/checkbox-group"
+import { InputField, InputGroup } from "@/components/ui/input-group"
 import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { Separator } from "@/components/ui/separator"
 
+const terms = [["receipt", "Due on receipt"], ["net15", "Net 15"], ["net30", "Net 30"], ["net60", "Net 60"]]
+
 export function Settings() {
+  const [studio, setStudio] = useState("Fieldwork Studio")
   const [email, setEmail] = useState("billing@fieldwork")
+  const [rate, setRate] = useState("135")
+  const [term, setTerm] = useState("net30")
+  const [reminders, setReminders] = useState(true)
+  const [weekly, setWeekly] = useState(false)
+  const [round, setRound] = useState(true)
   const [saving, setSaving] = useState(false)
   const invalid = !/^\S+@\S+\.\S+$/.test(email)
 
@@ -37,60 +44,44 @@ export function Settings() {
         </CardHeader>
         <CardContent className="grid gap-6">
           <div className="grid gap-4 sm:grid-cols-2">
-            <div className="grid gap-2">
-              <Label htmlFor="ws-name">Studio name</Label>
-              <Input id="ws-name" defaultValue="Fieldwork Studio" />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="ws-email">Billing email</Label>
-              <Input id="ws-email" value={email} onChange={(e) => setEmail(e.target.value)} aria-invalid={invalid} />
-              {invalid
-                ? <p className="text-destructive text-sm">Enter a full email address, like billing@studio.com.</p>
-                : <p className="text-muted-foreground text-sm">Invoices are sent from this address.</p>}
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="ws-rate">Default hourly rate</Label>
-              <Input id="ws-rate" type="number" defaultValue={135} />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="ws-terms">Payment terms</Label>
-              <Select defaultValue="net30">
-                <SelectTrigger id="ws-terms" className="w-full"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="receipt">Due on receipt</SelectItem>
-                  <SelectItem value="net15">Net 15</SelectItem>
-                  <SelectItem value="net30">Net 30</SelectItem>
-                  <SelectItem value="net60">Net 60</SelectItem>
-                </SelectContent>
-              </Select>
+            <InputGroup>
+              <InputField index={0} label="Studio name" value={studio} onChange={setStudio} />
+              <InputField index={1} label="Billing email" value={email} onChange={setEmail}
+                error={invalid ? "Enter a full email address, like billing@studio.com." : undefined} />
+            </InputGroup>
+            <div className="grid content-start gap-4">
+              <InputGroup>
+                <InputField index={0} label="Default hourly rate" value={rate} onChange={setRate} />
+              </InputGroup>
+              <div className="grid gap-2">
+                <Label>Payment terms</Label>
+                <Select value={term} onValueChange={setTerm}>
+                  <SelectTrigger variant="bordered" />
+                  <SelectContent>
+                    {terms.map(([v, l], i) => <SelectItem key={v} index={i} value={v}>{l}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
           <Separator />
           <div className="grid gap-4">
             <div className="flex items-center justify-between gap-4">
-              <div>
-                <Label htmlFor="ws-reminders">Overdue reminders</Label>
-                <p className="text-muted-foreground text-sm">Email clients 3, 7 and 14 days after the due date.</p>
-              </div>
-              <Switch id="ws-reminders" defaultChecked />
+              <p className="text-muted-foreground text-sm">Email clients 3, 7 and 14 days after the due date.</p>
+              <Switch label="Overdue reminders" checked={reminders} onToggle={() => setReminders(!reminders)} />
             </div>
             <div className="flex items-center justify-between gap-4">
-              <div>
-                <Label htmlFor="ws-weekly">Weekly summary</Label>
-                <p className="text-muted-foreground text-sm">Monday morning digest of hours and budgets.</p>
-              </div>
-              <Switch id="ws-weekly" />
+              <p className="text-muted-foreground text-sm">Monday morning digest of hours and budgets.</p>
+              <Switch label="Weekly summary" checked={weekly} onToggle={() => setWeekly(!weekly)} />
             </div>
-            <div className="flex items-center gap-2">
-              <Checkbox id="ws-round" defaultChecked />
-              <Label htmlFor="ws-round">Round time entries up to 15 minutes</Label>
-            </div>
+            <CheckboxGroup checkedIndices={round ? new Set([0]) : new Set<number>()}>
+              <CheckboxItem index={0} label="Round time entries up to 15 minutes" checked={round} onToggle={() => setRound(!round)} />
+            </CheckboxGroup>
           </div>
         </CardContent>
         <CardFooter className="justify-end gap-2">
           <Button type="button" variant="ghost">Discard</Button>
-          <Button type="submit" disabled={saving}>
-            {saving && <Loader2 className="animate-spin" />}
+          <Button type="submit" variant="primary" loading={saving}>
             {saving ? "Saving" : "Save changes"}
           </Button>
         </CardFooter>

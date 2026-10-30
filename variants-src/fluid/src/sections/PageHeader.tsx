@@ -2,18 +2,26 @@ import { useState } from "react"
 import { Download, Plus } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { InputField, InputGroup } from "@/components/ui/input-group"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select"
 import {
   Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter,
   DialogHeader, DialogTitle, DialogTrigger,
 } from "@/components/ui/dialog"
 
+const clients = [
+  ["hollis", "Hollis & Pine"],
+  ["northwind", "Northwind Outfitters"],
+  ["riverbend", "Riverbend Food Bank"],
+  ["tandem", "Tandem Health"],
+]
+
 export function PageHeader() {
   const [open, setOpen] = useState(false)
   const [name, setName] = useState("")
+  const [client, setClient] = useState("hollis")
   const [error, setError] = useState(false)
 
   function create(e: React.FormEvent) {
@@ -35,35 +43,29 @@ export function PageHeader() {
         <p className="text-muted-foreground text-sm">6 active projects across 6 clients. 42.5 hours logged this week.</p>
       </div>
       <div className="flex gap-2">
-        <Button variant="outline" onClick={() => toast("Export started", { description: "We’ll email you the CSV in a minute." })}>
-          <Download /> Export
+        <Button variant="tertiary" leadingIcon={Download} onClick={() => toast("Export started", { description: "We’ll email you the CSV in a minute." })}>
+          Export
         </Button>
         <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button><Plus /> New project</Button>
-          </DialogTrigger>
-          <DialogContent>
+          <DialogTrigger render={<Button variant="primary" leadingIcon={Plus}>New project</Button>} />
+          <DialogContent size="sm">
             <form onSubmit={create} className="grid gap-4">
               <DialogHeader>
                 <DialogTitle>New project</DialogTitle>
                 <DialogDescription>Give it a name and a client. You can add the team and budget later.</DialogDescription>
               </DialogHeader>
+              <InputGroup>
+                <InputField index={0} label="Project name" value={name}
+                  onChange={(v) => { setName(v); setError(false) }}
+                  placeholder="e.g. Holiday landing page"
+                  error={error ? "Enter a project name." : undefined} />
+              </InputGroup>
               <div className="grid gap-2">
-                <Label htmlFor="np-name">Project name</Label>
-                <Input id="np-name" value={name} aria-invalid={error}
-                  onChange={(e) => { setName(e.target.value); setError(false) }}
-                  placeholder="e.g. Holiday landing page" />
-                {error && <p className="text-destructive text-sm">Enter a project name.</p>}
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="np-client">Client</Label>
-                <Select defaultValue="hollis">
-                  <SelectTrigger id="np-client" className="w-full"><SelectValue /></SelectTrigger>
+                <Label>Client</Label>
+                <Select value={client} onValueChange={setClient}>
+                  <SelectTrigger variant="bordered" />
                   <SelectContent>
-                    <SelectItem value="hollis">Hollis & Pine</SelectItem>
-                    <SelectItem value="northwind">Northwind Outfitters</SelectItem>
-                    <SelectItem value="riverbend">Riverbend Food Bank</SelectItem>
-                    <SelectItem value="tandem">Tandem Health</SelectItem>
+                    {clients.map(([v, l], i) => <SelectItem key={v} index={i} value={v}>{l}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
@@ -72,8 +74,8 @@ export function PageHeader() {
                 <Textarea id="np-notes" placeholder="Scope, links, anything the team should know" />
               </div>
               <DialogFooter>
-                <DialogClose asChild><Button type="button" variant="outline">Cancel</Button></DialogClose>
-                <Button type="submit">Create project</Button>
+                <DialogClose render={<Button type="button" variant="ghost">Cancel</Button>} />
+                <Button type="submit" variant="primary">Create project</Button>
               </DialogFooter>
             </form>
           </DialogContent>

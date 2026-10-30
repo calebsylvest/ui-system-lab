@@ -1,9 +1,9 @@
 import { useState } from "react"
-import { Bold, Heart, Italic, Plus, RefreshCw, Star, Underline } from "lucide-react"
+import { Bold, Heart, Italic, Plus, RefreshCw, Star, Trash2, Underline } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import { Tooltip } from "@/components/ui/tooltip"
 
 export function Controls() {
   const [liked, setLiked] = useState(false)
@@ -18,20 +18,20 @@ export function Controls() {
         <CardDescription>Every button style, plus a few stateful toggles and toasts.</CardDescription>
       </CardHeader>
       <CardContent className="grid gap-6">
+        {/* Fluid ships four variants. Baseline's outline/link/destructive map to tertiary/ghost/secondary+icon. */}
         <div className="flex flex-wrap items-center gap-2">
-          <Button>Primary</Button>
+          <Button variant="primary">Primary</Button>
           <Button variant="secondary">Secondary</Button>
-          <Button variant="outline">Outline</Button>
+          <Button variant="tertiary">Tertiary</Button>
           <Button variant="ghost">Ghost</Button>
-          <Button variant="link">Link</Button>
-          <Button variant="destructive">Delete</Button>
-          <Button disabled>Disabled</Button>
+          <Button variant="secondary" leadingIcon={Trash2}>Delete</Button>
+          <Button variant="primary" disabled>Disabled</Button>
+          <Button variant="primary" loading>Loading</Button>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <Button size="sm">Small</Button>
-          <Button>Default</Button>
-          <Button size="lg">Large</Button>
-          <Button size="icon" variant="outline" aria-label="Add"><Plus /></Button>
+          <Button variant="primary" size="compact">Compact</Button>
+          <Button variant="primary">Default</Button>
+          <Button variant="tertiary" size="icon" aria-label="Add"><Plus /></Button>
         </div>
         <div className="flex flex-wrap items-center gap-4">
           <div className="flex rounded-md border p-0.5">
@@ -40,29 +40,25 @@ export function Controls() {
               { k: "italic", icon: Italic, label: "Italic" },
               { k: "underline", icon: Underline, label: "Underline" },
             ].map(({ k, icon: Icon, label }) => (
-              <Tooltip key={k}>
-                <TooltipTrigger asChild>
-                  <Button size="icon" variant={fmt.includes(k) ? "secondary" : "ghost"} aria-pressed={fmt.includes(k)} aria-label={label} onClick={() => toggleFmt(k)} className="size-8">
-                    <Icon />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>{label}</TooltipContent>
+              <Tooltip key={k} content={label}>
+                <Button size="icon-compact" variant="ghost" active={fmt.includes(k)} aria-pressed={fmt.includes(k)} aria-label={label} onClick={() => toggleFmt(k)}><Icon /></Button>
               </Tooltip>
             ))}
           </div>
-          <Button variant="outline" aria-pressed={liked} onClick={() => setLiked(!liked)}>
-            <Heart className={liked ? "fill-current text-red-500" : ""} /> {liked ? "Liked" : "Like"}
+          <Button variant="tertiary" aria-pressed={liked} onClick={() => setLiked(!liked)} leadingIcon={Heart}
+            className={liked ? "[&_svg]:fill-current [&_svg]:text-red-500" : ""}>
+            {liked ? "Liked" : "Like"}
           </Button>
-          <Button variant="outline" onClick={() => setStarred((s) => s + 1)}>
-            <Star /> Star <span className="text-muted-foreground">{starred}</span>
+          <Button variant="tertiary" leadingIcon={Star} onClick={() => setStarred((s) => s + 1)}>
+            Star <span className="text-muted-foreground tabular-nums">{starred}</span>
           </Button>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <Button variant="outline" onClick={() => toast("Draft saved")}>Plain toast</Button>
-          <Button variant="outline" onClick={() => toast.success("Invoice INV-1042 sent")}>Success toast</Button>
-          <Button variant="outline" onClick={() => toast.error("Payment failed", { description: "The card was declined. Ask the client for another card." })}>Error toast</Button>
-          <Button variant="outline" onClick={() => toast.promise(new Promise((r) => setTimeout(r, 1500)), { loading: "Syncing with QuickBooks", success: "Synced 12 invoices", error: "Sync failed" })}>
-            <RefreshCw /> Promise toast
+          <Button variant="tertiary" onClick={() => toast("Draft saved")}>Plain toast</Button>
+          <Button variant="tertiary" onClick={() => toast.success("Invoice INV-1042 sent")}>Success toast</Button>
+          <Button variant="tertiary" onClick={() => toast.error("Payment failed", { description: "The card was declined. Ask the client for another card." })}>Error toast</Button>
+          <Button variant="tertiary" leadingIcon={RefreshCw} onClick={() => toast.promise(new Promise((r) => setTimeout(r, 1500)), { loading: "Syncing with QuickBooks", success: "Synced 12 invoices", error: "Sync failed" })}>
+            Promise toast
           </Button>
         </div>
       </CardContent>

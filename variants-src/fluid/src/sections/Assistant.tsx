@@ -1,9 +1,10 @@
 import { useRef, useState } from "react"
-import { ArrowUp, Bot, Mic, Sparkles } from "lucide-react"
+import { Mic, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Textarea } from "@/components/ui/textarea"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { ChatMessage } from "@/components/ui/chat-message"
+import { InputMessage } from "@/components/ui/input-message"
+import { ThinkingIndicator } from "@/components/ui/thinking-indicator"
 
 type Msg = { role: "user" | "assistant"; text: string }
 
@@ -38,42 +39,29 @@ export function Assistant() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2"><Sparkles className="size-4" /> Ask Fieldwork</CardTitle>
+        <CardTitle><span className="inline-flex items-center gap-2"><Sparkles className="size-4" /> Ask Fieldwork</span></CardTitle>
         <CardDescription>Questions about your projects, hours and invoices.</CardDescription>
       </CardHeader>
       <CardContent className="grid gap-4">
-        <div className="grid max-h-80 gap-3 overflow-y-auto">
-          {msgs.map((m, i) =>
-            m.role === "user" ? (
-              <div key={i} className="ml-auto max-w-[80%] rounded-lg bg-primary px-3 py-2 text-sm text-primary-foreground">{m.text}</div>
-            ) : (
-              <div key={i} className="flex max-w-[85%] items-start gap-2">
-                <Avatar className="size-7"><AvatarFallback><Bot className="size-4" /></AvatarFallback></Avatar>
-                <div className="rounded-lg bg-muted px-3 py-2 text-sm">{m.text}</div>
-              </div>
-            )
-          )}
-          {thinking && (
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Avatar className="size-7"><AvatarFallback><Bot className="size-4" /></AvatarFallback></Avatar>
-              Thinking…
-            </div>
-          )}
+        <div className="flex max-h-80 flex-col gap-2 overflow-y-auto">
+          {msgs.map((m, i) => (
+            <ChatMessage key={i} from={m.role}>{m.text}</ChatMessage>
+          ))}
+          {thinking && <ThinkingIndicator />}
         </div>
         <div className="flex flex-wrap gap-2">
           {suggestions.map((s) => (
-            <Button key={s} variant="outline" size="sm" onClick={() => send(s)} disabled={thinking}>{s}</Button>
+            <Button key={s} variant="tertiary" size="compact" onClick={() => send(s)} disabled={thinking}>{s}</Button>
           ))}
         </div>
-        <form onSubmit={(e) => { e.preventDefault(); send(input) }} className="relative">
-          <Textarea id="assistant-input" value={input} onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(input) } }}
-            placeholder="Ask about a project, client or invoice" className="min-h-20 pr-24" />
-          <div className="absolute bottom-2 right-2 flex gap-1">
-            <Button type="button" variant="ghost" size="icon" aria-label="Dictate" className="size-8"><Mic /></Button>
-            <Button type="submit" size="icon" aria-label="Send" className="size-8" disabled={!input.trim() || thinking}><ArrowUp /></Button>
-          </div>
-        </form>
+        <InputMessage
+          value={input}
+          onValueChange={setInput}
+          onSend={(text) => send(text)}
+          placeholder="Ask about a project, client or invoice"
+          disabled={thinking}
+          rightSlot={<Button variant="ghost" size="icon-compact" aria-label="Dictate"><Mic /></Button>}
+        />
       </CardContent>
     </Card>
   )

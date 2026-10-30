@@ -12,6 +12,9 @@
     "paths": {
       "@/*": [
         "./src/*"
+      ],
+      "next/link": [
+        "./src/shims/next-link.tsx"
       ]
     }
   }

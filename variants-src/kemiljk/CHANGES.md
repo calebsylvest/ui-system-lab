@@ -135,3 +135,89 @@ The system is strongest at catching dishonest UI: toasts that claim something ha
 It is mostly a set of lenses with decision rules, not a visual language. It specifies no type scale, spacing system, palette or component look, so the aesthetic changes here came from my reading of "perceptual comfort" and "subtractive". `humane-functionalism` is the most articulate skill but also the most abstract. The Danish designer framing gives good checks, but little to build directly.
 
 It is quite opinionated about the platform: native elements, `light-dark()`, `<details>`, View Transitions, no `transition: all`, and reduced motion meaning reduce, not delete. It is deliberately unopinionated about style.
+
+## Round 2
+
+Same skills as round 1, same tokens (`light-dark()`, `--warning`, `--destructive`, the blue `--ring`), the same `withTransition()` View Transitions helper and the same 260 ms `cubic-bezier(0.2, 0, 0, 1)` curve. No new dependencies. All `data-lab` hooks and the hidden `<span data-lab>` replay hooks are kept on the same actions.
+
+### Tasks (`src/sections/Tasks.tsx`, `src/index.css`)
+- Every list change (add, remove, Undo, move, sort, and completing a task while sorted) runs through `withTransition()`. Each row has its own `view-transition-name` plus `view-transition-class: task`, so neighbours slide into place and a row keeps its identity when it moves. New CSS gives added rows a short fade with 4px of travel and removed rows a quick fade-out. Under reduced motion the helper skips the transition, as in round 1. (fluid-design #5/#7/#9; modern-css-html)
+- Moving a row while the list is sorted used to swap rows in the hidden manual order, so the result didn't match what was on screen. It now takes the on-screen order first, then swaps. (interaction-contracts: the visual cue must match the result)
+- Focus is managed after a change:
+  - The moved row's arrow keeps focus. If that arrow becomes disabled at the top or bottom, focus goes to the opposite arrow.
+  - After a removal, focus goes to the checkbox of the neighbouring row, or to the input if the list is empty.
+  - Moves and adds are announced through an sr-only `role="status"`, for example "Moved … to position 2 of 5".
+  
+  (interaction-contracts: focus and access)
+- The task title is now a real `<label>` for its checkbox. Clicking the text toggles the task, and the checkbox's name is the task, not "Mark … done". (semantic-html-first)
+- The Sort button's text no longer changes. It stays "Sort by due date", and `aria-pressed` carries the state. Before, the label and the pressed state both changed, which double-signalled. (interface-affordances)
+- Assignee initials are now announced as the full name and show it on hover. "No date" reads "No due date". Due dates use tabular figures, and "Today" uses the warning colour. "1 open tasks" is now singular. The all-done state reads "Everything is done." (real-content-design)
+- Row actions are 32px targets, not 28px, inside a labelled group. Remove turns red on hover. The toast now reads "Removed “…”", and Undo no longer duplicates the task if pressed twice.
+- The empty state reads "Nothing left this week. Add a task above."
+
+### Sync (`src/sections/SyncStates.tsx`)
+- The optimistic rate is greyed out while it's pending, and a polite live note says "Saving…". The error names the attempted value and the value that is still in force: "Couldn’t save $145 … your rate is still $135". (interaction-contracts: optimistic feedback needs an account of failure and reconciliation)
+- When offline, the note says the change is saved on this device and will sync later. It no longer implies the change was saved to the server. (interaction-contracts: local acceptance ≠ server confirmation)
+- "Raise by $10" and "Reload" use `aria-disabled`, not `disabled`, while busy. The handlers already guard against double submission, and keyboard focus is no longer dropped when the button disables itself. Retry moves focus to the Raise button before its alert unmounts. (interaction-contracts: focus; repeated submission)
+- The offline banner sits in a persistent `role="status"` container, so it is announced when it appears. Banner styling uses the `--warning` token, and the save error is a tinted destructive panel. (humane-functionalism: emphasis follows meaning)
+- The Online switch has helper text, linked with `aria-describedby`, that says what the switch does in each state.
+- Time entries:
+  - The entries are an `<ol>` with `<time>`.
+  - The feed area has `aria-busy` and an sr-only loading status, and the skeleton is `aria-hidden`.
+  - The area keeps a minimum height, so the card doesn't jump between loading, error and loaded. (fluid-design: layout continuity)
+  - The error says why it failed.
+- Sub-sections are `h4` under the card's `h3`. The spinner stops under reduced motion. The card description "Saving, failing, retrying and working offline." named the pattern, so it now describes the content. (real-content-design; same fix as round 1's States cards)
+
+### Quick actions (`src/sections/QuickActions.tsx`)
+- **Project details** used to toast "Project updated" while saving nothing. Reopening the panel showed the defaults again. Now:
+  - The panel edits a draft in a `<form>`, so Enter submits.
+  - Save commits the draft. The project name goes through the round-1 store, so the Workspace card really is renamed.
+  - Cancel, Escape and the close button discard the draft.
+  - An empty name shows an inline error, linked with `aria-describedby`, and focus moves to the field.
+  - Budget shows its unit, "hours", inside the field, as in round 1's rate fields.
+  
+  (interaction-contracts: confirmation must match reality; cancel vs commit)
+- **Filter**
+  - Checkboxes now edit a draft. Apply commits and closes, and dismissing the popover discards. Before, they changed the live state, so Apply did nothing beyond a toast.
+  - The options are a `<fieldset>` with a `<legend>`.
+  - The false line "Applies to the project grid" was removed: nothing filters the grid.
+  - The summary says "every status" instead of "nothing" when none are checked.
+  - The count badge has an sr-only "statuses".
+  
+  (interaction-contracts; real-content-design)
+- **People picker**
+  - It has an accessible name, "Assignee Maya Reyes", through `aria-labelledby`, plus `aria-haspopup="listbox"`.
+  - Rows show each person's role, and search matches role as well as name.
+  - Initials are `aria-hidden`.
+  
+  (semantic-html-first; real-content-design)
+- **Command menu**
+  - The ⌘K hint is now a `<kbd>` that shows "Ctrl K" off Mac, with `aria-keyshortcuts`.
+  - The `⌘N` hint on "New project" was removed because nothing binds it, the same reason `⇧P` was removed in round 1.
+  - "Open Spring catalog redesign" opens the Project details panel.
+  - "Settings" jumps to the settings form, using the same target as ⌘, in the top nav.
+  
+  (interface-affordances: cues must match behaviour)
+- The card description used to name the patterns ("Side panel, popover…"). It now says what you can do.
+
+### Primitives (`src/components/ui/`)
+- `sheet.tsx`
+  - Motion: open is 300ms and close is 200ms on the round-1 curve. Before, it was 500ms with ease-in-out.
+  - Under reduced motion, the panel fades instead of sliding (it would otherwise snap, because the global reduced-motion rule removes travel). (fluid-design #10: reduce, not delete)
+  - The content scrolls with `overscroll-contain`.
+  - The close button is a 32px target with the shared `focus-visible` ring.
+  - The footer has a top border, and the title is larger.
+- `command.tsx`
+  - The sr-only title and description are moved inside `DialogContent`. Radix requires this, and outside it the dialog had no accessible name.
+  - The default title is "Command menu", matching the trigger.
+  - The dialog is anchored near the top, so results grow downward instead of re-centring as you type. (fluid-design: layout continuity)
+  - Items use a pointer cursor, and the empty message is muted.
+- `popover.tsx`: `rounded-lg` and `shadow-lg`, the same as dialogs, with a 150ms enter.
+
+### Chose not to do
+- **Connect the Filter to the Workspace grid.** That means changing Workspace and the store, outside the new sections. The false claim was removed instead.
+- **Wire the remaining command items** (New project, Create invoice, Send reminders, Export CSV, Clients/Time/Reports). They still show a toast with their name, as in the baseline. Two were wired because they have real destinations on this page. The others would need cross-section plumbing or invented pages.
+- **Make Reload fail honestly when offline.** It still alternates error and success, so the comparison replay stays deterministic.
+- **Drag to reorder** (fluid-design #3, direct manipulation). The arrow buttons are the keyboard-safe path the brief tests. Drag would need a new dependency or a lot of pointer code.
+- **Native `popover`/`<dialog>` instead of Radix.** Same reasoning as round 1.
+- **Rendered verification.** The build and oxlint pass. No browser was used, so the findings remain `confirmed-source`.

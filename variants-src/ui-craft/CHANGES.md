@@ -109,3 +109,134 @@ Content, data, sections and features are unchanged except where noted.
 
 ## Agent notes
 ui-craft is strongest as a checklist of specific, testable details: concentric radii, 44px hit areas, exit ≈ 70% of entrance, no `transition: all`, inline vs toast feedback. Almost every rule came with a concrete value or snippet. It was thin on visual direction. It tells you to avoid the "generic AI aesthetic" and to choose type deliberately, but it gives no help choosing a font or brand colour. Some rules conflict across skills: surface-motion wants staggered entrances while surface-interaction says frequent screens shouldn't animate, and system-patterns' own table cites "Settings saved" as a good toast while also saying success should "never only" be a toast. It is opinionated about mechanics (exact easing curves, Briggs shadows, OKLCH, outline focus rings) but deliberately neutral about aesthetics. Its routing protocol worked well for picking a starting point, though the shared reference files are duplicated in every skill folder.
+
+## Round 2
+
+The router classifies the new sections as composite workflows (a mutable list, overlays, async states), so the route was **system-patterns (lead: lists, feedback, optimistic updates, modal/search patterns) → surface-interaction (frequency) → surface-motion (+ polish-recipes) → surface-details (+ interface-polish) → surface-copy / system-naming → system-components**. All round-1 tokens are reused: elevation scale, `--ease-*` curves, the outline focus ring, `hit-area`, `animate-enter`, the danger/warning/success tokens and `IconSwap`.
+
+### New dependency
+- **`motion@^14.9.0`**. surface-motion asks for exit animations on everything that enters (`AnimatePresence`) and for a library before hand-rolled FLIP code ("Use these before rolling your own"). The task list needs enter, exit and reorder motion, which CSS can't do without delaying unmounts. Round 1 skipped Motion because icon swaps alone didn't justify it, and icon swaps still use the CSS `IconSwap`. Same version as the other variants that use it.
+
+### Primitives (`src/components/ui/*`)
+- **popover.tsx:**
+  - The border is replaced by `shadow-lg` and `rounded-lg`, the same as menus. *surface-details › Box-shadow.*
+  - Motion is 150ms ease-out in and 100ms ease-in out, about 70%. It grows from the Radix transform-origin. *surface-motion › Exit patterns, transform-origin.*
+  - `max-h` comes from the available height, with `overscroll-contain`.
+- **sheet.tsx:**
+  - Durations went from 500ms in / 300ms out to 300 / 200. The old values broke the 300ms cap for large surfaces and had the exit slower than the 70% rule.
+  - Both directions use the suite curves, and the overlay is paired with the panel (same duration and easing).
+  - `shadow-xl` replaces the side border.
+  - Safe-area padding on the edge that touches the device frame.
+  - The close button is now the round-1 dialog close: 32px with a 44px hit area, a hover state and the outline focus ring.
+  - The header has `pr-12` so the title clears the close button.
+  - The footer order matches DialogFooter.
+  - *surface-motion › Duration, Paired motion; surface-details › Hit areas, Safe areas.*
+- **dialog.tsx:** additive props. `overlayClassName` lets the overlay's motion follow its content's, and `showCloseButton` defaults to true.
+- **command.tsx:**
+  - **CommandDialog** opens instantly with no entrance animation and only fades out over 100ms, for both the content and the overlay. *surface-interaction › Frequency: "Command-K palettes should appear instantly".*
+  - It is anchored at `top-[15vh]` instead of being vertically centred, so the box no longer jumps as results filter. *surface-details › Layout shift.*
+  - Escape clears the query first and closes on the second press, using shared search state through context. *system-patterns › Search.*
+  - Arrow keys wrap (`loop`).
+  - The sr-only title and description were moved *inside* DialogContent. Before, they were outside it, so Radix couldn't link them as the dialog's name.
+  - The title changed to "Command menu".
+  - **CommandInput:** the wrapper is a `<label>`, so clicking the search icon focuses the input. The icon is `aria-hidden` and `pointer-events-none`. Text is 16px below `sm` (iOS zoom). Spellcheck is off. *surface-details › Input decorations, iOS input zoom.*
+  - **Radii:** `Command` inherits its container's radius. Items are 6px, which is concentric in both the popover (10 − 4) and the dialog (14 − 8). *surface-details › Concentric radius.*
+  - The highlight stays instant because it is keyboard-driven and high-frequency.
+  - **CommandShortcut** is now a `<kbd>`, and the empty state uses muted, pretty-wrapped text.
+- **lib/platform.ts (new):** `modKey` shows ⌘ on Apple platforms and "Ctrl " elsewhere. *surface-details/interface-polish › Shortcuts and platform labels.*
+
+### Tasks (`src/sections/Tasks.tsx`)
+- **Enter/exit/reorder motion:**
+  - Uses `AnimatePresence initial={false} mode="popLayout"` with `motion.li layout`.
+  - Rows enter in 200ms on the entrance curve with a 4px drop, because new tasks come from the input above.
+  - Rows exit in 140ms on the exit curve (70%) with a small downward fade.
+  - Siblings slide into place on a no-bounce 300ms spring, which covers sort, move, add and remove.
+  - Rows present on first render don't animate.
+  - *surface-motion › AnimatePresence, Exit patterns, Skip default mount motion.*
+- **Reduced motion:** `MotionConfig reducedMotion="user"` in `RoundTwo.tsx`, because the global CSS rule can't reach Motion's JS animations. *surface-motion › Reduced Motion.*
+- **Focus management:**
+  - Removing a row with the keyboard moves focus to the next row's Remove button (or the previous row's), or to the input if the list is empty.
+  - Moving a row to an edge, which disables its button, moves focus to the opposite arrow.
+  - Before, focus fell to `<body>`. *surface-details learnings › focus return when trigger is removed; Inactive regions.*
+- **⌘/Ctrl+Backspace** removes the focused row. It is exposed via `aria-keyshortcuts` and a platform-labelled `title`. *surface-details › "⌘+Backspace deletes in lists".*
+- **Moving while sorted:** the move now starts from the order on screen. Before, the list jumped back to the manual order and then swapped. Data and features are unchanged. *surface-details › Jumping scroll position / predictable lists.*
+- **Sort toggle:** keeps one label, "Sort by due date". `aria-pressed`, the secondary variant and an IconSwap to a check carry the state. Before, the label flipped to "Sorted by due date". *system-naming › "label the setting, not the click".*
+- **Rows:**
+  - Rows touch, with padding instead of `gap-1`, so there are no dead zones. They are borderless with a hover/focus-within tint; nested bordered boxes inside a card were noise.
+  - The title is now the checkbox's `<label>`. That makes the whole title a full-height target, and the checkbox's accessible name becomes the task title (its state is announced by the checkbox). It replaces the "Mark … done" aria-label.
+  - *surface-details › No dead zones; Labels focus inputs.*
+- **Small fixes:**
+  - Due dates use `tabular-nums`.
+  - Avatars are `aria-hidden`, with an sr-only "Assigned to {name}" and a `title`.
+  - Long titles wrap with `min-w-0`.
+  - Icon buttons are 28→32px and muted until hovered.
+- **Copy:**
+  - "1 open task" is now pluralised correctly.
+  - The empty state reads "Nothing left for this week. Add a task above to plan ahead." *surface-copy › Empty states.*
+  - The new-task input has `autocomplete="off"`, the allowed exception for misleading suggestions.
+  - A polite live region announces added tasks.
+- **Kept:** remove with an Undo toast, which is what system-patterns prescribes for reversible actions (no confirmation dialog).
+
+### Quick actions (`src/sections/QuickActions.tsx`)
+- **Sheet keeps entered data:**
+  - The fields are controlled with a draft separate from the saved project. Escape or a backdrop click keeps the draft; only Cancel discards it. Before, every close threw edits away, including Save.
+  - An inline "Unsaved changes" hint appears while the draft is dirty.
+  - The sheet is a real `<form>`, so Enter saves. The title reflects the saved name.
+  - The success toast names the project. A toast is fine here because the sheet closes, which leaves no inline location.
+  - *surface-details › Preserve entered data; Inputs live inside a form.*
+  - Field tweaks: `inputMode="numeric"`, `min=0` and tabular figures on budget; spellcheck on for notes.
+- **Filter popover:**
+  - Checkboxes already applied live, so the "Apply" button, which only fired a toast, is now "Done" and closes the popover. *surface-details › Toggles take effect immediately; system-patterns › Toast only for background info.*
+  - "Clear" is disabled when there's nothing to clear.
+  - The group is a `fieldset`/`legend`.
+  - Each row is a full-width label with no dead zones and a concentric 6px radius.
+  - The helper text says changes apply right away.
+  - The count is a tabular chip, and the trigger is announced as "Filter, N active".
+- **People picker:**
+  - The trigger has an sr-only "Assignee:" prefix and `aria-haspopup="listbox"`.
+  - Avatars are `aria-hidden`.
+  - The popover matches the trigger width via `--radix-popover-trigger-width`.
+  - cmdk has `label="Assignee"`. Role is a search keyword.
+  - Arrow keys wrap.
+  - Empty copy: "No one matches that name."
+- **Command menu button:**
+  - The shortcut shows ⌘K or Ctrl K by platform, as a `<kbd>` chip.
+  - `aria-keyshortcuts` is set.
+  - The global shortcut also accepts uppercase K (Caps Lock or Shift).
+- **Command empty state** now suggests a next step: "No commands match. Try a project name or “invoice”." *surface-copy › Empty states.*
+- **The summary line** is `aria-live="polite"`.
+
+### Sync (`src/sections/SyncStates.tsx`)
+- **Optimistic save made honest:**
+  - The button keeps its "Raise by $10" label and only blocks repeats (`disabled` + `aria-busy`), since the value has already updated.
+  - A fixed-height inline status line under the value shows "Saving…", then "Saved" with a check for 2s, or "Queued. Syncs when you're back online." while offline.
+  - This replaces the success toast, the same pattern as Settings in round 1. *system-patterns › Optimistic updates, "Important outcomes are inline"; surface-details › Feedback near its trigger.*
+- **Failure:**
+  - The error now says what happened and what was rolled back: "Couldn't save $145. The server didn't respond, so the rate is back to $135." *surface-copy › Errors.*
+  - It sits on a danger-surface strip with an icon. The strip is concentric with its Retry button (14 = 8 + 6).
+  - It uses `animate-enter`.
+  - Keyboard focus that was dropped by the disabled button goes to Retry on failure and back to Raise on success.
+- **Offline banner:**
+  - Warning tokens, icon plus text. *system-patterns › Banner for system-wide state; surface-colour › colour never alone.*
+  - It enters and exits through `AnimatePresence` (opacity + height, 200/140ms) so the content below doesn't snap. Height is a layout property, but here it beats an instant jump. The grid gap collapses with it.
+- **Online switch:** gets helper text ("Turn off to queue changes locally.") linked by `aria-describedby`. The background-sync toast is kept: a background process finishing is the textbook toast case.
+- **Reload:**
+  - The refresh icon spins in place instead of a separate spinner, and the button is `aria-busy`.
+  - The skeleton rows mirror loaded rows exactly (20px + 16px lines).
+  - The results area has `min-h` equal to three loaded rows, so the skeleton, error and content states don't shift the layout. *system-patterns › Skeletons mirror content; interface-polish › Skeletons that match final dimensions.*
+  - Reloaded content and errors fade in with `animate-enter`; the first render stays still.
+  - `aria-busy` on the region and a polite sr-only live message.
+  - Focus returns to Retry or Reload as above.
+- **Error copy and naming:**
+  - "Couldn't load time entries. Check your connection, then retry."
+  - The button changed from "Try again" to **"Retry"**, so the same command has the same label in both places. *system-naming › consistency; surface-copy › Errors.*
+
+### Not done, and why
+- **Roving tabindex with ↑/↓ across task rows:** surface-details asks for it, but each row holds a checkbox and three buttons, which makes it a grid widget. Doing it properly (`role="grid"`) is a larger behavior change than this round allows. ⌘Backspace and focus management were done instead.
+- **44px hit areas on the task row icon buttons:** they sit flush (32px each), so expanded areas would overlap. This is the same exception as the round-1 toolbar.
+- **A confirm-on-dismiss warning for the dirty sheet:** system-patterns suggests warning on backdrop close with unsaved data. Keeping the draft is less intrusive and avoids a stacked modal, which the same skill forbids.
+- **Escape clearing the query in the people picker:** this is implemented for the command dialog only. In a small popover picker, Escape closing it is the expected behavior.
+- **Animated number for the rate (number-flow):** skipped, same reason as round 1.
+- **Staggered entrance for reloaded rows:** skipped. surface-interaction's frequency rule beats surface-motion's stagger suggestion for a feed that is reloaded often.
+- **Deep-linking the sheet, filters or command state in the URL:** system-patterns recommends it, but the page has no router, so it would be a feature change.
+- **Visual check:** as in round 1, verification was the build, oxlint (0 errors) and a diff confirming all 13 `data-lab` hooks match the baseline. No screenshots.

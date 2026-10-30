@@ -124,7 +124,7 @@ export function QuickActions() {
             </PopoverContent>
           </Popover>
 
-          <Button variant="outline" data-lab="command" onClick={() => setCmdOpen(true)}>
+          <Button variant="outline" data-lab="command" aria-keyshortcuts="Meta+K Control+K" onClick={() => setCmdOpen(true)}>
             <CommandIcon /> Command menu <span className="text-muted-foreground text-xs">⌘K</span>
           </Button>
         </div>

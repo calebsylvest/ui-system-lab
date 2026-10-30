@@ -143,6 +143,18 @@
     transform: translateY(4px) scale(0.97);
   }
 }
+/* Round 2 — a task row added by click or restored by Undo. Dropdown-sized budget (200ms),
+   scale(0.97) not scale(0), grows from its top edge toward the rows it pushes down. */
+.enter-row {
+  transform-origin: top center;
+  transition:
+    opacity 200ms var(--ease-out),
+    transform 200ms var(--ease-out);
+  @starting-style {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+}
 .enter-fade {
   transition: opacity 150ms var(--ease-out);
   @starting-style {
@@ -155,13 +167,24 @@
   [data-slot="dialog-content"],
   [data-slot="dropdown-menu-content"],
   [data-slot="select-content"],
-  [data-slot="tooltip-content"] {
+  [data-slot="tooltip-content"],
+  [data-slot="popover-content"] {
     --tw-enter-scale: 1 !important;
     --tw-exit-scale: 1 !important;
     --tw-enter-translate-x: 0 !important;
     --tw-enter-translate-y: 0 !important;
   }
+  /* Sheet: no travel, just a fade. */
+  [data-slot="sheet-content"] {
+    --tw-enter-translate-x: 0 !important;
+    --tw-exit-translate-x: 0 !important;
+    --tw-enter-translate-y: 0 !important;
+    --tw-exit-translate-y: 0 !important;
+    --tw-enter-opacity: 0 !important;
+    --tw-exit-opacity: 0 !important;
+  }
   .enter-rise,
+  .enter-row,
   .enter-message {
     @starting-style {
       transform: none;

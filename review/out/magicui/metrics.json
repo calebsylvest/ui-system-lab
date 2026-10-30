@@ -1,32 +1,32 @@
 {
   "id": "magicui",
   "bundle": {
-    "js": 616440,
-    "jsGz": 190413,
-    "css": 47084,
-    "cssGz": 8809,
+    "js": 654834,
+    "jsGz": 201129,
+    "css": 51533,
+    "cssGz": 9542,
     "font": 0
   },
   "load": {
-    "fcp": 872,
-    "lcp": 872,
+    "fcp": 1020,
+    "lcp": 1020,
     "cls": 0.00006658838060167101,
-    "tbt": 567
+    "tbt": 690
   },
   "interaction": {
-    "avgFrame": 18.11272294887041,
-    "p95Frame": 16.80000000000109,
-    "jank": 0.009489916963226572,
-    "longTaskMs": 627,
-    "inpProxy": 240,
-    "maxEvent": 240
+    "avgFrame": 18.30162601626021,
+    "p95Frame": 16.80000000000291,
+    "jank": 0.012013729977116704,
+    "longTaskMs": 1587,
+    "inpProxy": 304,
+    "maxEvent": 304
   },
   "cpu": {
-    "script": 1051.321,
-    "layout": 766.616,
-    "style": 1321.1970000000001,
-    "loadScript": 792.962,
-    "heapMB": 8.495418548583984
+    "script": 2341.858,
+    "layout": 1404.3809999999999,
+    "style": 2634.386,
+    "loadScript": 922.098,
+    "heapMB": 9.019817352294922
   },
   "steps": [
     [
@@ -63,6 +63,18 @@
     ],
     [
       "chat",
+      "ok"
+    ],
+    [
+      "r2-tasks",
+      "ok"
+    ],
+    [
+      "r2-overlays",
+      "ok"
+    ],
+    [
+      "r2-sync",
       "ok"
     ]
   ],

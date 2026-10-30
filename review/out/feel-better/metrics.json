@@ -1,32 +1,32 @@
 {
   "id": "feel-better",
   "bundle": {
-    "js": 471170,
-    "jsGz": 142031,
-    "css": 47406,
-    "cssGz": 8896,
+    "js": 509075,
+    "jsGz": 152490,
+    "css": 52606,
+    "cssGz": 9563,
     "font": 0
   },
   "load": {
-    "fcp": 796,
-    "lcp": 796,
+    "fcp": 844,
+    "lcp": 844,
     "cls": 0,
-    "tbt": 507
+    "tbt": 559
   },
   "interaction": {
-    "avgFrame": 18.1341666666667,
+    "avgFrame": 17.680375426621218,
     "p95Frame": 16.799999999999272,
-    "jank": 0.009433962264150943,
-    "longTaskMs": 950,
-    "inpProxy": 288,
-    "maxEvent": 288
+    "jank": 0.009670079635949944,
+    "longTaskMs": 1161,
+    "inpProxy": 232,
+    "maxEvent": 232
   },
   "cpu": {
-    "script": 647.056,
-    "layout": 89.982,
-    "style": 1185.214,
-    "loadScript": 521.173,
-    "heapMB": 7.729869842529297
+    "script": 1036.852,
+    "layout": 201.03799999999998,
+    "style": 2068.123,
+    "loadScript": 529.3299999999999,
+    "heapMB": 9.172489166259766
   },
   "steps": [
     [
@@ -63,6 +63,18 @@
     ],
     [
       "chat",
+      "ok"
+    ],
+    [
+      "r2-tasks",
+      "ok"
+    ],
+    [
+      "r2-overlays",
+      "ok"
+    ],
+    [
+      "r2-sync",
       "ok"
     ]
   ],

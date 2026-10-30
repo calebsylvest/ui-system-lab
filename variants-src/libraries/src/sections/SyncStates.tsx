@@ -104,7 +104,7 @@ export function SyncStates() {
           <span hidden data-lab="offline" onClick={() => goOnline(offline)} />
         </div>
 
-        <div className="grid gap-3">
+        <div className="grid gap-3" aria-busy={feed === "loading"}>
           <div className="flex items-center justify-between">
             <p className="text-sm font-medium">Time entries</p>
             <Button variant="ghost" size="sm" data-lab="reload" onClick={reload} disabled={feed === "loading"}><RefreshCw /> Reload</Button>

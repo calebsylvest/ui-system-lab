@@ -73,6 +73,10 @@ async function run(browser, collectShots) {
   await tryStep(log, 'toast', async () => { await page.getByRole('button', { name: /success toast/i }).first().click({ timeout: 2000 }); await page.waitForTimeout(900); });
   await tryStep(log, 'scroll', async () => { for (let i = 0; i < 12; i++) { await page.mouse.wheel(0, 250); await page.waitForTimeout(60); } for (let i = 0; i < 12; i++) { await page.mouse.wheel(0, -250); await page.waitForTimeout(60); } });
   await tryStep(log, 'chat', async () => { await page.getByRole('button', { name: /summarize my hours/i }).first().click({ timeout: 2000 }); await page.waitForTimeout(3800); });
+  const lab = (n) => page.evaluate((n) => window.postMessage({ type: 'lab:action', name: n }, '*'), n);
+  await tryStep(log, 'r2-tasks', async () => { for (const n of ['task-add', 'task-add', 'task-complete', 'task-sort', 'task-move', 'task-remove', 'task-sort']) { await lab(n); await page.waitForTimeout(600); } });
+  await tryStep(log, 'r2-overlays', async () => { for (const n of ['sheet', 'close', 'command', 'close', 'popover', 'close', 'combobox', 'close']) { await lab(n); await page.waitForTimeout(n === 'close' ? 500 : 800); } });
+  await tryStep(log, 'r2-sync', async () => { for (const n of ['save-fail', 'offline', 'save-fail', 'offline', 'reload']) { await lab(n); await page.waitForTimeout(1300); } });
   const inter = await page.evaluate(() => {
     window.__lab.stop = true;
     const f = window.__lab.frames.slice(1).sort((a, b) => a - b);

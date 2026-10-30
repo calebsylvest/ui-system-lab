@@ -67,14 +67,14 @@ export function SyncStates() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Sync</CardTitle>
+        <CardTitle as="h2">Sync</CardTitle>
         <CardDescription>Saving, failing, retrying and working offline.</CardDescription>
       </CardHeader>
       <CardContent className="grid gap-5">
         {offline && (
           <div role="status" className="flex items-center gap-2 rounded-md border px-3 py-2 text-sm">
-            <WifiOff className="size-4" />
-            <span className="flex-1">You’re offline. {queued ? `${queued} change${queued === 1 ? "" : "s"} will sync when you reconnect.` : "Changes will sync when you reconnect."}</span>
+            <WifiOff aria-hidden className="size-4 shrink-0" />
+            <span className="flex-1 text-pretty tabular-nums">You’re offline. {queued ? `${queued} change${queued === 1 ? "" : "s"} will sync when you reconnect.` : "Changes will sync when you reconnect."}</span>
           </div>
         )}
 
@@ -82,17 +82,17 @@ export function SyncStates() {
           <div className="flex items-center justify-between gap-4">
             <div>
               <p className="text-sm font-medium">Default hourly rate</p>
-              <p className="text-2xl font-semibold">${rate}</p>
+              <p className="text-2xl font-semibold tabular-nums">${rate}</p>
             </div>
-            <Button data-lab="save-fail" onClick={raiseRate} disabled={saving}>
-              {saving && <RefreshCw className="animate-spin" />}
+            <Button data-lab="save-fail" onClick={raiseRate} disabled={saving} aria-busy={saving} aria-describedby={saveError ? "rate-error" : undefined}>
+              {saving && <RefreshCw aria-hidden className="animate-spin motion-reduce:animate-none" />}
               {saving ? "Saving" : "Raise by $10"}
             </Button>
           </div>
           {saveError && (
             <div role="alert" className="text-destructive flex items-center gap-2 text-sm">
-              <AlertCircle className="size-4" />
-              <span className="flex-1">{saveError}</span>
+              <AlertCircle aria-hidden className="size-4 shrink-0" />
+              <span id="rate-error" className="flex-1 text-pretty">{saveError}</span>
               <Button variant="outline" size="sm" data-lab="retry" onClick={raiseRate}>Retry</Button>
             </div>
           )}
@@ -106,30 +106,37 @@ export function SyncStates() {
 
         <div className="grid gap-3">
           <div className="flex items-center justify-between">
-            <p className="text-sm font-medium">Time entries</p>
-            <Button variant="ghost" size="sm" data-lab="reload" onClick={reload} disabled={feed === "loading"}><RefreshCw /> Reload</Button>
+            <p id="entries-label" className="text-sm font-medium">Time entries</p>
+            <Button variant="ghost" size="sm" data-lab="reload" onClick={reload} disabled={feed === "loading"}><RefreshCw aria-hidden /> Reload</Button>
           </div>
-          {feed === "loading" &&
-            [0, 1, 2].map((i) => (
-              <div key={i} className="grid gap-1.5">
-                <Skeleton className="h-4 w-4/5" />
-                <Skeleton className="h-3 w-1/4" />
-              </div>
-            ))}
+          {feed === "loading" && (
+            <ul aria-busy aria-labelledby="entries-label" className="grid gap-3">
+              {[0, 1, 2].map((i) => (
+                <li key={i} className="grid gap-1.5">
+                  <span className="sr-only">Loading entry</span>
+                  <Skeleton className="h-4 w-4/5" />
+                  <Skeleton className="h-3 w-1/4" />
+                </li>
+              ))}
+            </ul>
+          )}
           {feed === "error" && (
-            <div className="flex flex-col items-center gap-2 py-4 text-center text-sm">
-              <AlertCircle className="text-destructive size-5" />
-              <p>Couldn’t load time entries.</p>
+            <div role="alert" className="flex flex-col items-center gap-2 py-4 text-center text-sm">
+              <AlertCircle aria-hidden className="text-destructive size-5" />
+              <p className="text-pretty">Couldn’t load time entries.</p>
               <Button variant="outline" size="sm" onClick={reload}>Try again</Button>
             </div>
           )}
-          {feed === "loaded" &&
-            entries.map((e) => (
-              <div key={e.what} className="text-sm">
-                <p><span className="font-medium">{e.who}</span> {e.what}</p>
-                <p className="text-muted-foreground text-xs">{e.when}</p>
-              </div>
-            ))}
+          {feed === "loaded" && (
+            <ul aria-labelledby="entries-label" className="grid gap-3">
+              {entries.map((e) => (
+                <li key={e.what} className="text-sm">
+                  <p className="text-pretty"><span className="font-medium">{e.who}</span> {e.what}</p>
+                  <p className="text-muted-foreground text-xs tabular-nums">{e.when}</p>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </CardContent>
     </Card>

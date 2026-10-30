@@ -74,3 +74,59 @@ This variant applies Jakub Krehel's *make-interfaces-feel-better* skill (SKILL.m
 | `initial={false}` on `AnimatePresence` | No Motion library or `AnimatePresence` is used. The CSS cross-fade doesn't animate on first render anyway |
 | RTL icon flipping | The page is LTR only (`lang="en"`, no `dir`) |
 | Footer copy "Baseline: shadcn/ui defaults, no polish applied" and the `<title>` | Copy is kept identical for a fair comparison. `index.html` and `public/lab-bridge.js` are untouched |
+
+## Round 2
+
+Applied the same rules and tokens to the new sections (`Tasks`, `QuickActions`, `SyncStates`) and the new primitives (`popover`, `sheet`, `command`). **No new dependencies.** The CSS-only motion patterns from round 1 are reused, plus one new keyframe (`.enter-item`) for single-row entrances. All `data-lab` hooks and accessible names are unchanged.
+
+### Typography
+| Change | File(s) | Principle |
+| --- | --- | --- |
+| `tabular-nums` on the live counters and values: open-task count, Filter count, hourly rate (`$135`), queued-change count, Budget (hours) number input | `Tasks.tsx`, `QuickActions.tsx`, `SyncStates.tsx` | 9. Tabular numbers |
+| `text-pretty` on the save-error message and offline banner text (`span`s the base rule doesn't reach) | `SyncStates.tsx` | 10. Text wrapping |
+
+### Surfaces
+| Change | File(s) | Principle |
+| --- | --- | --- |
+| Task rows: `border` changed to `shadow-border`. They are boxed surfaces, not dividers | `Tasks.tsx` | 3. Shadows for elevation |
+| Task rows: concentric radius. The move/remove buttons go to `rounded-sm` (6px) and sit 8px from the row edge (`py-2`), so the row is `rounded-xl` (14px) | `Tasks.tsx` | 1. Concentric radius |
+| Task row icon buttons touch each other, so they extend vertically only (`after:min-w-0`). The row is 44px tall, so the 40px height doesn't reach the next row | `Tasks.tsx` | 16. Hit area (collision rule) |
+| Popover: solid `border` changed to `ring-1 ring-black/6 dark:ring-white/8`, the same as Dropdown/Select/Dialog. Padding is now `p-3` and the radius is 20px, because the `rounded-md` (8px) Clear/Apply buttons sit in its bottom corners (8 + 12 = 20) | `popover.tsx` | 3, 1 |
+| People picker popover (`p-0`): `rounded-lg`. `Command` default changed from `rounded-md` to `rounded-lg`, because items are `rounded-sm` (6px) inside the group's 4px padding (6 + 4 = 10) | `QuickActions.tsx`, `command.tsx` | 1 |
+| Command dialog: `rounded-xl`. Items (6px) sit 8px from the edge (group `px-2`), so 6 + 8 = 14 | `command.tsx` | 1 |
+| Sheet: `border-l/r/t/b` changed to the same transparent ring as Dialog. It's an elevated surface, and `shadow-lg` stays | `sheet.tsx` | 3 (elevated elements) |
+| Sheet close (×): 40×40 hit area via `::after`, the same as Dialog close | `sheet.tsx` | 16 |
+| Offline banner: `rounded-md border` changed to `rounded-lg shadow-border` | `SyncStates.tsx` | 3 |
+
+### Animations
+| Change | File(s) | Principle |
+| --- | --- | --- |
+| A new or Undo-restored task row enters once: opacity, a 12px rise and a 4px blur over 300ms, ease-out (`.enter-item`). Only rows created after load get the class, and it's cleared on `animationend` so reordering never replays it | `Tasks.tsx`, `index.css` | 5/6 enter values; 13. No animation on page load |
+| A removed task row exits subtly: opacity, a 12px lift and a 4px blur over 150ms, ease-out. It's removed from state after that, and immediately under `prefers-reduced-motion`. The leaving row is `aria-hidden`, can't be clicked, and isn't counted or targeted by the lab hooks. The toast + Undo still give the static cue | `Tasks.tsx` | 6. Subtle exits (exit shorter than enter); 19. Motion isn't the only cue |
+| Completed task title gets `transition-[color] 150ms ease-out` (the checkbox and line-through stay instant) | `Tasks.tsx` | 19. High-frequency gets ≤150ms color |
+| Offline banner: it used to mount and unmount. Now it's an interruptible `grid-template-rows` 0fr↔1fr + opacity transition (200ms ease-out, the accordion pattern), because a Switch drives it and can flip mid-animation. Collapsed, it's `invisible` + `aria-hidden` and cancels its grid gap with `-mb-5`. `motion-reduce:transition-none` | `SyncStates.tsx` | 4. Interruptible animations |
+| Time entries: after a Reload succeeds, the three rows stagger in at 100ms steps (the round-1 `.stagger-item`). Not on first render. The "Couldn't load" error block and the "No tasks" empty state get the same single fade-in-up | `SyncStates.tsx`, `Tasks.tsx` | 5. Stagger for success/empty states |
+| Popover: zoom and slide removed, so it's opacity-only 150ms in / 100ms out, ease-out, the same as Dropdown/Select | `popover.tsx` | 19. Motion restraint |
+| Sheet: `ease-in-out` 500ms in / 300ms out changed to `ease-out` 300ms in / 200ms out (overlay too). The full off-screen slide stays, because a drawer is the skill's "full exit when spatial context matters" case. The stray `transition` (the default property list) was removed | `sheet.tsx` | 6. Ease-out both ways, exit shorter; 14 |
+
+### Icons
+| Change | File(s) | Principle |
+| --- | --- | --- |
+| `stroke-[1.5]` on Command items (regular text), and on the Command search icon, the save-error AlertCircle and the offline WifiOff, which all sit beside 400-weight text | `command.tsx`, `SyncStates.tsx` | 17. Match stroke to text weight |
+| "Sort by due date" toggle: the pressed state now shows on the button itself (`aria-pressed:bg-accent` + hover ring), not only in the label | `Tasks.tsx` | 18. States via CSS on one asset; 19. Static cue |
+
+### Accessibility fix
+| Change | File(s) | Why |
+| --- | --- | --- |
+| `CommandDialog`'s sr-only `DialogTitle`/`Description` moved inside `DialogContent`. Before, it rendered outside the dialog, so the ⌘K dialog had no accessible name and Radix warned | `command.tsx` | Honest naming for assistive tech, which the brief allows |
+
+### Deliberately left alone (round 2)
+| Item | Why |
+| --- | --- |
+| Move up/down and Sort reordering: no FLIP/layout animation | High-frequency, repeatable action. Restraint calls for instant feedback. The row's new position is the static cue, and CSS can't do layout animation without a library |
+| Popover/Sheet still use keyframes, not transitions | Same reason as round 1: Radix `Presence` only waits for `animationend`, so a transition would lose the exit |
+| Save-button spinner, "Saving" label, save-error row and Retry | These are conditionally mounted, short-lived state feedback. They're consistent with round 1's Save spinner, and color, icon and text are the cues |
+| Combobox check mark and cmdk selection highlight | The selected item gets instant highlighting during keyboard navigation (high-frequency). The check is seen only when reopening |
+| Copy ("Saving", "Try again", "No results found.") | The skill has no copy rules, so it's kept identical for comparison |
+| Card padding vs. inner rows/inputs | Card padding is 24px, the skill's "separate surfaces" threshold, the same as round 1 |
+| `will-change` on the task enter/exit | No first-frame stutter was observed |

@@ -9,6 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { cn } from "@/lib/utils"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Sheet, SheetClose, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { Command, CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandShortcut } from "@/components/ui/command"
@@ -36,7 +37,7 @@ export function QuickActions() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Quick actions</CardTitle>
+        <CardTitle as="h2">Quick actions</CardTitle>
         <CardDescription>Side panel, popover, searchable picker and command menu.</CardDescription>
       </CardHeader>
       <CardContent className="grid gap-4">
@@ -48,7 +49,7 @@ export function QuickActions() {
             <SheetContent>
               <SheetHeader>
                 <SheetTitle>Spring catalog redesign</SheetTitle>
-                <SheetDescription>Hollis & Pine · due Nov 14 · 64% complete</SheetDescription>
+                <SheetDescription className="tabular-nums">Hollis & Pine · due Nov 14 · 64% complete</SheetDescription>
               </SheetHeader>
               <div className="grid gap-4 px-4">
                 <div className="grid gap-2">
@@ -57,7 +58,7 @@ export function QuickActions() {
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="sheet-budget">Budget (hours)</Label>
-                  <Input id="sheet-budget" type="number" defaultValue={120} />
+                  <Input id="sheet-budget" type="number" inputMode="numeric" className="tabular-nums" defaultValue={120} />
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="sheet-notes">Notes</Label>
@@ -73,49 +74,50 @@ export function QuickActions() {
 
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="outline" data-lab="popover"><Filter /> Filter <span className="text-muted-foreground">{filters.length}</span></Button>
+              <Button variant="outline" data-lab="popover"><Filter /> Filter <span className="text-muted-foreground tabular-nums"><span className="sr-only">(</span>{filters.length}<span className="sr-only"> selected)</span></span></Button>
             </PopoverTrigger>
             <PopoverContent align="start" className="grid gap-3">
-              <div>
-                <p className="text-sm font-medium">Show projects that are</p>
-                <p className="text-muted-foreground text-xs">Applies to the project grid.</p>
-              </div>
-              <div className="grid gap-2">
+              <fieldset className="min-w-0" aria-describedby="filter-help">
+                <legend className="text-sm font-medium text-balance">Show projects that are</legend>
+                <p id="filter-help" className="text-muted-foreground text-xs text-pretty">Applies to the project grid.</p>
+                <div className="mt-3 grid gap-2">
                 {statuses.map((s) => (
                   <div key={s} className="flex items-center gap-2">
-                    <Checkbox id={`f-${s}`} checked={filters.includes(s)} onCheckedChange={() => toggleFilter(s)} />
-                    <Label htmlFor={`f-${s}`}>{s}</Label>
+                    <Checkbox id={`f-${s.replace(" ", "-")}`} checked={filters.includes(s)} onCheckedChange={() => toggleFilter(s)} />
+                    <Label htmlFor={`f-${s.replace(" ", "-")}`}>{s}</Label>
                   </div>
                 ))}
-              </div>
+                </div>
+              </fieldset>
               <div className="flex justify-between">
                 <Button variant="ghost" size="sm" onClick={() => setFilters([])}>Clear</Button>
-                <Button size="sm" onClick={() => toast(`Showing ${filters.length} statuses`)}>Apply</Button>
+                <Button size="sm" onClick={() => toast(`Showing ${filters.length} ${filters.length === 1 ? "status" : "statuses"}`)}>Apply</Button>
               </div>
             </PopoverContent>
           </Popover>
 
           <Popover open={pickOpen} onOpenChange={setPickOpen}>
             <PopoverTrigger asChild>
-              <Button variant="outline" role="combobox" aria-expanded={pickOpen} data-lab="combobox" className="w-52 justify-between">
-                <span className="flex items-center gap-2">
-                  <Avatar className="size-5"><AvatarFallback className="text-[9px]">{person.id}</AvatarFallback></Avatar>
-                  {person.name}
+              <Button variant="outline" role="combobox" aria-expanded={pickOpen} aria-label={`Assignee: ${person.name}`} data-lab="combobox" className="w-52 justify-between">
+                <span className="flex min-w-0 items-center gap-2">
+                  <Avatar aria-hidden className="size-5 shrink-0"><AvatarFallback className="text-[9px]">{person.id}</AvatarFallback></Avatar>
+                  <span className="truncate">{person.name}</span>
                 </span>
                 <ChevronsUpDown className="opacity-50" />
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-52 p-0" align="start">
               <Command>
-                <CommandInput placeholder="Search people" />
+                <CommandInput placeholder="Search people" aria-label="Search people" />
                 <CommandList>
                   <CommandEmpty>No one by that name.</CommandEmpty>
                   <CommandGroup>
                     {people.map((p) => (
                       <CommandItem key={p.id} value={p.name} onSelect={() => { setAssignee(p.id); setPickOpen(false) }}>
-                        <Avatar className="size-5"><AvatarFallback className="text-[9px]">{p.id}</AvatarFallback></Avatar>
-                        <span className="flex-1">{p.name}</span>
-                        <Check className={p.id === assignee ? "opacity-100" : "opacity-0"} />
+                        <Avatar aria-hidden className="size-5"><AvatarFallback className="text-[9px]">{p.id}</AvatarFallback></Avatar>
+                        <span className="flex-1 truncate">{p.name}</span>
+                        <Check aria-hidden className={cn(p.id === assignee ? "opacity-100" : "opacity-0")} />
+                        {p.id === assignee && <span className="sr-only">(current assignee)</span>}
                       </CommandItem>
                     ))}
                   </CommandGroup>
@@ -124,14 +126,14 @@ export function QuickActions() {
             </PopoverContent>
           </Popover>
 
-          <Button variant="outline" data-lab="command" onClick={() => setCmdOpen(true)}>
-            <CommandIcon /> Command menu <span className="text-muted-foreground text-xs">⌘K</span>
+          <Button variant="outline" data-lab="command" aria-keyshortcuts="Meta+K Control+K" onClick={() => setCmdOpen(true)}>
+            <CommandIcon /> Command menu <kbd aria-hidden className="text-muted-foreground font-sans text-xs">⌘K</kbd>
           </Button>
         </div>
-        <p className="text-muted-foreground text-sm">Assigned to {person.name} ({person.role}). Filtering by {filters.length ? filters.join(", ") : "nothing"}.</p>
+        <p className="text-muted-foreground text-sm text-pretty">Assigned to {person.name} ({person.role}). Filtering by {filters.length ? filters.join(", ") : "nothing"}.</p>
 
-        <CommandDialog open={cmdOpen} onOpenChange={setCmdOpen}>
-          <CommandInput placeholder="Type a command or search" />
+        <CommandDialog open={cmdOpen} onOpenChange={setCmdOpen} title="Command menu" description="Search for a command to run">
+          <CommandInput placeholder="Type a command or search" aria-label="Search commands" />
           <CommandList>
             <CommandEmpty>No results found.</CommandEmpty>
             {commands.map((g) => (

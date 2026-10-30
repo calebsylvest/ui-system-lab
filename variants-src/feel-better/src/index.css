@@ -123,3 +123,19 @@
     filter: blur(0);
   }
 }
+
+/* Single-item enter for a list row that was just added or restored by Undo (animations.md:
+   opacity + 12px translateY + 4px blur, ease-out; 300ms, the enter half of the 300/150 enter/exit pair).
+   Only applied to rows created after load, so nothing animates on first render. */
+@media (prefers-reduced-motion: no-preference) {
+  .enter-item {
+    animation: enter-item 300ms ease-out both;
+  }
+}
+@keyframes enter-item {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+    filter: blur(4px);
+  }
+}

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { Check, ChevronsUpDown, Command as CommandIcon, Filter, PanelRight } from "lucide-react"
 import { toast } from "sonner"
+import { playSound } from "@/lib/sound"
 import { commands, people } from "@/data-extra"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
@@ -65,7 +66,7 @@ export function QuickActions() {
                 </div>
               </div>
               <SheetFooter>
-                <SheetClose asChild><Button onClick={() => toast.success("Project updated")}>Save changes</Button></SheetClose>
+                <SheetClose asChild><Button onClick={() => { toast.success("Project updated"); playSound("success") }}>Save changes</Button></SheetClose>
                 <SheetClose asChild><Button variant="outline">Cancel</Button></SheetClose>
               </SheetFooter>
             </SheetContent>
@@ -73,7 +74,7 @@ export function QuickActions() {
 
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="outline" data-lab="popover"><Filter /> Filter <span className="text-muted-foreground">{filters.length}</span></Button>
+              <Button variant="outline" data-lab="popover"><Filter /> Filter <span className="text-muted-foreground tabular-nums">{filters.length}</span></Button>
             </PopoverTrigger>
             <PopoverContent align="start" className="grid gap-3">
               <div>

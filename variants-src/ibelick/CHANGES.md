@@ -64,3 +64,53 @@ This variant applies [ibelick/ui-skills](https://github.com/ibelick/ui-skills) t
 
 ## Agent notes
 ui-skills is a set of terse, checklist-style constraints that are easy to apply mechanically and easy to verify in a diff: `text-balance`/`text-pretty`, `tabular-nums`, no `tracking-*`, no `transition-all`, AlertDialog for destructive actions, safe-area insets. It is good at removing small tells and at catching motion and a11y slips in shadcn defaults (the accordion height animation, `transition-all` everywhere, unlabeled inputs). It gave almost no visual direction. It says nothing about color, spacing rhythm, type scale or hierarchy beyond "use Tailwind defaults", so the page looks nearly the same and is mostly better underneath. Some rules are absolute ("NEVER animate layout properties", "MUST pause loops off-screen") but give no guidance on proportionate fixes, and improve-ui is deliberately the opposite: so evidence-strict that, without rendered evidence, it surfaces almost nothing. Overall it is highly opinionated about implementation hygiene and close to neutral on aesthetics.
+
+## Round 2
+
+Same skill order as round 1 (`baseline-ui`, then `fixing-accessibility`, then `fixing-motion-performance`, with improve-ui's contradiction check). Round-1 conventions reused: CardTitle `as="h2"`, `text-balance`/`text-pretty`, `tabular-nums` on data, no `tracking-*`, `cn()` for conditional classes, decorative avatars `aria-hidden`, `motion-reduce:` opt-outs, `aria-busy` with sr-only "Loading…" rows, lists as `ul`/`li`. No new dependencies. All `data-lab` hooks and the required accessible names are kept ("Filter…" and "Command menu" names now carry extra context after the original words).
+
+### baseline-ui
+| Change | File(s) | Rule |
+| --- | --- | --- |
+| `text-balance` on SheetTitle and the filter legend; `text-pretty` on SheetDescription, CommandEmpty, empty-state, offline banner, error copy, entry lines and the assignment summary | ui/sheet.tsx, ui/command.tsx, Tasks, QuickActions, SyncStates | Typography: `text-balance` headings, `text-pretty` body |
+| `tabular-nums` on open-task count, due dates, filter count, sheet meta line ("due Nov 14 · 64%"), budget input, hourly rate, queued count, entry times | Tasks, QuickActions, SyncStates | Typography: "MUST use `tabular-nums` for data" |
+| Removed `tracking-widest` from CommandShortcut (same fix as DropdownMenuShortcut in round 1) | ui/command.tsx | Typography: "NEVER modify letter-spacing" |
+| Task titles, the picker trigger name and picker items `truncate` (task rows got `min-w-0`/`shrink-0` so the controls never wrap; full title in `title`) | Tasks, QuickActions | Typography: "SHOULD use truncate… for dense UI" |
+| Task title done-state class goes through `cn()` instead of string concatenation | Tasks | Stack: "MUST use cn utility for class logic" |
+| Sheet panel and its close button respect `env(safe-area-inset-*)` on the edge they're pinned to | ui/sheet.tsx | Interaction: "MUST respect safe-area-inset for fixed elements" |
+| Sheet animation 500ms open / 300ms close with `ease-in-out` became `duration-200`, `ease-out` on enter, `ease-in` on exit; the inert `transition` class was dropped | ui/sheet.tsx | Animation: "NEVER exceed 200ms for interaction feedback", "SHOULD use ease-out on entrance" |
+| Pluralization: "1 open tasks" → "1 open task"; Apply toast "Showing 1 statuses" → "Showing 1 status" | Tasks, QuickActions | improve-ui §3 contradiction in user-facing content (honest copy) |
+
+### fixing-accessibility
+| Change | File(s) | Rule |
+| --- | --- | --- |
+| Card titles are `h2` (This week, Sync, Quick actions) | Tasks, SyncStates, QuickActions | 4: "do not skip heading levels" |
+| Move buttons named per row ("Move “X” up/down"), matching the existing per-row Remove/Mark-done names | Tasks | 1: accessible names (otherwise a dozen identical "Move up" buttons) |
+| After Move up/down or Remove, focus returns to the same control (or the opposite arrow at the list edge, or the next row's Remove, or the new-task field when the list empties) instead of dropping to `<body>` | Tasks | 2/3: keyboard access, restore focus |
+| sr-only `role="status"` announces Added / Removed (with "Undo is available in the notification") / Restored / Moved | Tasks | 6: "toasts must not be the only way to convey critical information" |
+| Due date gets an sr-only "Due" prefix; avatar initials are `aria-hidden` with sr-only "Assigned to XX" | Tasks | 1: decorative visuals hidden, meaning kept as text |
+| Filter checkboxes grouped in a `fieldset`/`legend` with the helper text linked via `aria-describedby`; checkbox ids no longer contain spaces | QuickActions | 4: prefer native semantics; 5: helper text associated |
+| Filter trigger reads "Filter (2 selected)" to screen readers instead of a bare "Filter 2" | QuickActions | 1: meaningful names |
+| People-picker combobox labelled "Assignee: Maya Reyes" (visible name kept inside the label); picker search and ⌘K search inputs got `aria-label`; selected person announced "(current assignee)" with the check icon hidden | QuickActions | 1: every input/control labeled; 7: state not by visuals alone |
+| ⌘K hint is a `kbd` hidden from AT; the button exposes `aria-keyshortcuts="Meta+K Control+K"`; the dialog title is now "Command menu" to match its trigger | QuickActions | 1 / 6 |
+| CommandDialog's sr-only title/description moved inside `DialogContent` so they label the dialog and aren't left in the page while it's closed | ui/command.tsx | 3: focus and dialogs (labelled modal) |
+| Raise button `aria-busy` while saving and `aria-describedby` → the inline error when a save fails | SyncStates | 6: loading via aria-busy; 5: errors linked |
+| Time entries are a `ul` labelled by "Time entries"; skeleton state is `aria-busy` with sr-only "Loading entry" per row; load failure is `role="alert"` | SyncStates | 4: lists; 6: loading states, critical errors via live region |
+| Decorative icons (WifiOff, AlertCircle, RefreshCw, Search, sheet X) explicitly `aria-hidden` | SyncStates, ui/command.tsx, ui/sheet.tsx | 1: decorative icons aria-hidden |
+
+### fixing-motion-performance (and baseline-ui Animation)
+| Change | File(s) | Rule |
+| --- | --- | --- |
+| Sheet keeps its transform slide (compositor-only) but at 200ms; overlay and panel get `motion-reduce:animate-none` | ui/sheet.tsx | motion §2 "prefer downgrading technique over removing motion"; baseline reduced motion |
+| Popover zoom/slide/fade (transform + opacity, tw-animate default 150ms) kept; `motion-reduce:animate-none` added | ui/popover.tsx | §2 default to transform/opacity; a11y §8 |
+| Saving spinner `motion-reduce:animate-none` (same as round-1 Settings spinner) | SyncStates | baseline "SHOULD respect prefers-reduced-motion" |
+
+### Found but not implemented
+- **Enter/exit/reorder motion on task rows**: baseline-ui says "NEVER add animation unless it is explicitly requested". The section has none, so I added none. If it were requested, the rules point to a FLIP transform/opacity transition (motion §3), not height animation.
+- **AlertDialog for task Remove**: removal is reversible through Undo, so the "destructive or irreversible" rule doesn't apply; the sr-only status covers the toast-only concern.
+- **"Applies to the project grid."** The filter doesn't actually filter the grid. It's a lab stub shared by every variant, and wiring it up would change behavior outside the new sections, so I left the copy.
+- **Moving rows while sorted** swaps them in the unsorted order and turns sorting off. That's baseline behavior, so I kept it.
+- **Sort toggle's label changes with `aria-pressed`** (same as round 1's Like/Liked): left it to keep content identical.
+- **Dialog's close button `focus:` ring vs Button's `focus-visible:`**: kept stock so it matches round-1's untouched Dialog close.
+- **The `useEffect` ⌘K listener** is a real subscription, not derivable render state, so the "no useEffect for render logic" rule doesn't apply.
+- **CommandShortcut "⌘N"** is a stock hint with no handler. The skill has no rule on it.

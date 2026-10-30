@@ -1,6 +1,8 @@
 import { useRef, useState } from "react"
 import { ArrowDown, ArrowUp, ListOrdered, Plus, X } from "lucide-react"
 import { toast } from "sonner"
+import { AnimatePresence } from "motion/react"
+import { AnimatedListItem } from "@/components/ui/animated-list"
 import { initialTasks, extraTasks, type Task } from "@/data-extra"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
@@ -82,9 +84,14 @@ export function Tasks() {
         {visible.length === 0 ? (
           <p className="text-muted-foreground py-6 text-center text-sm">No tasks. Add one above.</p>
         ) : (
-          <ul className="grid gap-1">
+          <div role="list" className="grid gap-1">
+            {/* Magic UI animated-list items: spring scale/opacity on enter and exit, plus `layout`
+                so reorder, sort and removal slide neighbours instead of jumping. initial={false}
+                keeps the first paint static (BlurFade already handles the section entrance). */}
+            <AnimatePresence initial={false}>
             {visible.map((t, i) => (
-              <li key={t.id} className="group flex items-center gap-3 rounded-md border px-3 py-2">
+              <AnimatedListItem key={t.id}>
+              <div role="listitem" className="group bg-card flex items-center gap-3 rounded-md border px-3 py-2">
                 <Checkbox checked={t.done} onCheckedChange={() => toggle(t.id)} aria-label={`Mark “${t.title}” done`} />
                 <span className={"flex-1 text-sm " + (t.done ? "text-muted-foreground line-through" : "")}>{t.title}</span>
                 <span className="text-muted-foreground text-xs">{t.due}</span>
@@ -94,9 +101,11 @@ export function Tasks() {
                   <Button variant="ghost" size="icon" className="size-7" aria-label="Move down" disabled={i === visible.length - 1} onClick={() => move(t.id, 1)}><ArrowDown /></Button>
                   <Button variant="ghost" size="icon" className="size-7" aria-label={`Remove “${t.title}”`} onClick={() => remove(t.id)}><X /></Button>
                 </div>
-              </li>
+              </div>
+              </AnimatedListItem>
             ))}
-          </ul>
+            </AnimatePresence>
+          </div>
         )}
       </CardContent>
     </Card>

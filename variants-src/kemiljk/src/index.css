@@ -88,6 +88,13 @@
 /* Shared-element continuity for project cards (View Transitions). */
 ::view-transition-group(*) { animation-duration: 260ms; animation-timing-function: cubic-bezier(0.2, 0, 0, 1); }
 
+/* Task rows (round 2): the moved row leads, neighbours yield via the group above; rows enter and leave
+   with a short fade and a few pixels of travel rather than popping (fluid-design #9). */
+::view-transition-new(.task):only-child { animation: task-in 220ms cubic-bezier(0.2, 0, 0, 1) both; }
+::view-transition-old(.task):only-child { animation: task-out 160ms cubic-bezier(0.4, 0, 1, 1) both; }
+@keyframes task-in { from { opacity: 0; translate: 0 -4px; } }
+@keyframes task-out { to { opacity: 0; scale: 0.98; } }
+
 /* Reduced motion means reduce, not delete: keep fades, drop travel and scale. */
 @media (prefers-reduced-motion: reduce) {
   * {

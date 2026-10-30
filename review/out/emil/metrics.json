@@ -1,32 +1,32 @@
 {
   "id": "emil",
   "bundle": {
-    "js": 470272,
-    "jsGz": 142124,
-    "css": 43764,
-    "cssGz": 8485,
+    "js": 509702,
+    "jsGz": 153392,
+    "css": 48433,
+    "cssGz": 9182,
     "font": 0
   },
   "load": {
-    "fcp": 648,
-    "lcp": 648,
+    "fcp": 880,
+    "lcp": 880,
     "cls": 0,
-    "tbt": 420
+    "tbt": 610
   },
   "interaction": {
-    "avgFrame": 17.601792114695392,
+    "avgFrame": 17.681218274111732,
     "p95Frame": 16.799999999999272,
-    "jank": 0.007168458781362007,
-    "longTaskMs": 481,
-    "inpProxy": 208,
-    "maxEvent": 208
+    "jank": 0.008542141230068337,
+    "longTaskMs": 1207,
+    "inpProxy": 248,
+    "maxEvent": 248
   },
   "cpu": {
-    "script": 547.4559999999999,
-    "layout": 94.737,
-    "style": 903.466,
-    "loadScript": 431.714,
-    "heapMB": 8.460487365722656
+    "script": 1134.3529999999998,
+    "layout": 243.64000000000001,
+    "style": 2160.853,
+    "loadScript": 561.8969999999999,
+    "heapMB": 6.871395111083984
   },
   "steps": [
     [
@@ -63,6 +63,18 @@
     ],
     [
       "chat",
+      "ok"
+    ],
+    [
+      "r2-tasks",
+      "ok"
+    ],
+    [
+      "r2-overlays",
+      "ok"
+    ],
+    [
+      "r2-sync",
       "ok"
     ]
   ],

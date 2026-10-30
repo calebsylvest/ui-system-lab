@@ -1,32 +1,32 @@
 {
   "id": "baseline",
   "bundle": {
-    "js": 468632,
-    "jsGz": 141457,
-    "css": 39273,
-    "cssGz": 7612,
+    "js": 504928,
+    "jsGz": 151552,
+    "css": 43867,
+    "cssGz": 8293,
     "font": 0
   },
   "load": {
-    "fcp": 772,
-    "lcp": 772,
+    "fcp": 744,
+    "lcp": 744,
     "cls": 0,
-    "tbt": 486
+    "tbt": 478
   },
   "interaction": {
-    "avgFrame": 17.65683709869209,
+    "avgFrame": 17.564095292115773,
     "p95Frame": 16.799999999999272,
-    "jank": 0.0070921985815602835,
-    "longTaskMs": 568,
-    "inpProxy": 240,
-    "maxEvent": 240
+    "jank": 0.00737379466817924,
+    "longTaskMs": 1177,
+    "inpProxy": 216,
+    "maxEvent": 216
   },
   "cpu": {
-    "script": 593.445,
-    "layout": 88.51399999999998,
-    "style": 1026.0900000000001,
-    "loadScript": 512.578,
-    "heapMB": 8.453838348388672
+    "script": 1030.124,
+    "layout": 197.98,
+    "style": 1971.568,
+    "loadScript": 473.333,
+    "heapMB": 9.03717041015625
   },
   "steps": [
     [
@@ -63,6 +63,18 @@
     ],
     [
       "chat",
+      "ok"
+    ],
+    [
+      "r2-tasks",
+      "ok"
+    ],
+    [
+      "r2-overlays",
+      "ok"
+    ],
+    [
+      "r2-sync",
       "ok"
     ]
   ],

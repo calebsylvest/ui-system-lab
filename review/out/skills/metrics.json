@@ -1,32 +1,32 @@
 {
   "id": "skills",
   "bundle": {
-    "js": 471177,
-    "jsGz": 142425,
-    "css": 44293,
-    "cssGz": 8584,
+    "js": 514179,
+    "jsGz": 154313,
+    "css": 51111,
+    "cssGz": 9585,
     "font": 0
   },
   "load": {
-    "fcp": 704,
-    "lcp": 704,
+    "fcp": 824,
+    "lcp": 824,
     "cls": 0,
-    "tbt": 439
+    "tbt": 557
   },
   "interaction": {
-    "avgFrame": 17.97652582159628,
-    "p95Frame": 16.800000000000182,
-    "jank": 0.010575793184488837,
-    "longTaskMs": 653,
-    "inpProxy": 240,
-    "maxEvent": 240
+    "avgFrame": 17.843423319931137,
+    "p95Frame": 16.799999999999272,
+    "jank": 0.010900745840504877,
+    "longTaskMs": 1243,
+    "inpProxy": 208,
+    "maxEvent": 208
   },
   "cpu": {
-    "script": 610.1179999999999,
-    "layout": 105.87700000000001,
-    "style": 1081.044,
-    "loadScript": 462.279,
-    "heapMB": 8.599613189697266
+    "script": 1203.6499999999999,
+    "layout": 283.99700000000007,
+    "style": 2197.858,
+    "loadScript": 534.704,
+    "heapMB": 7.1541900634765625
   },
   "steps": [
     [
@@ -63,6 +63,18 @@
     ],
     [
       "chat",
+      "ok"
+    ],
+    [
+      "r2-tasks",
+      "ok"
+    ],
+    [
+      "r2-overlays",
+      "ok"
+    ],
+    [
+      "r2-sync",
       "ok"
     ]
   ],

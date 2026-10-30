@@ -72,3 +72,49 @@ the page bans sensibly and gives reasons. It's thinnest where it relies on its o
 the inspector and the screenshot critique all depend on scripts, so a hand-applied run loses the measurement
 loop it stresses most. Its library and blueprints are also generated around dashboards and overviews, so a
 mixed component-showcase page like this one (button galleries, toasts, FAQ) falls between its patterns.
+
+## Round 2
+
+Same run as round 1 (app-screens.md, framed-sheet, IBM Plex, one teal data hue, pale pills). This time
+`lint.mjs --app` **did run** on the new files (0 FAIL, 0 WARN after fixes). `inspect.mjs --app` still could
+not: no Chrome/Chromium on this machine, so again no screenshots, no `ragged-row`/`panel-void` measurement
+and no critique loop.
+
+| Change | Files | Rule |
+| --- | --- | --- |
+| Motion tokens `--ease-ui` (ease-out), `--ease-travel` (in-out), `--ease-exit`; `row-in` / `row-out` keyframes; notice border token `--notice-border` (light and dark) | `src/index.css` | motion.md §3–4 (curves, durations, leaving ≈70% of arriving); app-screens.md §11 notice |
+| Task list: the boxed rows became 48px rows split by the lighter row rule; people as their tinted initials (`PersonAvatar`); due dates on one right edge with only "Today" in ink; three row actions kept in one fixed grey trailing column at the same pitch; on a phone the due date moves to a subline | `sections/Tasks.tsx` | §7.1, 7.3, 7.4, 7.5, 7.8, §12; "its people as themselves" |
+| Task motion: an added or undone row arrives (240ms ease-out), a removed row leaves (160ms ease-in) before it is dropped, moved/sorted rows travel to their new place (FLIP, 280ms in-out). No entrance on first render; reduced motion skips the FLIP | `sections/Tasks.tsx`, `index.css` | §2.8 "motion is feedback… a row arriving", motion.md §3 |
+| "1 open tasks" pluralised, done count added to the subline (from rows) | `sections/Tasks.tsx` | §2.1 counts from rows |
+| Add button is 38px to match the field; Sort shows its pressed state as the grey active pill; empty list is one sentence in a 38px dashed box | `sections/Tasks.tsx` | §8.3 one height per row; §3.2 active pill; §11 empty keeps its frame |
+| Popover: radius 8, 6px offset, faint drop + hairline (floats), 200ms open / 150ms close on `ease-ui`, 4px slide instead of 8px | `ui/popover.tsx` | §9.4/§13 shadows only on what floats; motion.md §3 menus 150–250ms |
+| Side panel repeats the style's move: a second white sheet inset 8px from the window, 16px corners, 1px edge, 400px wide, soft drop; 320ms in / 220ms out; 32px ghost close; header/footer on the 24px pad with a rule over the footer, Save at the right | `ui/sheet.tsx` | framed-sheet signature; motion.md §3 drawers 250–450ms; §8.3 |
+| Panel content: status pill, progress in the brand hue with the % in ink, due date and team in a tinted well; budget field shows its unit ("hours") inside the field, tied with `aria-describedby`; save toast names the project | `sections/QuickActions.tsx` | §6.4 hue on the main data element; §7.9 key-value well; round-1 rate field |
+| Filter popover: each status is the same pale pill as the project grid with its project count, on 36px rows; Clear is disabled when nothing is selected; Apply's toast now says what is shown ("Showing projects that are On track or At risk", or "No status filter…") instead of "Showing 2 statuses" | `sections/QuickActions.tsx` | §7.6 one status mark; §2.1 counts from rows; honest feedback |
+| People picker: tinted initials, role as a grey second column, ink check; trigger chevron grey | `sections/QuickActions.tsx` | "its people as themselves"; §7.5 ink only on identity |
+| "Assigned to… Filtering by…" sentence became a key-value well (label left, value right, 32px rows), `aria-live` | `sections/QuickActions.tsx` | §7.9 key-value well |
+| ⌘K hint is a `<kbd>` in the text face (no mono, no tracking) | `sections/QuickActions.tsx`, `ui/command.tsx` | §13 mono for IDs only; round 1 removed tracked shortcut letters |
+| Command menu: 560px, sits at 16% from the top so typing never moves it; 48px search with a 14px grey icon; 36px rows with the grey active pill as the highlight; 12px grey sentence-case group headings; rule between groups. Dialog title/description moved **inside** the dialog content (they were outside it, so Radix had no accessible title) and renamed "Command menu" to match the button | `ui/command.tsx` | §7.2, §7.8 selected = active fill, §8.1; a11y fix |
+| Sync: the rate reads as a KPI (grey label over a 28px/400 value, "/ h" grey suffix). The button keeps the name "Raise by $10" while saving (spinner + `aria-busy`); a grey "Saving…" stamp sits beside the value | `sections/SyncStates.tsx` | §5 KPIs; §11 honest states; stable accessible name |
+| Failed save: one sentence saying what failed and what the value is now ("…so the rate is back to $135"), red only on the small icon, Retry as an ink text button | `sections/SyncStates.tsx` | §11 error inside the block, negative colour only on a small icon |
+| Offline: the one quiet amber notice (`#fffbeb`, `#fde68a` border, 13px `#92400e`); the Online switch became a settings switch row with a status pill ("Synced" / "Offline" / "2 queued") and a description tied by `aria-describedby`; "Not synced yet" stamp beside a queued rate | `sections/SyncStates.tsx` | §11 stale notice; §8.2 switch row |
+| Time entries: tinted initials, 48px rows on the row rule, time right-aligned; a freshness stamp "Updated 9:41 AM" (real clock); one frame (3×48px) for every state, so loading shows flat bars at the real sizes (avatar, line, time) and the error is one line "Couldn’t load time entries. Last updated …" with a text button | `sections/SyncStates.tsx` | §11 loading, error, stale data; "no shift of the layout" |
+| Card gutter 16px → 24px | `sections/RoundTwo.tsx` | framed-sheet: one gutter for every row |
+
+No new dependencies.
+
+### Not applied, and why
+
+- **Inspector and screenshot critique**: no Chrome on this machine. Lint ran and is clean.
+- **"Applies to the project grid"** in the filter popover is untrue (the filter does nothing to the grid), but
+  wiring it up would change behaviour across variants, so the copy stays.
+- **Error button "Try again"** kept instead of the skill's "Retry", so the page has only one button named
+  Retry (the `data-lab="retry"` save retry) and the viewer's name lookups stay unambiguous.
+- **Row actions as one kebab** (§7.8 prefers a single trailing action): move up / move down / remove stay as
+  three visible buttons, because the test exercises each directly and they need to be keyboard-reachable
+  without a menu. They are grey and in one fixed column.
+- **A refresh that keeps old values** (§11 prefers keeping the data on screen and updating the stamp): the
+  brief asks for a skeleton on Reload, so the skeleton stays, sized to the real rows.
+- **Command scrim**: kept the round-1 dialog's `bg-black/50` for the sheet and the menu rather than adding a
+  second scrim colour.
+- **Hover-revealed row actions**: not done; they would vanish on touch screens.

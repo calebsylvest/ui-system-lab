@@ -1,32 +1,32 @@
 {
   "id": "taste",
   "bundle": {
-    "js": 476891,
-    "jsGz": 143600,
-    "css": 51369,
-    "cssGz": 9735,
+    "js": 519078,
+    "jsGz": 155240,
+    "css": 60371,
+    "cssGz": 11157,
     "font": 583228
   },
   "load": {
-    "fcp": 720,
-    "lcp": 720,
+    "fcp": 832,
+    "lcp": 832,
     "cls": 0.0015856861114501954,
-    "tbt": 457
+    "tbt": 575
   },
   "interaction": {
-    "avgFrame": 17.6160332541568,
+    "avgFrame": 17.746471600688523,
     "p95Frame": 16.799999999999272,
-    "jank": 0.007159904534606206,
-    "longTaskMs": 574,
-    "inpProxy": 216,
-    "maxEvent": 216
+    "jank": 0.008547008547008548,
+    "longTaskMs": 1399,
+    "inpProxy": 224,
+    "maxEvent": 224
   },
   "cpu": {
-    "script": 520.3480000000001,
-    "layout": 116.60699999999999,
-    "style": 501.62399999999997,
-    "loadScript": 433.057,
-    "heapMB": 8.116401672363281
+    "script": 1020.4719999999999,
+    "layout": 246.504,
+    "style": 1422.171,
+    "loadScript": 496.139,
+    "heapMB": 7.1082763671875
   },
   "steps": [
     [
@@ -63,6 +63,18 @@
     ],
     [
       "chat",
+      "ok"
+    ],
+    [
+      "r2-tasks",
+      "ok"
+    ],
+    [
+      "r2-overlays",
+      "ok"
+    ],
+    [
+      "r2-sync",
       "ok"
     ]
   ],

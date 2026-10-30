@@ -6,6 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Switch } from "@/components/ui/switch"
+import { NumberTicker } from "@/components/ui/number-ticker"
+import { BlurFade } from "@/components/ui/blur-fade"
 
 type Feed = "idle" | "loading" | "error" | "loaded"
 
@@ -82,7 +84,12 @@ export function SyncStates() {
           <div className="flex items-center justify-between gap-4">
             <div>
               <p className="text-sm font-medium">Default hourly rate</p>
-              <p className="text-2xl font-semibold">${rate}</p>
+              {/* number-ticker springs between values, so the optimistic +$10 and the rollback are both visible
+                  as movement rather than a silent swap. Screen readers get the settled value only. */}
+              <p className="text-2xl font-semibold tabular-nums">
+                <span className="sr-only">${rate}</span>
+                <span aria-hidden="true">$<NumberTicker value={rate} startValue={135} className="tracking-normal text-card-foreground dark:text-card-foreground" /></span>
+              </p>
             </div>
             <Button data-lab="save-fail" onClick={raiseRate} disabled={saving}>
               {saving && <RefreshCw className="animate-spin" />}
@@ -124,11 +131,12 @@ export function SyncStates() {
             </div>
           )}
           {feed === "loaded" &&
-            entries.map((e) => (
-              <div key={e.what} className="text-sm">
+            entries.map((e, i) => (
+              // Same blur-fade as the page sections, short stagger, so reloaded rows settle in after the skeleton.
+              <BlurFade key={e.what} delay={i * 0.05} duration={0.25} offset={4} blur="4px" className="text-sm">
                 <p><span className="font-medium">{e.who}</span> {e.what}</p>
                 <p className="text-muted-foreground text-xs">{e.when}</p>
-              </div>
+              </BlurFade>
             ))}
         </div>
       </CardContent>

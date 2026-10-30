@@ -119,9 +119,9 @@
     font-optical-sizing: auto;
   }
   /* type-text-wrap-balance-headings */
-  h1, h2, h3, [data-slot="card-title"], [data-slot="dialog-title"] { text-wrap: balance; }
+  h1, h2, h3, [data-slot="card-title"], [data-slot="dialog-title"], [data-slot="sheet-title"] { text-wrap: balance; }
   /* type-text-wrap-pretty */
-  p, [data-slot="card-description"], [data-slot="dialog-description"] { text-wrap: pretty; }
+  p, [data-slot="card-description"], [data-slot="dialog-description"], [data-slot="sheet-description"] { text-wrap: pretty; }
   /* type-underline-offset */
   a, [data-slot="accordion-trigger"], [data-slot="button"] {
     text-underline-offset: 4px;
@@ -138,3 +138,18 @@
   transition-duration: 250ms;
   transition-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
 }
+
+/* Round 2: view transitions for the task list (src/lib/view-transition.ts).
+   transition-style-pseudo-elements, duration-max-300ms, easing-entrance-ease-out,
+   easing-exit-ease-in, exit-matches-initial. Only the named list items animate;
+   the rest of the page swaps instantly instead of cross-fading. */
+html[data-list-transition]::view-transition-old(root),
+html[data-list-transition]::view-transition-new(root) { animation: none; }
+html[data-list-transition]::view-transition-group(*) {
+  animation-duration: 200ms;
+  animation-timing-function: var(--ease-out);
+}
+html[data-list-transition]::view-transition-new(*):only-child { animation: list-item-enter 200ms var(--ease-out) both; }
+html[data-list-transition]::view-transition-old(*):only-child { animation: list-item-exit 150ms var(--ease-in) both; }
+@keyframes list-item-enter { from { opacity: 0; transform: translateY(-4px) scale(0.98); } }
+@keyframes list-item-exit { to { opacity: 0; transform: translateY(-4px) scale(0.98); } }

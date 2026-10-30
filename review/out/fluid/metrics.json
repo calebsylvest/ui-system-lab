@@ -1,32 +1,32 @@
 {
   "id": "fluid",
   "bundle": {
-    "js": 1207653,
-    "jsGz": 370490,
-    "css": 76865,
-    "cssGz": 13507,
+    "js": 1277859,
+    "jsGz": 390029,
+    "css": 85750,
+    "cssGz": 15068,
     "font": 340256
   },
   "load": {
-    "fcp": 1200,
-    "lcp": 1200,
+    "fcp": 1264,
+    "lcp": 1264,
     "cls": 0,
-    "tbt": 911
+    "tbt": 946
   },
   "interaction": {
-    "avgFrame": 17.860020768432072,
-    "p95Frame": 16.799999999999272,
-    "jank": 0.009564293304994687,
-    "longTaskMs": 849,
-    "inpProxy": 304,
-    "maxEvent": 304
+    "avgFrame": 18.40957150806906,
+    "p95Frame": 16.800000000000182,
+    "jank": 0.013544018058690745,
+    "longTaskMs": 2067,
+    "inpProxy": 360,
+    "maxEvent": 360
   },
   "cpu": {
-    "script": 938.616,
-    "layout": 267.65,
-    "style": 1272.132,
-    "loadScript": 846.7719999999999,
-    "heapMB": 10.331188201904297
+    "script": 1909.9869999999999,
+    "layout": 423.457,
+    "style": 2818.942,
+    "loadScript": 818.0169999999999,
+    "heapMB": 10.819892883300781
   },
   "steps": [
     [
@@ -63,6 +63,18 @@
     ],
     [
       "chat",
+      "ok"
+    ],
+    [
+      "r2-tasks",
+      "ok"
+    ],
+    [
+      "r2-overlays",
+      "ok"
+    ],
+    [
+      "r2-sync",
       "ok"
     ]
   ],

@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button"
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
+import { useFlipList } from "@/lib/use-flip-list"
+import { plural } from "@/lib/utils"
 
 // Round-2 section: a list that changes. Add, complete, remove (with undo), reorder and sort.
 // data-lab attributes let the comparison viewer trigger the same action in every variant.
@@ -15,11 +17,19 @@ export function Tasks() {
   const [draft, setDraft] = useState("")
   const [sorted, setSorted] = useState(false)
   const next = useRef(0)
+  // Motion: rows move with a WAAPI FLIP (lib/use-flip-list), new rows enter via @starting-style.
+  const listRef = useRef<HTMLDivElement>(null)
+  const ghostRef = useRef<HTMLDivElement>(null)
+  const flip = useFlipList(listRef, ghostRef, () => document.getElementById("task-new"))
+  // Only rows added after mount get the entrance; the first paint stays still (frequency gate).
+  const entering = useRef(new Set<string>())
 
   const visible = sorted ? [...tasks].sort((a, b) => Number(a.done) - Number(b.done) || a.dueOrder - b.dueOrder) : tasks
   const open = tasks.filter((t) => !t.done).length
 
-  function add(title?: string) {
+  // `quiet` = submitted with Enter. Keyboard-initiated actions don't animate (emil-design-eng),
+  // same call as the Assistant composer in round 1.
+  function add(title?: string, quiet = false) {
     const canned = extraTasks[next.current % extraTasks.length]
     const t: Task = {
       id: "n" + Date.now() + next.current,
@@ -30,6 +40,10 @@ export function Tasks() {
       done: false,
     }
     next.current++
+    if (!quiet) {
+      flip()
+      entering.current.add(t.id)
+    }
     setTasks((ts) => [t, ...ts])
     setDraft("")
   }
@@ -38,14 +52,23 @@ export function Tasks() {
     const index = tasks.findIndex((t) => t.id === id)
     const task = tasks[index]
     if (!task) return
+    flip()
     setTasks((ts) => ts.filter((t) => t.id !== id))
     toast("Task removed", {
       description: task.title,
-      action: { label: "Undo", onClick: () => setTasks((ts) => [...ts.slice(0, index), task, ...ts.slice(index)]) },
+      action: {
+        label: "Undo",
+        onClick: () => {
+          flip()
+          entering.current.add(task.id)
+          setTasks((ts) => [...ts.slice(0, index), task, ...ts.slice(index)])
+        },
+      },
     })
   }
 
   function move(id: string, dir: -1 | 1) {
+    flip()
     setSorted(false)
     setTasks((ts) => {
       const i = ts.findIndex((t) => t.id === id)
@@ -57,34 +80,38 @@ export function Tasks() {
     })
   }
 
-  const toggle = (id: string) => setTasks((ts) => ts.map((t) => (t.id === id ? { ...t, done: !t.done } : t)))
+  const toggle = (id: string) => {
+    flip() // when sorted, finishing a task moves it to the bottom
+    setTasks((ts) => ts.map((t) => (t.id === id ? { ...t, done: !t.done } : t)))
+  }
   const first = visible.find((t) => !t.done)
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>This week</CardTitle>
-        <CardDescription>{open} open tasks across the studio.</CardDescription>
+        <CardDescription>{plural(open, "open task", "open tasks")} across the studio.</CardDescription>
         <CardAction>
-          <Button variant="outline" size="sm" data-lab="task-sort" aria-pressed={sorted} onClick={() => setSorted(!sorted)}>
+          <Button variant="outline" size="sm" data-lab="task-sort" aria-pressed={sorted} onClick={() => { flip(); setSorted(!sorted) }}>
             <ListOrdered /> {sorted ? "Sorted by due date" : "Sort by due date"}
           </Button>
         </CardAction>
       </CardHeader>
       <CardContent className="grid gap-4">
-        <form className="flex gap-2" onSubmit={(e) => { e.preventDefault(); if (draft.trim()) add(draft) }}>
+        <form className="flex gap-2" onSubmit={(e) => { e.preventDefault(); if (draft.trim()) add(draft, true) }}>
           <Input id="task-new" value={draft} onChange={(e) => setDraft(e.target.value)} placeholder="Add a task and press Enter" aria-label="New task" />
           <Button type="button" variant="secondary" data-lab="task-add" onClick={() => add(draft || undefined)}><Plus /> Add</Button>
         </form>
         <span hidden data-lab="task-complete" onClick={() => first && toggle(first.id)} />
         <span hidden data-lab="task-remove" onClick={() => first && remove(first.id)} />
         <span hidden data-lab="task-move" onClick={() => first && move(first.id, 1)} />
+        <div ref={listRef} className="relative">
         {visible.length === 0 ? (
-          <p className="text-muted-foreground py-6 text-center text-sm">No tasks. Add one above.</p>
+          <p className="enter-fade text-muted-foreground py-6 text-center text-sm">No tasks. Add one above.</p>
         ) : (
           <ul className="grid gap-1">
             {visible.map((t, i) => (
-              <li key={t.id} className="group flex items-center gap-3 rounded-md border px-3 py-2">
+              <li key={t.id} data-flip-id={t.id} className={"bg-card group flex items-center gap-3 rounded-md border px-3 py-2" + (entering.current.has(t.id) ? " enter-row" : "")}>
                 <Checkbox checked={t.done} onCheckedChange={() => toggle(t.id)} aria-label={`Mark “${t.title}” done`} />
                 <span className={"flex-1 text-sm " + (t.done ? "text-muted-foreground line-through" : "")}>{t.title}</span>
                 <span className="text-muted-foreground text-xs">{t.due}</span>
@@ -98,6 +125,9 @@ export function Tasks() {
             ))}
           </ul>
         )}
+          {/* Exit clones of removed rows live here, outside React's children. */}
+          <div ref={ghostRef} aria-hidden className="pointer-events-none absolute inset-0" />
+        </div>
       </CardContent>
     </Card>
   )

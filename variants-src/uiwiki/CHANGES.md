@@ -103,3 +103,66 @@ The baseline page reviewed against raphaelsalaja/userinterface-wiki (`skills/SKI
 
 ## Agent notes
 The system is strongest on motion and interaction detail. It has exact duration bands, ease-in for exits and ease-out for entrances, active-state scale ranges, hit-target expansion and concentric radii, and almost all of it turns straight into Tailwind classes. Its audio rules are a complete, numeric recipe for synthesized sound. It is thin wherever it isn't Motion-specific. Many rules are one sentence with a toy example. Some are duplicated: `none-context-menu-entrance` and `timing-no-entrance-context-menu`, and `easing-natural-decay`, which is really an audio rule filed under easing. The 23 "Laws of UX" rules give no thresholds you could check, so they read as principles rather than a review checklist. It is very opinionated on numbers (300ms, 0.95–1.05, 32px, 5–15ms) but has no colour, type scale or spacing tokens of its own, so the page's look barely changes. The result is a quieter, more tactile, better-timed version of the baseline rather than a new visual identity.
+
+## Round 2
+
+The three new sections (`Tasks`, `QuickActions`, `SyncStates`) and the new primitives (`popover`, `sheet`, `command`) were brought in line with round 1: the same Tailwind ease-out/ease-in curves, durations of 300ms or less, concentric radii, tabular numbers, hit-area expansion and the off-by-default sound module. There are no new npm dependencies. Every `data-lab` hook and accessible name is unchanged.
+
+### List motion (`src/lib/view-transition.ts` new, `src/index.css`, `src/sections/Tasks.tsx`)
+- **Native View Transitions drive every list change.** That covers add, complete, remove, Undo, move up/down and sort.
+  - The list reorders and items enter and exit without an animation library.
+  - The helper gives each `<li>` a unique `view-transition-name` (`task-<id>`) for the length of the transition only, and removes it afterwards.
+  - The update runs in `flushSync` inside `startViewTransition`.
+  - Rules: `transition-over-js-library`, `transition-name-required`, `transition-name-unique`, `transition-name-cleanup`.
+- **Pseudo-element styles.**
+  - Moving items take 200ms ease-out.
+  - New items fade in from 4px above at 98% scale over 200ms with ease-out.
+  - Removed items leave over 150ms with ease-in, reversing the entrance.
+  - The root cross-fade is turned off, so only the list items move.
+  - Rules: `transition-style-pseudo-elements`, `duration-max-300ms`, `easing-entrance-ease-out`, `easing-exit-ease-in`, `exit-matches-initial`.
+- **Fallback.** With reduced motion, or in a browser without the API, the update simply applies.
+- **Sort button.** "Sort by due date" / "Sorted by due date" sits inside `AnimatedWidth`, so the button resizes smoothly. Rule: `container-no-excessive-use`, since a label change is one of its sanctioned uses.
+- **Tasks.tsx details.**
+  - The move and remove icon buttons go from 28px to 32px. Rule: `ux-fitts-target-size`.
+  - The due dates and the open-task count use tabular numbers. Rule: `type-tabular-nums-for-data`.
+  - A task title changes colour over 150ms when it is completed. Rule: `duration-small-state`.
+
+### Overlays
+- **`popover.tsx`.**
+  - Ease-out on open, ease-in on close, and no pointer events while it closes.
+  - The content goes to `rounded-lg`, the same as the round-1 menus.
+  - Rules: `easing-entrance-ease-out`, `easing-exit-ease-in`, `presence-disable-interactions`, `visual-concentric-radius`.
+- **`sheet.tsx`.**
+  - Stock timing was 500ms in and 300ms out with ease-in-out. It is now 250ms ease-out in and 200ms ease-in out.
+  - The overlay uses the same durations as the panel.
+  - The panel ignores pointer events while it closes.
+  - The close button gets a 150ms opacity transition and an `::after` that grows its hit area by 8px on each side.
+  - Rules: `duration-max-300ms`, `easing-entrance-ease-out`, `easing-exit-ease-in`, `nested-consistent-timing`, `presence-disable-interactions`, `ux-fitts-hit-area`, `pseudo-hit-target-expansion`.
+- **`command.tsx`.**
+  - The ⌘K `CommandDialog` opens instantly, with no entrance on the panel or the overlay, and keeps the 200ms ease-in exit fade. A command palette is a high-frequency surface, the same reasoning round 1 applied to context menus.
+  - Arrow-key selection between items stays un-animated.
+  - `Command` takes `rounded-[inherit]`, so it follows the radius of the popover or dialog it sits in.
+  - The per-input `placeholder:` class is removed, because the global `::placeholder` rule covers it.
+  - Rules: `none-high-frequency`, `none-keyboard-navigation`, `visual-concentric-radius`, `native-placeholder-styling`.
+- **`dialog.tsx`.** Gained an optional `overlayClassName` prop so `CommandDialog` can set the overlay's timing. Other dialogs are unchanged.
+- **`index.css`.** The sheet title gets `text-wrap: balance` and the sheet description gets `text-wrap: pretty`. Rules: `type-text-wrap-balance-headings`, `type-text-wrap-pretty`.
+- **`QuickActions.tsx`.**
+  - "Save changes" in the side panel plays the success sound along with its toast, the same as saving settings in round 1.
+  - The filter count uses tabular numbers.
+  - Rules: `appropriate-confirmations-only`, `a11y-visual-equivalent`, `type-tabular-nums-for-data`.
+
+### Async states (`SyncStates.tsx`)
+- **Sounds, through the round-1 `playSound` (off by default).**
+  - The error sound plays when the optimistic save fails and rolls back, and when Reload fails.
+  - The success sound plays when the rate saves and when the queued changes sync.
+  - Each one accompanies a visible alert or toast.
+  - Rules: `appropriate-errors-warnings`, `appropriate-confirmations-only`, `a11y-visual-equivalent`.
+- **Saving button.** The "Raise by $10" / "Saving" label is wrapped in `AnimatedWidth`, the same pattern as the round-1 Settings save button. Rule: `container-no-excessive-use`.
+- **Appearing state.** The offline banner fades and slides in over 200ms with ease-out. The save-error alert, the load-error block and the reloaded entries fade in over 150ms with ease-out. There's no stagger, the entries don't animate on first page load, and none of this runs under reduced motion. Rules: `easing-for-state-change`, `easing-entrance-ease-out`, `physics-no-excessive-stagger`.
+- **Tabular numbers.** Applied to the rate and the entry times. Rule: `type-tabular-nums-for-data`.
+
+### Not done in round 2
+- **No sound for the smaller actions.** Filter "Apply", command-menu picks, adding, completing or removing a task, and Undo stay silent. They are frequent, low-weight actions, and their toasts are enough. Rules: `appropriate-no-high-frequency`, `weight-match-action`.
+- **No exit animation for the offline banner and the error alert.** They disappear instantly. CSS can't animate an unmount without either a presence library (the round-1 "no Motion" decision) or delayed-unmount state written for each element.
+- **No reorder animation in the people picker or command list.** cmdk filtering happens on every keystroke. Rule: `none-high-frequency`.
+- **Sheet slide under reduced motion.** Left as is, the same as the round-1 dialog. The app does not disable tw-animate entrances globally.

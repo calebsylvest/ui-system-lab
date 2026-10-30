@@ -33,3 +33,28 @@ Shared helpers in `src/lib/effects.ts`: `useIsDark()` (watches the `.dark` class
 ## Fixes after review
 - LiquidTabsList: the `Liquid` wrapper's inline `position: relative` overrode `absolute inset-0`, so the indicator didn't show. Pinned it with an inline `position: absolute; inset: 0`.
 - Composer: BorderBeam and VoiceBeam now get `borderRadius={8}` to match the textarea, which stops them clipping its side borders.
+
+## Round 2
+
+I checked the three new sections against the skill's decision rules and each package's "When to use", "When not to use" and "Detecting a fit" tables. None of the new spots meets an author rule. The skill says "No clear match → … Do not force an effect", so I added **no new effects and no new dependencies**. That also leaves the round-1 idle cost unchanged: no new canvas, WebGL context or SVG filter loop.
+
+### Changed
+
+| File | Change | Rule |
+| --- | --- | --- |
+| `src/sections/SyncStates.tsx` | The "Time entries" block gets `aria-busy={feed === "loading"}` while the skeleton shows. | Matches round 1's `aria-busy` on the States loading region. Skill, apply step 6: "Keep accessibility intact." |
+
+### Not done, and why
+
+- **Thinking orbs / Border beam on Save ("Raise by $10", Retry) and Reload.** The save takes 1.1 s and the reload 1.2 s. Both are small fetches or optimistic updates. Wait table: "Under 2 s → Nothing. No orb, no beam". thinking-orbs fit table: "Waits under 2 s: optimistic updates, cached or local reads, quick toggles → Nothing. Do not add an orb". The docs also say "A flash of an orb reads as a glitch." In round 1 I raised the assistant's timer because a streaming model reply really is a long wait. A rate save and a feed reload aren't, so I kept the timers the same. The `RefreshCw animate-spin` in the save button stays, as round 1 kept Settings' `Loader2`: it isn't agent or chat code, so the orb's "replace spinner" signal doesn't apply.
+- **img-fx / orbs on the Reload skeleton.** img-fx is "Not for text or list loading". thinking-orbs: "Page or route skeletons. The orb says 'an agent is busy', not 'layout is loading'." The rows are text only, so they stay `Skeleton`.
+- **liquid-gooey on the task list (add / remove / reorder / sort).** The package has no list or reorder recipe. `bend` is for a row "that should bow while it is **dragged**". This list is reordered with Move up/down buttons, and adding drag would add behaviour. Making every row a `move` item would put a filled liquid surface under each row. With the 4 px row gap and `blur={6}`, neighbours bridge (the "blur ≈ gap" rule), so the list would melt into one blob. The docs also list "Dense lists or grids of many items" under "When not to use". The per-row up/down/remove button cluster could be a `morph` toolbar, but that means one filter group per row, the same dense-list problem. The other `move` recipe (a segmented control / sliding indicator) would only fit if "Sort by due date" became a two-segment control. That's a UI change no rule asks for, so the toggle button stays.
+- **Border beam `line` on the ⌘K CommandDialog / people-picker search.** The rule is "an input that loads after the user submits text … active from submit until results arrive". cmdk filters the list synchronously as you type, so there is never a wait to signal.
+- **bot-avatars in the people picker / task rows.** These are human assignees, and the package is for "a bot or agent".
+- **metal-fx.** Still no headline, badge or sales CTA (same reasoning as round 1).
+- **voice-glow.** Nothing voice-related in the new sections.
+- **Primitives (`popover.tsx`, `sheet.tsx`, `command.tsx`).** Left stock, the way round 1 left the stock primitives (the system ships effects, not tokens or primitives). Their `tw-animate-css` enter/exit runs only while an overlay opens or closes.
+
+### Build
+
+`npm run build` passes. JS 1,434.17 kB (411.86 kB gzip). Same dependencies as round 1; the growth comes from the round-2 sections and `cmdk`, which were already copied in.

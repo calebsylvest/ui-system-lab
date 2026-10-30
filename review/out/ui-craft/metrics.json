@@ -1,32 +1,32 @@
 {
   "id": "ui-craft",
   "bundle": {
-    "js": 473720,
-    "jsGz": 142768,
-    "css": 47652,
-    "cssGz": 9545,
+    "js": 654538,
+    "jsGz": 201227,
+    "css": 54101,
+    "cssGz": 10510,
     "font": 41236
   },
   "load": {
-    "fcp": 704,
-    "lcp": 704,
-    "cls": 0.00006595967610677084,
-    "tbt": 449
+    "fcp": 996,
+    "lcp": 996,
+    "cls": 0.00007391204833984374,
+    "tbt": 703
   },
   "interaction": {
-    "avgFrame": 18.03488095238099,
+    "avgFrame": 18.37529137529142,
     "p95Frame": 16.799999999999272,
-    "jank": 0.007177033492822967,
-    "longTaskMs": 977,
-    "inpProxy": 368,
-    "maxEvent": 368
+    "jank": 0.011072261072261072,
+    "longTaskMs": 2044,
+    "inpProxy": 360,
+    "maxEvent": 360
   },
   "cpu": {
-    "script": 599.302,
-    "layout": 92.995,
-    "style": 1231.704,
-    "loadScript": 426.808,
-    "heapMB": 7.489772796630859
+    "script": 1427.2830000000001,
+    "layout": 251.20999999999998,
+    "style": 2964.686,
+    "loadScript": 614.795,
+    "heapMB": 8.348304748535156
   },
   "steps": [
     [
@@ -63,6 +63,18 @@
     ],
     [
       "chat",
+      "ok"
+    ],
+    [
+      "r2-tasks",
+      "ok"
+    ],
+    [
+      "r2-overlays",
+      "ok"
+    ],
+    [
+      "r2-sync",
       "ok"
     ]
   ],

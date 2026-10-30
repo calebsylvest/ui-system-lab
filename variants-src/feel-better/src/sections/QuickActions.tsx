@@ -57,7 +57,7 @@ export function QuickActions() {
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="sheet-budget">Budget (hours)</Label>
-                  <Input id="sheet-budget" type="number" defaultValue={120} />
+                  <Input id="sheet-budget" type="number" className="tabular-nums" defaultValue={120} />
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="sheet-notes">Notes</Label>
@@ -73,7 +73,7 @@ export function QuickActions() {
 
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="outline" data-lab="popover"><Filter /> Filter <span className="text-muted-foreground">{filters.length}</span></Button>
+              <Button variant="outline" data-lab="popover"><Filter /> Filter <span className="text-muted-foreground tabular-nums">{filters.length}</span></Button>
             </PopoverTrigger>
             <PopoverContent align="start" className="grid gap-3">
               <div>
@@ -105,7 +105,7 @@ export function QuickActions() {
                 <ChevronsUpDown className="opacity-50" />
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-52 p-0" align="start">
+            <PopoverContent className="w-52 rounded-lg p-0" align="start">
               <Command>
                 <CommandInput placeholder="Search people" />
                 <CommandList>

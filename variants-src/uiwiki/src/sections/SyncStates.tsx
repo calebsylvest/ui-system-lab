@@ -1,6 +1,8 @@
 import { useRef, useState } from "react"
 import { AlertCircle, RefreshCw, WifiOff } from "lucide-react"
 import { toast } from "sonner"
+import { playSound } from "@/lib/sound"
+import { AnimatedWidth } from "@/components/ui/animated-width"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
@@ -26,6 +28,7 @@ export function SyncStates() {
   const [queued, setQueued] = useState(0)
   const [feed, setFeed] = useState<Feed>("loaded")
   const [failNext, setFailNext] = useState(true)
+  const reloaded = useRef(false)
 
   function raiseRate() {
     if (saving) return
@@ -42,8 +45,10 @@ export function SyncStates() {
       if (fails) {
         setRate(previous) // roll back
         setSaveError("Couldn’t save the new rate. The server didn’t respond.")
+        playSound("error")
       } else {
         toast.success(`Hourly rate is now $${nextRate}`)
+        playSound("success")
       }
     }, 1100)
   }
@@ -52,14 +57,17 @@ export function SyncStates() {
     setOffline(!on)
     if (on && queued > 0) {
       toast.success(`Synced ${queued} queued change${queued === 1 ? "" : "s"}`)
+      playSound("success")
       setQueued(0)
     }
   }
 
   function reload() {
+    reloaded.current = true
     setFeed("loading")
     setTimeout(() => {
       setFeed(failNext ? "error" : "loaded")
+      if (failNext) playSound("error")
       setFailNext(!failNext)
     }, 1200)
   }
@@ -72,7 +80,7 @@ export function SyncStates() {
       </CardHeader>
       <CardContent className="grid gap-5">
         {offline && (
-          <div role="status" className="flex items-center gap-2 rounded-md border px-3 py-2 text-sm">
+          <div role="status" className="animate-in fade-in-0 slide-in-from-top-1 flex items-center gap-2 rounded-md border px-3 py-2 text-sm duration-200 ease-out motion-reduce:animate-none">
             <WifiOff className="size-4" />
             <span className="flex-1">You’re offline. {queued ? `${queued} change${queued === 1 ? "" : "s"} will sync when you reconnect.` : "Changes will sync when you reconnect."}</span>
           </div>
@@ -82,15 +90,17 @@ export function SyncStates() {
           <div className="flex items-center justify-between gap-4">
             <div>
               <p className="text-sm font-medium">Default hourly rate</p>
-              <p className="text-2xl font-semibold">${rate}</p>
+              <p className="text-2xl font-semibold tabular-nums">${rate}</p>
             </div>
             <Button data-lab="save-fail" onClick={raiseRate} disabled={saving}>
-              {saving && <RefreshCw className="animate-spin" />}
-              {saving ? "Saving" : "Raise by $10"}
+              <AnimatedWidth>
+                {saving && <RefreshCw className="animate-spin" />}
+                {saving ? "Saving" : "Raise by $10"}
+              </AnimatedWidth>
             </Button>
           </div>
           {saveError && (
-            <div role="alert" className="text-destructive flex items-center gap-2 text-sm">
+            <div role="alert" className="text-destructive animate-in fade-in-0 flex items-center gap-2 text-sm duration-150 ease-out motion-reduce:animate-none">
               <AlertCircle className="size-4" />
               <span className="flex-1">{saveError}</span>
               <Button variant="outline" size="sm" data-lab="retry" onClick={raiseRate}>Retry</Button>
@@ -117,7 +127,7 @@ export function SyncStates() {
               </div>
             ))}
           {feed === "error" && (
-            <div className="flex flex-col items-center gap-2 py-4 text-center text-sm">
+            <div className="animate-in fade-in-0 flex flex-col items-center gap-2 py-4 text-center text-sm duration-150 ease-out motion-reduce:animate-none">
               <AlertCircle className="text-destructive size-5" />
               <p>Couldn’t load time entries.</p>
               <Button variant="outline" size="sm" onClick={reload}>Try again</Button>
@@ -125,9 +135,9 @@ export function SyncStates() {
           )}
           {feed === "loaded" &&
             entries.map((e) => (
-              <div key={e.what} className="text-sm">
+              <div key={e.what} className={"text-sm" + (reloaded.current ? " animate-in fade-in-0 duration-150 ease-out motion-reduce:animate-none" : "")}>
                 <p><span className="font-medium">{e.who}</span> {e.what}</p>
-                <p className="text-muted-foreground text-xs">{e.when}</p>
+                <p className="text-muted-foreground text-xs tabular-nums">{e.when}</p>
               </div>
             ))}
         </div>

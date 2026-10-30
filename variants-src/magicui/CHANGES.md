@@ -24,3 +24,21 @@ New dependencies: `motion` (all motion components), `next-themes` (pulled in by 
 ## Agent notes
 
 Magic UI is very good at what it is built for: polished, drop-in motion pieces that install cleanly through the shadcn CLI and inherit Tailwind tokens, so the few pieces that fit an app (blur-fade, number-ticker, magic-card) took minutes to wire in. It is thin as a product UI system: it has no form, table, navigation or feedback components, so it only ever layers on top of shadcn/ui rather than replacing anything. Several components hard-code colors (`text-black dark:text-white`, purple/pink gradients, `neutral-600`) or assume Next.js (`"use client"`, `next-themes`), which needed overrides or a small source edit to sit on the app's tokens. None of the components handle `prefers-reduced-motion` on their own. For a product UI it works best as a sparing accent layer; most of the catalogue (heroes, marquees, globes, ambient backgrounds) is landing-page material.
+
+## Round 2
+
+Installed from the local Magic UI registry with the shadcn CLI: **animated-list** and **shine-border** (CLI added the `--animate-shine` token and `shine` keyframes to `src/index.css`). No new npm dependencies (both use `motion`, already present). Same rule as round 1: motion only as feedback on a state change, nothing loops while the page is idle.
+
+- **Tasks list enter/exit/reorder** (`sections/Tasks.tsx`): each row is wrapped in `AnimatedListItem` (the item half of animated-list) inside `AnimatePresence initial={false}`. Added tasks spring in, removed ones scale/fade out, and the item's `layout` prop makes move up/down, sort and removal slide the neighbours instead of jumping. Rule: Magic UI's "keep motion intentional" + use the component API as shipped. `<ul>/<li>` became `role="list"` / `role="listitem"` divs because the motion wrapper sits between them. Rows got `bg-card` so they stay opaque while overlapping during layout moves. All data-lab hooks unchanged.
+- **Command menu** (`components/ui/command.tsx`, `CommandDialog`): a `ShineBorder` with a neutral token colour (`color-mix(var(--foreground) 35%)`) and the default slow 14 s sweep. It exists only while the ⌘K menu is open, and the component gates it with `motion-safe:`. Rule: "1 core component + 1 supporting effect"; this is the supporting effect for round 2.
+- **Hourly rate** (`sections/SyncStates.tsx`): the value is a `NumberTicker` (startValue 135, so no count-up on load). The optimistic +$10 and the rollback after a failed save both show as movement, so the user sees the change undone. An `sr-only` span carries the settled value, as in Stats.
+- **Reloaded time entries** (`sections/SyncStates.tsx`): rows mount in a short `BlurFade` (0.25 s, 50 ms stagger, 4 px), the same entrance language as the page sections, so they settle in after the skeleton.
+- **Fix, number-ticker reduced motion** (`components/ui/number-ticker.tsx`): `MotionConfig reducedMotion="user"` doesn't reach `useSpring`, so the ticker now checks `useReducedMotion()` and `jump()`s straight to the value. This covers the Stats tiles and the new rate.
+- **Fix, below-fold sections invisible until scrolled** (`App.tsx`): removed `inView` from the lower BlurFades. Every section now fades in on load with a short stagger (0.24–0.32 s), so nothing stays at opacity 0 for full-page screenshots, anchor jumps or the lab viewer.
+
+Not done:
+- **AnimatedList container**: it reveals children one at a time on a timer, which delays real tasks (same reason it was rejected for Activity in round 1). Only its item wrapper is used.
+- **The 0→1 scale on AnimatedListItem** was left as shipped rather than editing the registry source. It's a fast spring (stiffness 350, damping 40). Under reduced motion the scale/layout transforms are dropped and only the opacity fade remains.
+- **Sheet, popovers, people picker**: left as stock shadcn. Magic UI has no overlay, form or combobox components, and adding an effect there would just be decoration.
+- **Offline banner / save error**: no effect. These are alerts; Magic UI's border-beam/shine would compete with `role="alert"` content and loop while the state persists.
+- **"Saving" label**: kept the spinner. AnimatedShinyText is already the page's "pending" cue in Assistant, but inside a primary button its muted shimmer had poor contrast.

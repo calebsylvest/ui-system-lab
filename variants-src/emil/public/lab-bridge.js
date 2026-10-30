@@ -34,7 +34,7 @@
     var css = "";
     if (b.primary) {
       var fg = luminance(b.primary) > 0.4 ? "#111111" : "#ffffff";
-      var vars = "--primary:" + b.primary + ";--primary-foreground:" + fg + ";--ring:" + b.primary + ";--fluid-accent:" + b.primary + ";--sidebar-primary:" + b.primary + ";";
+      var vars = "--primary:" + b.primary + ";--primary-foreground:" + fg + ";--fluid-accent:" + b.primary + ";--sidebar-primary:" + b.primary + ";";
       css += ":root,:root.dark,.dark{" + vars + "}";
     }
     if (b.font && FONTS[b.font]) {

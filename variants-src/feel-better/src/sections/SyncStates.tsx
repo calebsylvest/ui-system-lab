@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Switch } from "@/components/ui/switch"
+import { cn } from "@/lib/utils"
 
 type Feed = "idle" | "loading" | "error" | "loaded"
 
@@ -26,6 +27,7 @@ export function SyncStates() {
   const [queued, setQueued] = useState(0)
   const [feed, setFeed] = useState<Feed>("loaded")
   const [failNext, setFailNext] = useState(true)
+  const [reloaded, setReloaded] = useState(false)
 
   function raiseRate() {
     if (saving) return
@@ -57,6 +59,7 @@ export function SyncStates() {
   }
 
   function reload() {
+    setReloaded(true)
     setFeed("loading")
     setTimeout(() => {
       setFeed(failNext ? "error" : "loaded")
@@ -71,18 +74,28 @@ export function SyncStates() {
         <CardDescription>Saving, failing, retrying and working offline.</CardDescription>
       </CardHeader>
       <CardContent className="grid gap-5">
-        {offline && (
-          <div role="status" className="flex items-center gap-2 rounded-md border px-3 py-2 text-sm">
-            <WifiOff className="size-4" />
-            <span className="flex-1">You’re offline. {queued ? `${queued} change${queued === 1 ? "" : "s"} will sync when you reconnect.` : "Changes will sync when you reconnect."}</span>
+        {/* Toggled by a switch, so it is an interruptible transition (grid-rows 0fr<->1fr, like the accordion),
+            not a mount/unmount. Collapsed, it is invisible and cancels its own grid gap with -mb-5. */}
+        <div
+          className={cn(
+            "grid transition-[grid-template-rows,opacity,margin] duration-200 ease-out motion-reduce:transition-none",
+            offline ? "grid-rows-[1fr] opacity-100" : "invisible -mb-5 grid-rows-[0fr] opacity-0",
+          )}
+          aria-hidden={!offline || undefined}
+        >
+          <div className="overflow-hidden">
+            <div role="status" className="shadow-border flex items-center gap-2 rounded-lg px-3 py-2 text-sm">
+              <WifiOff className="size-4" strokeWidth={1.5} />
+              <span className="flex-1 text-pretty">You’re offline. {queued ? <><span className="tabular-nums">{queued}</span> change{queued === 1 ? "" : "s"} will sync when you reconnect.</> : "Changes will sync when you reconnect."}</span>
+            </div>
           </div>
-        )}
+        </div>
 
         <div className="grid gap-2">
           <div className="flex items-center justify-between gap-4">
             <div>
               <p className="text-sm font-medium">Default hourly rate</p>
-              <p className="text-2xl font-semibold">${rate}</p>
+              <p className="text-2xl font-semibold tabular-nums">${rate}</p>
             </div>
             <Button data-lab="save-fail" onClick={raiseRate} disabled={saving}>
               {saving && <RefreshCw className="animate-spin" />}
@@ -91,8 +104,8 @@ export function SyncStates() {
           </div>
           {saveError && (
             <div role="alert" className="text-destructive flex items-center gap-2 text-sm">
-              <AlertCircle className="size-4" />
-              <span className="flex-1">{saveError}</span>
+              <AlertCircle className="size-4" strokeWidth={1.5} />
+              <span className="flex-1 text-pretty">{saveError}</span>
               <Button variant="outline" size="sm" data-lab="retry" onClick={raiseRate}>Retry</Button>
             </div>
           )}
@@ -117,15 +130,16 @@ export function SyncStates() {
               </div>
             ))}
           {feed === "error" && (
-            <div className="flex flex-col items-center gap-2 py-4 text-center text-sm">
+            <div className="stagger-item flex flex-col items-center gap-2 py-4 text-center text-sm">
               <AlertCircle className="text-destructive size-5" />
               <p>Couldn’t load time entries.</p>
               <Button variant="outline" size="sm" onClick={reload}>Try again</Button>
             </div>
           )}
           {feed === "loaded" &&
-            entries.map((e) => (
-              <div key={e.what} className="text-sm">
+            entries.map((e, i) => (
+              // Success-state entrance after a reload: rows stagger in at 100ms steps. Not on first render.
+              <div key={e.what} className={cn("text-sm", reloaded && "stagger-item")} style={{ "--stagger": i } as React.CSSProperties}>
                 <p><span className="font-medium">{e.who}</span> {e.what}</p>
                 <p className="text-muted-foreground text-xs">{e.when}</p>
               </div>

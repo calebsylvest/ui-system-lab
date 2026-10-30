@@ -37,6 +37,7 @@
   --pill-negative-bg: #ffedea; --pill-negative-ink: #831c1e;
   --pill-warning-bg: #fffbeb;  --pill-warning-ink: #92400e;
   --pill-neutral-bg: #ebedee;  --pill-neutral-ink: #353736;
+  --notice-border: #fde68a;      /* round 2: the one quiet notice (offline), app-screens.md 11 */
 }
 
 .dark {
@@ -69,9 +70,19 @@
   --pill-negative-bg: #2c1a20; --pill-negative-ink: #e5566f;
   --pill-warning-bg: #2a2110;  --pill-warning-ink: #e3b341;
   --pill-neutral-bg: #242424;  --pill-neutral-ink: #d0d0d0;
+  --notice-border: #4a3a12;
+}
+
+/* Round 2 motion tokens (motion.md 4). App screens have no motion floor: these are for feedback
+   only. A press, a menu or popover opening, a sheet sliding in, a row arriving or leaving. */
+@theme {
+  --ease-ui: cubic-bezier(0.22, 1, 0.36, 1);          /* entering, opening: ease-out */
+  --ease-travel: cubic-bezier(0.76, 0, 0.24, 1);      /* a row moving between two places */
+  --ease-exit: cubic-bezier(0.55, 0.055, 0.675, 0.19); /* a row leaving for good, short */
 }
 
 @theme inline {
+  --color-notice-border: var(--notice-border);
   --font-sans: "IBM Plex Sans", Inter, system-ui, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, monospace;   /* IDs only */
   --color-frame: var(--frame);
@@ -128,6 +139,13 @@
    product a face"). Identity, not data: it stays pale and out of any chart. */
 .person { background: hsl(var(--h) 62% 91%); color: hsl(var(--h) 45% 24%); }
 .dark .person { background: hsl(var(--h) 22% 21%); color: hsl(var(--h) 55% 82%); }
+
+/* A row arriving (added, or brought back by Undo) and a row leaving for good. First render has no
+   entrance: only rows the person adds animate (app-screens.md 2.8, "nothing performs an entrance"). */
+@keyframes row-in { from { opacity: 0; transform: translateY(-6px); } }
+@keyframes row-out { to { opacity: 0; transform: translateX(12px); } }
+.row-in { animation: row-in 240ms cubic-bezier(0.22, 1, 0.36, 1); }            /* --ease-ui */
+.row-out { animation: row-out 160ms cubic-bezier(0.55, 0.055, 0.675, 0.19) forwards; /* --ease-exit */ pointer-events: none; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }

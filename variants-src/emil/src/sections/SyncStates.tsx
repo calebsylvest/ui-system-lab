@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Switch } from "@/components/ui/switch"
+import { plural } from "@/lib/utils"
 
 type Feed = "idle" | "loading" | "error" | "loaded"
 
@@ -26,6 +27,8 @@ export function SyncStates() {
   const [queued, setQueued] = useState(0)
   const [feed, setFeed] = useState<Feed>("loaded")
   const [failNext, setFailNext] = useState(true)
+  // Rows only stagger in after a Reload, never on first paint (frequency gate, as in round 1).
+  const [reloaded, setReloaded] = useState(false)
 
   function raiseRate() {
     if (saving) return
@@ -51,12 +54,13 @@ export function SyncStates() {
   function goOnline(on: boolean) {
     setOffline(!on)
     if (on && queued > 0) {
-      toast.success(`Synced ${queued} queued change${queued === 1 ? "" : "s"}`)
+      toast.success(`Synced ${plural(queued, "queued change", "queued changes")}`)
       setQueued(0)
     }
   }
 
   function reload() {
+    setReloaded(true)
     setFeed("loading")
     setTimeout(() => {
       setFeed(failNext ? "error" : "loaded")
@@ -72,9 +76,9 @@ export function SyncStates() {
       </CardHeader>
       <CardContent className="grid gap-5">
         {offline && (
-          <div role="status" className="flex items-center gap-2 rounded-md border px-3 py-2 text-sm">
+          <div role="status" className="enter-fade flex items-center gap-2 rounded-md border px-3 py-2 text-sm">
             <WifiOff className="size-4" />
-            <span className="flex-1">You’re offline. {queued ? `${queued} change${queued === 1 ? "" : "s"} will sync when you reconnect.` : "Changes will sync when you reconnect."}</span>
+            <span className="flex-1">You’re offline. {queued ? `${plural(queued, "change", "changes")} will sync when you reconnect.` : "Changes will sync when you reconnect."}</span>
           </div>
         )}
 
@@ -82,15 +86,15 @@ export function SyncStates() {
           <div className="flex items-center justify-between gap-4">
             <div>
               <p className="text-sm font-medium">Default hourly rate</p>
-              <p className="text-2xl font-semibold">${rate}</p>
+              <p className="text-2xl font-semibold tracking-[-0.02em] tabular-nums">${rate}</p>
             </div>
             <Button data-lab="save-fail" onClick={raiseRate} disabled={saving}>
-              {saving && <RefreshCw className="animate-spin" />}
+              {saving && <RefreshCw className="animate-[spin_600ms_linear_infinite]" />}
               {saving ? "Saving" : "Raise by $10"}
             </Button>
           </div>
           {saveError && (
-            <div role="alert" className="text-destructive flex items-center gap-2 text-sm">
+            <div role="alert" className="enter-fade text-destructive flex items-center gap-2 text-sm">
               <AlertCircle className="size-4" />
               <span className="flex-1">{saveError}</span>
               <Button variant="outline" size="sm" data-lab="retry" onClick={raiseRate}>Retry</Button>
@@ -107,7 +111,9 @@ export function SyncStates() {
         <div className="grid gap-3">
           <div className="flex items-center justify-between">
             <p className="text-sm font-medium">Time entries</p>
-            <Button variant="ghost" size="sm" data-lab="reload" onClick={reload} disabled={feed === "loading"}><RefreshCw /> Reload</Button>
+            <Button variant="ghost" size="sm" data-lab="reload" onClick={reload} disabled={feed === "loading"}>
+              <RefreshCw className={feed === "loading" ? "animate-[spin_600ms_linear_infinite]" : undefined} /> Reload
+            </Button>
           </div>
           {feed === "loading" &&
             [0, 1, 2].map((i) => (
@@ -117,15 +123,15 @@ export function SyncStates() {
               </div>
             ))}
           {feed === "error" && (
-            <div className="flex flex-col items-center gap-2 py-4 text-center text-sm">
+            <div className="enter-fade flex flex-col items-center gap-2 py-4 text-center text-sm">
               <AlertCircle className="text-destructive size-5" />
               <p>Couldn’t load time entries.</p>
               <Button variant="outline" size="sm" onClick={reload}>Try again</Button>
             </div>
           )}
           {feed === "loaded" &&
-            entries.map((e) => (
-              <div key={e.what} className="text-sm">
+            entries.map((e, i) => (
+              <div key={e.what} className={reloaded ? "enter-rise text-sm" : "text-sm"} style={reloaded ? { transitionDelay: `${i * 50}ms` } : undefined}>
                 <p><span className="font-medium">{e.who}</span> {e.what}</p>
                 <p className="text-muted-foreground text-xs">{e.when}</p>
               </div>

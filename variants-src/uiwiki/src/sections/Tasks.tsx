@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button"
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
+import { AnimatedWidth } from "@/components/ui/animated-width"
+import { listTransition } from "@/lib/view-transition"
 
 // Round-2 section: a list that changes. Add, complete, remove (with undo), reorder and sort.
 // data-lab attributes let the comparison viewer trigger the same action in every variant.
@@ -15,6 +17,10 @@ export function Tasks() {
   const [draft, setDraft] = useState("")
   const [sorted, setSorted] = useState(false)
   const next = useRef(0)
+  const listRef = useRef<HTMLUListElement>(null)
+  // Every list mutation runs inside a native view transition: items slide to their new
+  // place, new ones fade in from above, removed ones fade out the same way (exit-matches-initial).
+  const animate = (update: () => void) => listTransition(listRef.current, update)
 
   const visible = sorted ? [...tasks].sort((a, b) => Number(a.done) - Number(b.done) || a.dueOrder - b.dueOrder) : tasks
   const open = tasks.filter((t) => !t.done).length
@@ -30,7 +36,7 @@ export function Tasks() {
       done: false,
     }
     next.current++
-    setTasks((ts) => [t, ...ts])
+    animate(() => setTasks((ts) => [t, ...ts]))
     setDraft("")
   }
 
@@ -38,36 +44,38 @@ export function Tasks() {
     const index = tasks.findIndex((t) => t.id === id)
     const task = tasks[index]
     if (!task) return
-    setTasks((ts) => ts.filter((t) => t.id !== id))
+    animate(() => setTasks((ts) => ts.filter((t) => t.id !== id)))
     toast("Task removed", {
       description: task.title,
-      action: { label: "Undo", onClick: () => setTasks((ts) => [...ts.slice(0, index), task, ...ts.slice(index)]) },
+      action: { label: "Undo", onClick: () => animate(() => setTasks((ts) => [...ts.slice(0, index), task, ...ts.slice(index)])) },
     })
   }
 
   function move(id: string, dir: -1 | 1) {
-    setSorted(false)
-    setTasks((ts) => {
-      const i = ts.findIndex((t) => t.id === id)
-      const j = i + dir
-      if (i < 0 || j < 0 || j >= ts.length) return ts
-      const copy = [...ts]
-      ;[copy[i], copy[j]] = [copy[j], copy[i]]
-      return copy
+    animate(() => {
+      setSorted(false)
+      setTasks((ts) => {
+        const i = ts.findIndex((t) => t.id === id)
+        const j = i + dir
+        if (i < 0 || j < 0 || j >= ts.length) return ts
+        const copy = [...ts]
+        ;[copy[i], copy[j]] = [copy[j], copy[i]]
+        return copy
+      })
     })
   }
 
-  const toggle = (id: string) => setTasks((ts) => ts.map((t) => (t.id === id ? { ...t, done: !t.done } : t)))
+  const toggle = (id: string) => animate(() => setTasks((ts) => ts.map((t) => (t.id === id ? { ...t, done: !t.done } : t))))
   const first = visible.find((t) => !t.done)
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>This week</CardTitle>
-        <CardDescription>{open} open tasks across the studio.</CardDescription>
+        <CardDescription><span className="tabular-nums">{open}</span> open tasks across the studio.</CardDescription>
         <CardAction>
-          <Button variant="outline" size="sm" data-lab="task-sort" aria-pressed={sorted} onClick={() => setSorted(!sorted)}>
-            <ListOrdered /> {sorted ? "Sorted by due date" : "Sort by due date"}
+          <Button variant="outline" size="sm" data-lab="task-sort" aria-pressed={sorted} onClick={() => animate(() => setSorted(!sorted))}>
+            <ListOrdered /> <AnimatedWidth>{sorted ? "Sorted by due date" : "Sort by due date"}</AnimatedWidth>
           </Button>
         </CardAction>
       </CardHeader>
@@ -82,17 +90,17 @@ export function Tasks() {
         {visible.length === 0 ? (
           <p className="text-muted-foreground py-6 text-center text-sm">No tasks. Add one above.</p>
         ) : (
-          <ul className="grid gap-1">
+          <ul ref={listRef} className="grid gap-1">
             {visible.map((t, i) => (
-              <li key={t.id} className="group flex items-center gap-3 rounded-md border px-3 py-2">
+              <li key={t.id} data-vt-name={`task-${t.id}`} className="group flex items-center gap-3 rounded-md border px-3 py-2">
                 <Checkbox checked={t.done} onCheckedChange={() => toggle(t.id)} aria-label={`Mark “${t.title}” done`} />
-                <span className={"flex-1 text-sm " + (t.done ? "text-muted-foreground line-through" : "")}>{t.title}</span>
-                <span className="text-muted-foreground text-xs">{t.due}</span>
+                <span className={"flex-1 text-sm transition-colors duration-150 " + (t.done ? "text-muted-foreground line-through" : "")}>{t.title}</span>
+                <span className="text-muted-foreground text-xs tabular-nums">{t.due}</span>
                 <Avatar className="size-6"><AvatarFallback className="text-[10px]">{t.who}</AvatarFallback></Avatar>
                 <div className="flex">
-                  <Button variant="ghost" size="icon" className="size-7" aria-label="Move up" disabled={i === 0} onClick={() => move(t.id, -1)}><ArrowUp /></Button>
-                  <Button variant="ghost" size="icon" className="size-7" aria-label="Move down" disabled={i === visible.length - 1} onClick={() => move(t.id, 1)}><ArrowDown /></Button>
-                  <Button variant="ghost" size="icon" className="size-7" aria-label={`Remove “${t.title}”`} onClick={() => remove(t.id)}><X /></Button>
+                  <Button variant="ghost" size="icon" className="size-8" aria-label="Move up" disabled={i === 0} onClick={() => move(t.id, -1)}><ArrowUp /></Button>
+                  <Button variant="ghost" size="icon" className="size-8" aria-label="Move down" disabled={i === visible.length - 1} onClick={() => move(t.id, 1)}><ArrowDown /></Button>
+                  <Button variant="ghost" size="icon" className="size-8" aria-label={`Remove “${t.title}”`} onClick={() => remove(t.id)}><X /></Button>
                 </div>
               </li>
             ))}

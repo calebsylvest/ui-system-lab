@@ -21,13 +21,13 @@ export default function App() {
         <BlurFade delay={0}><PageHeader /></BlurFade>
         <BlurFade delay={0.08}><Stats /></BlurFade>
         <BlurFade delay={0.16}><Workspace /></BlurFade>
-        <BlurFade inView><RoundTwo /></BlurFade>
-        <BlurFade inView className="grid gap-4 lg:grid-cols-2">
+        <BlurFade delay={0.24}><RoundTwo /></BlurFade>
+        <BlurFade delay={0.32} className="grid gap-4 lg:grid-cols-2">
           <Controls />
           <Assistant />
         </BlurFade>
-        <BlurFade inView><States /></BlurFade>
-        <BlurFade inView><Settings /></BlurFade>
+        <BlurFade delay={0.32}><States /></BlurFade>
+        <BlurFade delay={0.32}><Settings /></BlurFade>
       </main>
       <footer className="border-t">
         <div className="mx-auto flex max-w-6xl flex-wrap justify-between gap-2 px-4 py-6 text-sm text-muted-foreground">

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Textarea } from "@/components/ui/textarea"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { AnimatedShinyText } from "@/components/ui/animated-shiny-text"
 
 type Msg = { role: "user" | "assistant"; text: string }
 
@@ -54,9 +55,9 @@ export function Assistant() {
             )
           )}
           {thinking && (
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground" role="status">
               <Avatar className="size-7"><AvatarFallback><Bot className="size-4" /></AvatarFallback></Avatar>
-              Thinking…
+              <AnimatedShinyText shimmerWidth={60} className="mx-0 text-muted-foreground/70 dark:text-muted-foreground/70 [animation-duration:1.6s]">Thinking…</AnimatedShinyText>
             </div>
           )}
         </div>

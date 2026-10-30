@@ -17,19 +17,19 @@ export function TopNav() {
         <a href="#" className="font-semibold">Fieldwork</a>
         <nav className="hidden md:flex items-center gap-4 text-sm">
           {links.map((l, i) => (
-            <a key={l} href="#" className={i === 0 ? "font-medium" : "text-muted-foreground hover:text-foreground"}>
+            <a key={l} href="#" aria-current={i === 0 ? "page" : undefined} className={i === 0 ? "font-medium" : "text-muted-foreground transition-colors hover:text-foreground"}>
               {l}
             </a>
           ))}
         </nav>
         <div className="ml-auto flex items-center gap-2">
-          <div className="relative hidden sm:block">
-            <Search className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-            <Input placeholder="Search projects" className="w-56 pl-8" />
-          </div>
+          <form role="search" className="relative hidden sm:block" onSubmit={(e) => e.preventDefault()}>
+            <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Input type="search" aria-label="Search projects" placeholder="Search projects" className="w-56 pl-8" />
+          </form>
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" aria-label="Notifications">
+              <Button variant="ghost" size="icon" aria-label="Notifications" className="hit-area">
                 <Bell />
               </Button>
             </TooltipTrigger>
@@ -37,7 +37,7 @@ export function TopNav() {
           </Tooltip>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="rounded-full" aria-label="Account menu">
+              <button type="button" className="hit-area [--hit:40px] rounded-full transition-transform active:scale-[0.96] focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring" aria-label="Account menu">
                 <Avatar><AvatarFallback>CS</AvatarFallback></Avatar>
               </button>
             </DropdownMenuTrigger>

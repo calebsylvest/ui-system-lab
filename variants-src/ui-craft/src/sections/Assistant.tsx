@@ -1,4 +1,4 @@
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { ArrowUp, Bot, Mic, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -15,14 +15,26 @@ const replies = [
 
 const suggestions = ["Which project needs attention?", "Summarize my hours", "What’s unpaid?"]
 
+const initialMsgs: Msg[] = [
+  { role: "user", text: "What changed since Monday?" },
+  { role: "assistant", text: "Two projects moved forward. Spring catalog redesign went to Review, and Donor portal v2 passed 80%. Menu boards is still paused." },
+]
+
 export function Assistant() {
-  const [msgs, setMsgs] = useState<Msg[]>([
-    { role: "user", text: "What changed since Monday?" },
-    { role: "assistant", text: "Two projects moved forward. Spring catalog redesign went to Review, and Donor portal v2 passed 80%. Menu boards is still paused." },
-  ])
+  const [msgs, setMsgs] = useState<Msg[]>(initialMsgs)
+  const logRef = useRef<HTMLDivElement>(null)
   const [input, setInput] = useState("")
   const [thinking, setThinking] = useState(false)
   const n = useRef(0)
+
+  // Keep the newest message in view without moving the page (scroll only the log).
+  useEffect(() => {
+    const el = logRef.current
+    if (el && msgs.length > initialMsgs.length) el.scrollTo({ top: el.scrollHeight, behavior: "smooth" })
+  }, [msgs.length, thinking])
+
+  // Only messages that arrive after first render get an entrance; the default state stays still.
+  const enter = (i: number) => (i >= initialMsgs.length ? "animate-enter" : "")
 
   function send(text: string) {
     if (!text.trim() || thinking) return
@@ -42,19 +54,19 @@ export function Assistant() {
         <CardDescription>Questions about your projects, hours and invoices.</CardDescription>
       </CardHeader>
       <CardContent className="grid gap-4">
-        <div className="grid max-h-80 gap-3 overflow-y-auto">
+        <div ref={logRef} role="log" aria-live="polite" aria-label="Conversation" className="grid max-h-80 gap-3 overflow-y-auto overscroll-contain">
           {msgs.map((m, i) =>
             m.role === "user" ? (
-              <div key={i} className="ml-auto max-w-[80%] rounded-lg bg-primary px-3 py-2 text-sm text-primary-foreground">{m.text}</div>
+              <div key={i} className={`${enter(i)} ml-auto max-w-[80%] rounded-lg bg-primary px-3 py-2 text-sm text-primary-foreground`}>{m.text}</div>
             ) : (
-              <div key={i} className="flex max-w-[85%] items-start gap-2">
+              <div key={i} className={`${enter(i)} flex max-w-[85%] items-start gap-2`}>
                 <Avatar className="size-7"><AvatarFallback><Bot className="size-4" /></AvatarFallback></Avatar>
                 <div className="rounded-lg bg-muted px-3 py-2 text-sm">{m.text}</div>
               </div>
             )
           )}
           {thinking && (
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <div className="animate-enter flex items-center gap-2 text-sm text-muted-foreground">
               <Avatar className="size-7"><AvatarFallback><Bot className="size-4" /></AvatarFallback></Avatar>
               Thinking…
             </div>
@@ -68,10 +80,10 @@ export function Assistant() {
         <form onSubmit={(e) => { e.preventDefault(); send(input) }} className="relative">
           <Textarea id="assistant-input" value={input} onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(input) } }}
-            placeholder="Ask about a project, client or invoice" className="min-h-20 pr-24" />
+            placeholder="Ask about a project, client or invoice" aria-label="Message Fieldwork" className="min-h-20 rounded-xl pr-24" />
           <div className="absolute bottom-2 right-2 flex gap-1">
-            <Button type="button" variant="ghost" size="icon" aria-label="Dictate" className="size-8"><Mic /></Button>
-            <Button type="submit" size="icon" aria-label="Send" className="size-8" disabled={!input.trim() || thinking}><ArrowUp /></Button>
+            <Button type="button" variant="ghost" size="icon" aria-label="Dictate" className="size-8 rounded-sm"><Mic /></Button>
+            <Button type="submit" size="icon" aria-label="Send" className="size-8 rounded-sm" disabled={!input.trim() || thinking}><ArrowUp /></Button>
           </div>
         </form>
       </CardContent>

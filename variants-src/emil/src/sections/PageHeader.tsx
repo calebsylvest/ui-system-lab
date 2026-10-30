@@ -31,8 +31,8 @@ export function PageHeader() {
   return (
     <section className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
       <div>
-        <h1 className="text-2xl font-semibold">Projects</h1>
-        <p className="text-muted-foreground text-sm">6 active projects across 6 clients. 42.5 hours logged this week.</p>
+        <h1 className="text-2xl font-semibold tracking-[-0.02em]">Projects</h1>
+        <p className="text-muted-foreground max-w-[65ch] text-sm">6 active projects across 6 clients. 42.5 hours logged this week.</p>
       </div>
       <div className="flex gap-2">
         <Button variant="outline" onClick={() => toast("Export started", { description: "We’ll email you the CSV in a minute." })}>

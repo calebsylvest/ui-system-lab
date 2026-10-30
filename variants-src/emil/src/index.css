@@ -3,6 +3,29 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Motion tokens (emil-design-eng: "use custom easing curves"; built-ins are too weak).
+   Overriding Tailwind's own --ease-out / --ease-in-out means every `ease-out` utility
+   gets the strong curve, instead of forking a parallel token system. */
+@theme {
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  /* Bare `transition-colors` etc. are hover/color changes: easing tree says `ease`. */
+  --default-transition-timing-function: ease;
+
+  /* Accordion: height + opacity together (animate/RECIPES "Accordion"), exit faster than enter. */
+  --animate-accordion-down: accordion-open 200ms var(--ease-out);
+  --animate-accordion-up: accordion-close 150ms var(--ease-out);
+  @keyframes accordion-open {
+    from { height: 0; opacity: 0; }
+    to { height: var(--radix-accordion-content-height); opacity: 1; }
+  }
+  @keyframes accordion-close {
+    from { height: var(--radix-accordion-content-height); opacity: 1; }
+    to { height: 0; opacity: 0; }
+  }
+}
+
 :root {
   --radius: 0.625rem;
   --background: oklch(1 0 0);
@@ -75,3 +98,86 @@
   * { @apply border-border outline-ring/50; }
   body { @apply bg-background text-foreground; }
 }
+
+/* ---------- Motion layer (Emil Kowalski skills) ---------- */
+
+/* Any pressable element: scale(0.97) on :active, 160ms strong ease-out.
+   Colors keep `ease` 150ms. Exact properties, never `transition: all`. */
+@utility pressable {
+  transition-property: transform, color, background-color, border-color, box-shadow, opacity;
+  transition-duration: 160ms, 150ms, 150ms, 150ms, 150ms, 150ms;
+  transition-timing-function: var(--ease-out), ease, ease, ease, ease, ease;
+  &:active,
+  &[data-holding] {
+    transform: scale(0.97);
+  }
+}
+
+/* Hold-to-confirm fill: slow + linear while the user decides, snappy release. */
+.hold-overlay {
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path 200ms var(--ease-out);
+}
+[data-holding] > .hold-overlay {
+  clip-path: inset(0 0 0 0);
+  transition: clip-path 2s linear;
+}
+
+/* Entry without JS via @starting-style. Transitions (not keyframes) so they retarget. */
+.enter-rise {
+  transition:
+    opacity 300ms var(--ease-out),
+    transform 300ms var(--ease-out);
+  @starting-style {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+.enter-message {
+  transform-origin: bottom left;
+  transition:
+    opacity 200ms var(--ease-out),
+    transform 200ms var(--ease-out);
+  @starting-style {
+    opacity: 0;
+    transform: translateY(4px) scale(0.97);
+  }
+}
+.enter-fade {
+  transition: opacity 150ms var(--ease-out);
+  @starting-style {
+    opacity: 0;
+  }
+}
+
+/* Reduced motion: fewer and gentler, not zero. Keep opacity/color, drop movement. */
+@media (prefers-reduced-motion: reduce) {
+  [data-slot="dialog-content"],
+  [data-slot="dropdown-menu-content"],
+  [data-slot="select-content"],
+  [data-slot="tooltip-content"] {
+    --tw-enter-scale: 1 !important;
+    --tw-exit-scale: 1 !important;
+    --tw-enter-translate-x: 0 !important;
+    --tw-enter-translate-y: 0 !important;
+  }
+  .enter-rise,
+  .enter-message {
+    @starting-style {
+      transform: none;
+    }
+  }
+  [data-slot="switch-thumb"],
+  [data-slot="progress-indicator"],
+  [data-slot="accordion-trigger"] > svg {
+    transition-duration: 0ms !important;
+  }
+  [data-slot="accordion-content"][data-state="open"] {
+    animation: fade-only-in 150ms ease !important;
+  }
+  [data-slot="accordion-content"][data-state="closed"] {
+    animation: fade-only-out 100ms ease !important;
+  }
+}
+@keyframes fade-only-in { from { opacity: 0; } }
+@keyframes fade-only-out { to { opacity: 0; } }

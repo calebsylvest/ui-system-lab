@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { Bold, Heart, Italic, Plus, RefreshCw, Star, Underline } from "lucide-react"
 import { toast } from "sonner"
+import { playSound } from "@/lib/sound"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
@@ -34,7 +35,7 @@ export function Controls() {
           <Button size="icon" variant="outline" aria-label="Add"><Plus /></Button>
         </div>
         <div className="flex flex-wrap items-center gap-4">
-          <div className="flex rounded-md border p-0.5">
+          <div className="flex rounded-lg border p-0.5">
             {[
               { k: "bold", icon: Bold, label: "Bold" },
               { k: "italic", icon: Italic, label: "Italic" },
@@ -54,14 +55,14 @@ export function Controls() {
             <Heart className={liked ? "fill-current text-red-500" : ""} /> {liked ? "Liked" : "Like"}
           </Button>
           <Button variant="outline" onClick={() => setStarred((s) => s + 1)}>
-            <Star /> Star <span className="text-muted-foreground">{starred}</span>
+            <Star /> Star <span className="text-muted-foreground tabular-nums">{starred}</span>
           </Button>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <Button variant="outline" onClick={() => toast("Draft saved")}>Plain toast</Button>
-          <Button variant="outline" onClick={() => toast.success("Invoice INV-1042 sent")}>Success toast</Button>
-          <Button variant="outline" onClick={() => toast.error("Payment failed", { description: "The card was declined. Ask the client for another card." })}>Error toast</Button>
-          <Button variant="outline" onClick={() => toast.promise(new Promise((r) => setTimeout(r, 1500)), { loading: "Syncing with QuickBooks", success: "Synced 12 invoices", error: "Sync failed" })}>
+          <Button variant="outline" onClick={() => { toast.success("Invoice INV-1042 sent"); playSound("success") }}>Success toast</Button>
+          <Button variant="outline" onClick={() => { toast.error("Payment failed", { description: "The card was declined. Ask the client for another card." }); playSound("error") }}>Error toast</Button>
+          <Button variant="outline" onClick={() => toast.promise(new Promise((r) => setTimeout(r, 1500)).then(() => playSound("success")), { loading: "Syncing with QuickBooks", success: "Synced 12 invoices", error: "Sync failed" })}>
             <RefreshCw /> Promise toast
           </Button>
         </div>

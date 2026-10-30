@@ -1,9 +1,42 @@
-import { useState } from "react"
+import { useRef, useState } from "react"
 import { Bold, Heart, Italic, Plus, RefreshCw, Star, Underline } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+
+// Hold-to-confirm for the destructive action (emil-design-eng "Hold-to-delete pattern";
+// animate/RECIPES "Hold to confirm"): 2s linear fill while pressed, 200ms ease-out snap back.
+function HoldToDelete() {
+  const [holding, setHolding] = useState(false)
+  const timer = useRef<number | undefined>(undefined)
+  const start = () => {
+    if (timer.current) return
+    setHolding(true)
+    timer.current = window.setTimeout(() => {
+      timer.current = undefined
+      setHolding(false)
+      toast("Deleted")
+    }, 2000)
+  }
+  const cancel = () => {
+    window.clearTimeout(timer.current)
+    timer.current = undefined
+    setHolding(false)
+  }
+  const isKey = (k: string) => k === " " || k === "Enter"
+  return (
+    <Button variant="destructive" data-holding={holding || undefined} className="relative overflow-hidden"
+      aria-description="Press and hold to delete"
+      onPointerDown={start} onPointerUp={cancel} onPointerLeave={cancel} onPointerCancel={cancel}
+      onKeyDown={(e) => { if (isKey(e.key)) { e.preventDefault(); if (!e.repeat) start() } }}
+      onKeyUp={(e) => { if (isKey(e.key)) cancel() }}
+      onBlur={cancel}>
+      <span aria-hidden className="hold-overlay absolute inset-0 bg-black/25" />
+      <span className="relative">Delete</span>
+    </Button>
+  )
+}
 
 export function Controls() {
   const [liked, setLiked] = useState(false)
@@ -24,7 +57,7 @@ export function Controls() {
           <Button variant="outline">Outline</Button>
           <Button variant="ghost">Ghost</Button>
           <Button variant="link">Link</Button>
-          <Button variant="destructive">Delete</Button>
+          <HoldToDelete />
           <Button disabled>Disabled</Button>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -54,7 +87,7 @@ export function Controls() {
             <Heart className={liked ? "fill-current text-red-500" : ""} /> {liked ? "Liked" : "Like"}
           </Button>
           <Button variant="outline" onClick={() => setStarred((s) => s + 1)}>
-            <Star /> Star <span className="text-muted-foreground">{starred}</span>
+            <Star /> Star <span className="text-muted-foreground tabular-nums">{starred}</span>
           </Button>
         </div>
         <div className="flex flex-wrap items-center gap-2">

@@ -31,8 +31,8 @@ export function PageHeader() {
   return (
     <section className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
       <div>
-        <h1 className="text-2xl font-semibold">Projects</h1>
-        <p className="text-muted-foreground text-sm">6 active projects across 6 clients. 42.5 hours logged this week.</p>
+        <h1 className="text-2xl font-semibold text-balance">Projects</h1>
+        <p className="text-muted-foreground text-sm text-pretty tabular-nums">6 projects across 6 clients, 4 in progress. 42.5 hours logged this week.</p>
       </div>
       <div className="flex gap-2">
         <Button variant="outline" onClick={() => toast("Export started", { description: "We’ll email you the CSV in a minute." })}>
@@ -50,10 +50,11 @@ export function PageHeader() {
               </DialogHeader>
               <div className="grid gap-2">
                 <Label htmlFor="np-name">Project name</Label>
-                <Input id="np-name" value={name} aria-invalid={error}
+                <Input id="np-name" value={name} aria-invalid={error} aria-required="true"
+                  aria-describedby={error ? "np-name-error" : undefined}
                   onChange={(e) => { setName(e.target.value); setError(false) }}
                   placeholder="e.g. Holiday landing page" />
-                {error && <p className="text-destructive text-sm">Enter a project name.</p>}
+                {error && <p id="np-name-error" role="alert" className="text-destructive text-sm">Enter a project name.</p>}
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="np-client">Client</Label>

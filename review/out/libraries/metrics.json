@@ -1,0 +1,71 @@
+{
+  "id": "libraries",
+  "bundle": {
+    "js": 1397814,
+    "jsGz": 398970,
+    "css": 41629,
+    "cssGz": 7887,
+    "font": 0
+  },
+  "load": {
+    "fcp": null,
+    "lcp": 0,
+    "cls": 0,
+    "tbt": 18999
+  },
+  "interaction": {
+    "avgFrame": 91.55836820083681,
+    "p95Frame": 799.9000000000015,
+    "jank": 0.12394957983193278,
+    "longTaskMs": 35881,
+    "inpProxy": 216,
+    "maxEvent": 216
+  },
+  "cpu": {
+    "script": 37139.195999999996,
+    "layout": 117.33399999999999,
+    "style": 942.425,
+    "loadScript": 19975.322,
+    "heapMB": 15.518489837646484
+  },
+  "steps": [
+    [
+      "dialog",
+      "ok"
+    ],
+    [
+      "menu",
+      "ok"
+    ],
+    [
+      "tabs",
+      "ok"
+    ],
+    [
+      "hover-cards",
+      "ok"
+    ],
+    [
+      "tooltip",
+      "ok"
+    ],
+    [
+      "accordion",
+      "ok"
+    ],
+    [
+      "toast",
+      "skip"
+    ],
+    [
+      "scroll",
+      "ok"
+    ],
+    [
+      "chat",
+      "ok"
+    ]
+  ],
+  "errors": [],
+  "runs": 3
+}

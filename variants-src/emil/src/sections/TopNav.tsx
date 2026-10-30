@@ -37,7 +37,7 @@ export function TopNav() {
           </Tooltip>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="rounded-full" aria-label="Account menu">
+              <button className="pressable rounded-full" aria-label="Account menu">
                 <Avatar><AvatarFallback>CS</AvatarFallback></Avatar>
               </button>
             </DropdownMenuTrigger>

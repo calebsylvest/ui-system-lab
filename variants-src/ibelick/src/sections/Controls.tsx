@@ -4,6 +4,11 @@ import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription,
+  AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import { cn } from "@/lib/utils"
 
 export function Controls() {
   const [liked, setLiked] = useState(false)
@@ -14,7 +19,7 @@ export function Controls() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Controls</CardTitle>
+        <CardTitle as="h2">Controls</CardTitle>
         <CardDescription>Every button style, plus a few stateful toggles and toasts.</CardDescription>
       </CardHeader>
       <CardContent className="grid gap-6">
@@ -24,7 +29,19 @@ export function Controls() {
           <Button variant="outline">Outline</Button>
           <Button variant="ghost">Ghost</Button>
           <Button variant="link">Link</Button>
-          <Button variant="destructive">Delete</Button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild><Button variant="destructive">Delete</Button></AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete this item?</AlertDialogTitle>
+                <AlertDialogDescription>This can’t be undone.</AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction variant="destructive" onClick={() => toast("Deleted")}>Delete</AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
           <Button disabled>Disabled</Button>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -51,10 +68,10 @@ export function Controls() {
             ))}
           </div>
           <Button variant="outline" aria-pressed={liked} onClick={() => setLiked(!liked)}>
-            <Heart className={liked ? "fill-current text-red-500" : ""} /> {liked ? "Liked" : "Like"}
+            <Heart className={cn(liked && "fill-current text-red-500")} /> {liked ? "Liked" : "Like"}
           </Button>
           <Button variant="outline" onClick={() => setStarred((s) => s + 1)}>
-            <Star /> Star <span className="text-muted-foreground">{starred}</span>
+            <Star /> Star <span className="text-muted-foreground tabular-nums">{starred}</span>
           </Button>
         </div>
         <div className="flex flex-wrap items-center gap-2">

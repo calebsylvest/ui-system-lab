@@ -68,10 +68,10 @@ export function Assistant() {
         <form onSubmit={(e) => { e.preventDefault(); send(input) }} className="relative">
           <Textarea id="assistant-input" value={input} onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(input) } }}
-            placeholder="Ask about a project, client or invoice" className="min-h-20 pr-24" />
+            placeholder="Ask about a project, client or invoice" className="min-h-20 rounded-xl pr-24" />
           <div className="absolute bottom-2 right-2 flex gap-1">
-            <Button type="button" variant="ghost" size="icon" aria-label="Dictate" className="size-8"><Mic /></Button>
-            <Button type="submit" size="icon" aria-label="Send" className="size-8" disabled={!input.trim() || thinking}><ArrowUp /></Button>
+            <Button type="button" variant="ghost" size="icon" aria-label="Dictate" className="size-8 rounded-sm"><Mic /></Button>
+            <Button type="submit" size="icon" aria-label="Send" className="size-8 rounded-sm" disabled={!input.trim() || thinking}><ArrowUp /></Button>
           </div>
         </form>
       </CardContent>

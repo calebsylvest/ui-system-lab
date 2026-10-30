@@ -1,9 +1,9 @@
 import { useRef, useState } from "react"
-import { ArrowUp, Bot, Mic, Sparkles } from "lucide-react"
+import { ArrowUp, Mic } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Textarea } from "@/components/ui/textarea"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Mark } from "@/sections/Sidebar"
 
 type Msg = { role: "user" | "assistant"; text: string }
 
@@ -38,7 +38,7 @@ export function Assistant() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2"><Sparkles className="size-4" /> Ask Fieldwork</CardTitle>
+        <CardTitle className="flex items-center gap-2"><Mark className="size-4" /> Ask Fieldwork</CardTitle>
         <CardDescription>Questions about your projects, hours and invoices.</CardDescription>
       </CardHeader>
       <CardContent className="grid gap-4">
@@ -47,15 +47,15 @@ export function Assistant() {
             m.role === "user" ? (
               <div key={i} className="ml-auto max-w-[80%] rounded-lg bg-primary px-3 py-2 text-sm text-primary-foreground">{m.text}</div>
             ) : (
-              <div key={i} className="flex max-w-[85%] items-start gap-2">
-                <Avatar className="size-7"><AvatarFallback><Bot className="size-4" /></AvatarFallback></Avatar>
+              <div key={i} className="flex max-w-[85%] items-start gap-2.5">
+                <Mark className="mt-2 size-4" />
                 <div className="rounded-lg bg-muted px-3 py-2 text-sm">{m.text}</div>
               </div>
             )
           )}
           {thinking && (
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Avatar className="size-7"><AvatarFallback><Bot className="size-4" /></AvatarFallback></Avatar>
+              <Mark className="size-4 opacity-60" />
               Thinking…
             </div>
           )}
@@ -70,7 +70,7 @@ export function Assistant() {
             onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(input) } }}
             placeholder="Ask about a project, client or invoice" className="min-h-20 pr-24" />
           <div className="absolute bottom-2 right-2 flex gap-1">
-            <Button type="button" variant="ghost" size="icon" aria-label="Dictate" className="size-8"><Mic /></Button>
+            <Button type="button" variant="ghost" size="icon" aria-label="Dictate" className="size-8 text-muted-foreground"><Mic /></Button>
             <Button type="submit" size="icon" aria-label="Send" className="size-8" disabled={!input.trim() || thinking}><ArrowUp /></Button>
           </div>
         </form>

@@ -20,6 +20,6 @@ function DropdownMenuSeparator({ className, ...props }: React.ComponentProps<typ
   return <DropdownMenuPrimitive.Separator data-slot="dropdown-menu-separator" className={cn("bg-border -mx-1 my-1 h-px", className)} {...props} />
 }
 function DropdownMenuShortcut({ className, ...props }: React.ComponentProps<"span">) {
-  return <span data-slot="dropdown-menu-shortcut" className={cn("text-muted-foreground ml-auto text-xs tracking-widest", className)} {...props} />
+  return <span data-slot="dropdown-menu-shortcut" className={cn("text-muted-foreground ml-auto text-xs", className)} {...props} />
 }
 export { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuShortcut }

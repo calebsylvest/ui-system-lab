@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { FolderOpen } from "lucide-react"
+import { FileArchive, FileImage, FileText } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -10,19 +10,18 @@ export function States() {
   const [loading, setLoading] = useState(true)
 
   return (
-    <section className="grid gap-4 lg:grid-cols-3">
+    <section className="grid gap-6 lg:grid-cols-3">
       <Card>
         <CardHeader>
           <CardTitle>Archived projects</CardTitle>
           <CardDescription>Empty state</CardDescription>
         </CardHeader>
-        <CardContent className="flex flex-col items-center gap-3 py-6 text-center">
-          <FolderOpen className="size-8 text-muted-foreground" />
-          <div>
-            <p className="font-medium">No archived projects</p>
-            <p className="text-muted-foreground text-sm">Projects you archive show up here. Nothing is deleted.</p>
-          </div>
-          <Button variant="outline" size="sm">View active projects</Button>
+        {/* An empty block keeps its frame and header and says one sentence; no illustration (app-screens.md 11). */}
+        <CardContent className="flex flex-1 flex-col gap-4">
+          <p className="text-muted-foreground rounded-lg border border-dashed border-input px-4 py-3 text-sm">
+            <span className="text-foreground font-medium">No archived projects.</span> Projects you archive show up here. Nothing is deleted.
+          </p>
+          <Button variant="outline" size="sm" className="mt-auto self-start">View active projects</Button>
         </CardContent>
       </Card>
 
@@ -31,33 +30,34 @@ export function States() {
           <CardTitle>Recent files</CardTitle>
           <CardDescription>Loading state</CardDescription>
         </CardHeader>
-        <CardContent className="grid gap-3">
+        {/* Loading keeps the final layout: flat grey bars at the real sizes, no shimmer, no shift. */}
+        <CardContent className="flex flex-1 flex-col gap-1">
           {loading ? (
             [0, 1, 2].map((i) => (
-              <div key={i} className="flex items-center gap-3">
-                <Skeleton className="size-10" />
-                <div className="grid flex-1 gap-2">
-                  <Skeleton className="h-4 w-3/4" />
+              <div key={i} className="flex h-11 items-start gap-3 pt-0.5">
+                <Skeleton className="mt-0.5 size-4" />
+                <div className="grid flex-1 gap-1.5 pt-0.5">
+                  <Skeleton className="h-3.5 w-3/4" />
                   <Skeleton className="h-3 w-1/2" />
                 </div>
               </div>
             ))
           ) : (
-            [
-              ["catalog-cover-v3.fig", "Maya R. · 2.4 MB"],
-              ["donor-portal-flows.pdf", "Jonah O. · 880 KB"],
-              ["menu-board-photos.zip", "Lena T. · 41 MB"],
-            ].map(([f, m]) => (
-              <div key={f} className="flex items-center gap-3">
-                <div className="size-10 rounded-md bg-muted" />
-                <div className="text-sm">
-                  <p className="font-medium">{f}</p>
-                  <p className="text-muted-foreground text-xs">{m}</p>
+            ([
+              ["catalog-cover-v3.fig", "Maya R. · 2.4 MB", FileImage],
+              ["donor-portal-flows.pdf", "Jonah O. · 880 KB", FileText],
+              ["menu-board-photos.zip", "Lena T. · 41 MB", FileArchive],
+            ] as const).map(([f, m, Icon]) => (
+              <div key={f} className="flex h-11 items-start gap-3">
+                <Icon className="text-muted-foreground mt-0.5 size-4 shrink-0" strokeWidth={1.6} />
+                <div className="min-w-0 text-sm">
+                  <p className="truncate font-medium leading-5">{f}</p>
+                  <p className="text-muted-foreground text-xs leading-4">{m}</p>
                 </div>
               </div>
             ))
           )}
-          <Button variant="ghost" size="sm" onClick={() => setLoading(!loading)}>
+          <Button variant="ghost" size="sm" className="mt-auto self-start" onClick={() => setLoading(!loading)}>
             {loading ? "Finish loading" : "Show loading again"}
           </Button>
         </CardContent>

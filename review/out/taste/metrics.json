@@ -1,0 +1,71 @@
+{
+  "id": "taste",
+  "bundle": {
+    "js": 476891,
+    "jsGz": 143600,
+    "css": 51369,
+    "cssGz": 9735,
+    "font": 583228
+  },
+  "load": {
+    "fcp": 720,
+    "lcp": 720,
+    "cls": 0.0015856861114501954,
+    "tbt": 457
+  },
+  "interaction": {
+    "avgFrame": 17.6160332541568,
+    "p95Frame": 16.799999999999272,
+    "jank": 0.007159904534606206,
+    "longTaskMs": 574,
+    "inpProxy": 216,
+    "maxEvent": 216
+  },
+  "cpu": {
+    "script": 520.3480000000001,
+    "layout": 116.60699999999999,
+    "style": 501.62399999999997,
+    "loadScript": 433.057,
+    "heapMB": 8.116401672363281
+  },
+  "steps": [
+    [
+      "dialog",
+      "ok"
+    ],
+    [
+      "menu",
+      "ok"
+    ],
+    [
+      "tabs",
+      "ok"
+    ],
+    [
+      "hover-cards",
+      "ok"
+    ],
+    [
+      "tooltip",
+      "ok"
+    ],
+    [
+      "accordion",
+      "ok"
+    ],
+    [
+      "toast",
+      "ok"
+    ],
+    [
+      "scroll",
+      "ok"
+    ],
+    [
+      "chat",
+      "ok"
+    ]
+  ],
+  "errors": [],
+  "runs": 3
+}

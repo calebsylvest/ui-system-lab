@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "@fontsource-variable/instrument-sans/wght.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -16,34 +17,87 @@
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
   --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
+  --muted-foreground: oklch(0.52 0 0);
   --accent: oklch(0.97 0 0);
   --accent-foreground: oklch(0.205 0 0);
   --destructive: oklch(0.577 0.245 27.325);
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+  --ring: var(--brand);
+
+  /* Primitive: Fieldwork clay (brand) + status scales, OKLCH, chroma tapered */
+  --clay-400: oklch(0.70 0.13 45);
+  --clay-500: oklch(0.58 0.15 40);
+  --clay-100: oklch(0.94 0.03 45);
+  --green-100: oklch(0.95 0.04 155);
+  --green-700: oklch(0.48 0.12 155);
+  --green-300: oklch(0.82 0.13 155);
+  --green-900: oklch(0.30 0.06 155);
+  --amber-100: oklch(0.96 0.05 85);
+  --amber-700: oklch(0.50 0.12 70);
+  --amber-300: oklch(0.84 0.13 85);
+  --amber-900: oklch(0.32 0.06 75);
+  --red-100: oklch(0.95 0.03 25);
+  --red-700: oklch(0.50 0.19 27);
+  --red-300: oklch(0.80 0.12 25);
+  --red-900: oklch(0.32 0.08 25);
+
+  /* Semantic */
+  --brand: var(--clay-500);
+  --selection: var(--clay-100);
+  --selection-foreground: oklch(0.145 0 0);
+  --success: var(--green-700);
+  --success-surface: var(--green-100);
+  --warning: var(--amber-700);
+  --warning-surface: var(--amber-100);
+  --danger: var(--red-700);
+  --danger-surface: var(--red-100);
+
+  /* Elevation (Derek Briggs method): first layer is a 1px ring that replaces the border */
+  --shadow-ring: rgba(0, 0, 0, 0.06);
+  --shadow-tint: rgba(0, 0, 0, 0.06);
+  --elev-xs: 0 0 0 1px var(--shadow-ring), 0 1px 1px -0.5px var(--shadow-tint);
+  --elev-sm: 0 0 0 1px var(--shadow-ring), 0 1px 1px -0.5px var(--shadow-tint), 0 3px 3px -1.5px var(--shadow-tint);
+  --elev-md: var(--elev-sm), 0 6px 6px -3px var(--shadow-tint);
+  --elev-lg: var(--elev-md), 0 12px 12px -6px var(--shadow-tint);
+  --elev-xl: var(--elev-lg), 0 24px 24px -12px var(--shadow-tint);
+
+  /* Motion */
+  --ease-default: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-enter: cubic-bezier(0, 0, 0.2, 1);
+  --ease-exit: cubic-bezier(0.4, 0, 1, 1);
 }
 
 .dark {
   --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
+  --foreground: oklch(0.94 0 0);
   --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
+  --card-foreground: oklch(0.94 0 0);
   --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
+  --popover-foreground: oklch(0.94 0 0);
   --primary: oklch(0.922 0 0);
   --primary-foreground: oklch(0.205 0 0);
   --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
+  --secondary-foreground: oklch(0.94 0 0);
   --muted: oklch(0.269 0 0);
   --muted-foreground: oklch(0.708 0 0);
   --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
+  --accent-foreground: oklch(0.94 0 0);
   --destructive: oklch(0.704 0.191 22.216);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
+  --ring: var(--brand);
+  --brand: var(--clay-400);
+  --selection: oklch(0.40 0.08 45);
+  --selection-foreground: oklch(0.96 0 0);
+  --success: var(--green-300);
+  --success-surface: var(--green-900);
+  --warning: var(--amber-300);
+  --warning-surface: var(--amber-900);
+  --danger: var(--red-300);
+  --danger-surface: var(--red-900);
+  --shadow-ring: rgba(255, 255, 255, 0.08);
+  --shadow-tint: rgba(0, 0, 0, 0.32);
 }
 
 @theme inline {
@@ -69,9 +123,75 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-brand: var(--brand);
+  --color-success: var(--success);
+  --color-success-surface: var(--success-surface);
+  --color-warning: var(--warning);
+  --color-warning-surface: var(--warning-surface);
+  --color-danger: var(--danger);
+  --color-danger-surface: var(--danger-surface);
+
+  --font-sans: "Instrument Sans Variable", ui-sans-serif, system-ui, sans-serif;
+
+  --shadow-xs: var(--elev-xs);
+  --shadow-sm: var(--elev-sm);
+  --shadow-md: var(--elev-md);
+  --shadow-lg: var(--elev-lg);
+  --shadow-xl: var(--elev-xl);
+
+  --ease-out: var(--ease-default);
+  --ease-in: var(--ease-exit);
+  --default-transition-duration: 150ms;
+  --default-transition-timing-function: var(--ease-default);
 }
 
 @layer base {
-  * { @apply border-border outline-ring/50; }
-  body { @apply bg-background text-foreground; }
+  * { @apply border-border outline-ring; }
+  html {
+    scrollbar-gutter: stable;
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    @apply bg-background text-foreground;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+    font-optical-sizing: auto;
+  }
+  h1, h2, h3, [data-slot="card-title"], [data-slot="dialog-title"] { text-wrap: balance; }
+  p, [data-slot="card-description"], [data-slot="dialog-description"] { text-wrap: pretty; }
+  ::selection { background: var(--selection); color: var(--selection-foreground); }
+}
+
+/* Expanded hit area for small controls (surface-details: 44px targets, no overlap). */
+@utility hit-area {
+  position: relative;
+  &::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: var(--hit, 44px);
+    height: var(--hit, 44px);
+    transform: translate(-50%, -50%);
+  }
+}
+
+/* Entrance for newly arriving content (chat messages). Not applied on first render. */
+@keyframes fw-enter {
+  from { opacity: 0; transform: translateY(6px); }
+}
+@utility animate-enter {
+  animation: fw-enter 240ms var(--ease-enter) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

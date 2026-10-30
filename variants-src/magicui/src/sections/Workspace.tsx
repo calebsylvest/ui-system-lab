@@ -8,6 +8,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Progress } from "@/components/ui/progress"
+import { MagicCard } from "@/components/ui/magic-card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import {
@@ -47,7 +48,12 @@ export function Workspace() {
 
       <TabsContent value="projects" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {projects.map((p) => (
-          <Card key={p.id}>
+          <MagicCard key={p.id} className="rounded-xl shadow-sm"
+            gradientSize={240}
+            gradientColor="var(--accent)" gradientOpacity={0.7}
+            gradientFrom="color-mix(in oklch, var(--foreground) 45%, transparent)"
+            gradientTo="color-mix(in oklch, var(--foreground) 12%, transparent)">
+          <Card className="h-full border-0 bg-transparent shadow-none">
             <CardHeader>
               <CardTitle>{p.name}</CardTitle>
               <CardDescription>{p.client}</CardDescription>
@@ -69,6 +75,7 @@ export function Workspace() {
               <span className="text-sm text-muted-foreground">{p.progress}%</span>
             </CardFooter>
           </Card>
+          </MagicCard>
         ))}
       </TabsContent>
 

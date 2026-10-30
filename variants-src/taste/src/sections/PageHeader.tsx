@@ -10,6 +10,7 @@ import {
   Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter,
   DialogHeader, DialogTitle, DialogTrigger,
 } from "@/components/ui/dialog"
+import { projectCounts } from "@/data"
 
 export function PageHeader() {
   const [open, setOpen] = useState(false)
@@ -31,8 +32,14 @@ export function PageHeader() {
   return (
     <section className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
       <div>
-        <h1 className="text-2xl font-semibold">Projects</h1>
-        <p className="text-muted-foreground text-sm">6 active projects across 6 clients. 42.5 hours logged this week.</p>
+        <h1 className="text-[22px] leading-7 font-semibold tracking-[-0.01em]">Projects</h1>
+        {/* The line under the title carries the screen's one finding, then the scope (app-screens.md 2.2). */}
+        <p className="mt-1 text-[15px] leading-6">
+          Checkout flow audit is at risk, and Northwind’s INV-1040 is 28 days overdue.{" "}
+          <span className="text-muted-foreground">
+            {projectCounts.active} active, {projectCounts.paused} paused, {projectCounts.done} done · 42.5 h logged this week.
+          </span>
+        </p>
       </div>
       <div className="flex gap-2">
         <Button variant="outline" onClick={() => toast("Export started", { description: "We’ll email you the CSV in a minute." })}>

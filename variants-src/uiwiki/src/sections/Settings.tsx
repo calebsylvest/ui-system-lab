@@ -9,22 +9,30 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { Separator } from "@/components/ui/separator"
+import { AnimatedWidth } from "@/components/ui/animated-width"
+import { playSound, useSoundEnabled } from "@/lib/sound"
 
 export function Settings() {
   const [email, setEmail] = useState("billing@fieldwork")
   const [saving, setSaving] = useState(false)
-  const invalid = !/^\S+@\S+\.\S+$/.test(email)
+  const [sounds, setSounds] = useSoundEnabled()
+  // ux-postels-accept-messy-input: tolerate stray spaces, store the clean value
+  const cleanEmail = email.trim()
+  const invalid = !/^\S+@\S+\.\S+$/.test(cleanEmail)
 
   function save(e: React.FormEvent) {
     e.preventDefault()
     if (invalid) {
       toast.error("Couldn’t save settings", { description: "Fix the billing email and try again." })
+      playSound("error")
       return
     }
+    setEmail(cleanEmail)
     setSaving(true)
     setTimeout(() => {
       setSaving(false)
       toast.success("Settings saved")
+      playSound("success")
     }, 1200)
   }
 
@@ -50,7 +58,7 @@ export function Settings() {
             </div>
             <div className="grid gap-2">
               <Label htmlFor="ws-rate">Default hourly rate</Label>
-              <Input id="ws-rate" type="number" defaultValue={135} />
+              <Input id="ws-rate" type="number" defaultValue={135} className="tabular-nums" />
             </div>
             <div className="grid gap-2">
               <Label htmlFor="ws-terms">Payment terms</Label>
@@ -68,18 +76,25 @@ export function Settings() {
           <Separator />
           <div className="grid gap-4">
             <div className="flex items-center justify-between gap-4">
-              <div>
+              <div className="grid gap-1">
                 <Label htmlFor="ws-reminders">Overdue reminders</Label>
                 <p className="text-muted-foreground text-sm">Email clients 3, 7 and 14 days after the due date.</p>
               </div>
               <Switch id="ws-reminders" defaultChecked />
             </div>
             <div className="flex items-center justify-between gap-4">
-              <div>
+              <div className="grid gap-1">
                 <Label htmlFor="ws-weekly">Weekly summary</Label>
                 <p className="text-muted-foreground text-sm">Monday morning digest of hours and budgets.</p>
               </div>
               <Switch id="ws-weekly" />
+            </div>
+            <div className="flex items-center justify-between gap-4">
+              <div className="grid gap-1">
+                <Label htmlFor="ws-sounds">Interface sounds</Label>
+                <p className="text-muted-foreground text-sm">A soft tone when something is sent, saved or fails. Off by default.</p>
+              </div>
+              <Switch id="ws-sounds" checked={sounds} onCheckedChange={setSounds} />
             </div>
             <div className="flex items-center gap-2">
               <Checkbox id="ws-round" defaultChecked />
@@ -90,8 +105,10 @@ export function Settings() {
         <CardFooter className="justify-end gap-2">
           <Button type="button" variant="ghost">Discard</Button>
           <Button type="submit" disabled={saving}>
-            {saving && <Loader2 className="animate-spin" />}
-            {saving ? "Saving" : "Save changes"}
+            <AnimatedWidth>
+              {saving && <Loader2 className="animate-spin" />}
+              {saving ? "Saving" : "Save changes"}
+            </AnimatedWidth>
           </Button>
         </CardFooter>
       </form>

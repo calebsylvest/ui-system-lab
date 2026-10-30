@@ -27,10 +27,10 @@ export default function App() {
       <footer className="border-t">
         <div className="mx-auto flex max-w-6xl flex-wrap justify-between gap-2 px-4 py-6 text-sm text-muted-foreground">
           <span>Fieldwork Studio · Plano, TX</span>
-          <span>Baseline: shadcn/ui defaults, no polish applied</span>
+          <span>Variant: olzn/ui-craft</span>
         </div>
       </footer>
-      <Toaster position="bottom-right" />
+      <Toaster position="bottom-right" offset={{ bottom: "max(24px, env(safe-area-inset-bottom))", right: "max(24px, env(safe-area-inset-right))" }} mobileOffset={{ bottom: "max(16px, env(safe-area-inset-bottom))" }} />
     </TooltipProvider>
   )
 }

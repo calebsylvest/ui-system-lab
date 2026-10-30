@@ -7,11 +7,11 @@ function Card({ className, ...props }: React.ComponentProps<"div">) {
 function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
   return <div data-slot="card-header" className={cn("@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto]", className)} {...props} />
 }
-function CardTitle({ className, ...props }: React.ComponentProps<"div">) {
-  return <div data-slot="card-title" className={cn("leading-none font-semibold", className)} {...props} />
+function CardTitle({ className, as: Comp = "div", ...props }: React.ComponentProps<"div"> & { as?: "div" | "h2" | "h3" | "p" }) {
+  return <Comp data-slot="card-title" className={cn("leading-none font-semibold text-balance", className)} {...props} />
 }
 function CardDescription({ className, ...props }: React.ComponentProps<"div">) {
-  return <div data-slot="card-description" className={cn("text-muted-foreground text-sm", className)} {...props} />
+  return <div data-slot="card-description" className={cn("text-muted-foreground text-sm text-pretty", className)} {...props} />
 }
 function CardAction({ className, ...props }: React.ComponentProps<"div">) {
   return <div data-slot="card-action" className={cn("col-start-2 row-span-2 row-start-1 self-start justify-self-end", className)} {...props} />

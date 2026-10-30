@@ -34,7 +34,7 @@ export function Controls() {
           <Button size="icon" variant="outline" aria-label="Add"><Plus /></Button>
         </div>
         <div className="flex flex-wrap items-center gap-4">
-          <div className="flex rounded-md border p-0.5">
+          <div className="flex gap-0.5 rounded-md border border-input p-0.5">
             {[
               { k: "bold", icon: Bold, label: "Bold" },
               { k: "italic", icon: Italic, label: "Italic" },
@@ -42,7 +42,7 @@ export function Controls() {
             ].map(({ k, icon: Icon, label }) => (
               <Tooltip key={k}>
                 <TooltipTrigger asChild>
-                  <Button size="icon" variant={fmt.includes(k) ? "secondary" : "ghost"} aria-pressed={fmt.includes(k)} aria-label={label} onClick={() => toggleFmt(k)} className="size-8">
+                  <Button size="icon" variant={fmt.includes(k) ? "secondary" : "ghost"} aria-pressed={fmt.includes(k)} aria-label={label} onClick={() => toggleFmt(k)} className="size-7">
                     <Icon />
                   </Button>
                 </TooltipTrigger>
@@ -51,7 +51,7 @@ export function Controls() {
             ))}
           </div>
           <Button variant="outline" aria-pressed={liked} onClick={() => setLiked(!liked)}>
-            <Heart className={liked ? "fill-current text-red-500" : ""} /> {liked ? "Liked" : "Like"}
+            <Heart className={liked ? "fill-current text-negative" : ""} /> {liked ? "Liked" : "Like"}
           </Button>
           <Button variant="outline" onClick={() => setStarred((s) => s + 1)}>
             <Star /> Star <span className="text-muted-foreground">{starred}</span>

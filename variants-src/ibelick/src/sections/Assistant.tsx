@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Textarea } from "@/components/ui/textarea"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Label } from "@/components/ui/label"
 
 type Msg = { role: "user" | "assistant"; text: string }
 
@@ -38,24 +39,24 @@ export function Assistant() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2"><Sparkles className="size-4" /> Ask Fieldwork</CardTitle>
+        <CardTitle as="h2" className="flex items-center gap-2"><Sparkles className="size-4" /> Ask Fieldwork</CardTitle>
         <CardDescription>Questions about your projects, hours and invoices.</CardDescription>
       </CardHeader>
       <CardContent className="grid gap-4">
-        <div className="grid max-h-80 gap-3 overflow-y-auto">
+        <div role="log" aria-label="Conversation" aria-live="polite" tabIndex={0} className="grid max-h-80 gap-3 overflow-y-auto rounded-md outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50">
           {msgs.map((m, i) =>
             m.role === "user" ? (
-              <div key={i} className="ml-auto max-w-[80%] rounded-lg bg-primary px-3 py-2 text-sm text-primary-foreground">{m.text}</div>
+              <div key={i} className="ml-auto max-w-[80%] rounded-lg bg-primary px-3 py-2 text-sm text-pretty text-primary-foreground"><span className="sr-only">You: </span>{m.text}</div>
             ) : (
               <div key={i} className="flex max-w-[85%] items-start gap-2">
-                <Avatar className="size-7"><AvatarFallback><Bot className="size-4" /></AvatarFallback></Avatar>
-                <div className="rounded-lg bg-muted px-3 py-2 text-sm">{m.text}</div>
+                <Avatar aria-hidden="true" className="size-7"><AvatarFallback><Bot className="size-4" /></AvatarFallback></Avatar>
+                <div className="rounded-lg bg-muted px-3 py-2 text-sm text-pretty"><span className="sr-only">Fieldwork: </span>{m.text}</div>
               </div>
             )
           )}
           {thinking && (
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Avatar className="size-7"><AvatarFallback><Bot className="size-4" /></AvatarFallback></Avatar>
+            <div role="status" className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Avatar aria-hidden="true" className="size-7"><AvatarFallback><Bot className="size-4" /></AvatarFallback></Avatar>
               Thinking…
             </div>
           )}
@@ -66,6 +67,7 @@ export function Assistant() {
           ))}
         </div>
         <form onSubmit={(e) => { e.preventDefault(); send(input) }} className="relative">
+          <Label htmlFor="assistant-input" className="sr-only">Ask Fieldwork</Label>
           <Textarea id="assistant-input" value={input} onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(input) } }}
             placeholder="Ask about a project, client or invoice" className="min-h-20 pr-24" />

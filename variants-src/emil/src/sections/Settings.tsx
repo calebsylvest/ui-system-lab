@@ -90,7 +90,7 @@ export function Settings() {
         <CardFooter className="justify-end gap-2">
           <Button type="button" variant="ghost">Discard</Button>
           <Button type="submit" disabled={saving}>
-            {saving && <Loader2 className="animate-spin" />}
+            {saving && <Loader2 className="animate-[spin_600ms_linear_infinite]" />}
             {saving ? "Saving" : "Save changes"}
           </Button>
         </CardFooter>

@@ -8,12 +8,14 @@ import { Settings } from "@/sections/Settings"
 import { Controls } from "@/sections/Controls"
 import { States } from "@/sections/States"
 import { Assistant } from "@/sections/Assistant"
+import { ProjectsProvider } from "@/store"
 
 export default function App() {
   return (
+    <ProjectsProvider>
     <TooltipProvider>
       <TopNav />
-      <main className="mx-auto grid max-w-6xl gap-8 px-4 py-8">
+      <main id="main" className="mx-auto grid max-w-6xl gap-8 px-4 py-8">
         <PageHeader />
         <Stats />
         <Workspace />
@@ -27,10 +29,11 @@ export default function App() {
       <footer className="border-t">
         <div className="mx-auto flex max-w-6xl flex-wrap justify-between gap-2 px-4 py-6 text-sm text-muted-foreground">
           <span>Fieldwork Studio · Plano, TX</span>
-          <span>Baseline: shadcn/ui defaults, no polish applied</span>
+          <span>Variant: kemiljk skills</span>
         </div>
       </footer>
       <Toaster position="bottom-right" />
     </TooltipProvider>
+    </ProjectsProvider>
   )
 }

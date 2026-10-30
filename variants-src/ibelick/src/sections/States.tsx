@@ -13,14 +13,14 @@ export function States() {
     <section className="grid gap-4 lg:grid-cols-3">
       <Card>
         <CardHeader>
-          <CardTitle>Archived projects</CardTitle>
+          <CardTitle as="h2">Archived projects</CardTitle>
           <CardDescription>Empty state</CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col items-center gap-3 py-6 text-center">
           <FolderOpen className="size-8 text-muted-foreground" />
           <div>
             <p className="font-medium">No archived projects</p>
-            <p className="text-muted-foreground text-sm">Projects you archive show up here. Nothing is deleted.</p>
+            <p className="text-muted-foreground text-sm text-pretty">Projects you archive show up here. Nothing is deleted.</p>
           </div>
           <Button variant="outline" size="sm">View active projects</Button>
         </CardContent>
@@ -28,19 +28,21 @@ export function States() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Recent files</CardTitle>
+          <CardTitle as="h2">Recent files</CardTitle>
           <CardDescription>Loading state</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-3">
+          <ul aria-busy={loading} aria-label="Recent files" className="grid gap-3">
           {loading ? (
             [0, 1, 2].map((i) => (
-              <div key={i} className="flex items-center gap-3">
+              <li key={i} className="flex items-center gap-3">
+                <span className="sr-only">Loading file</span>
                 <Skeleton className="size-10" />
                 <div className="grid flex-1 gap-2">
                   <Skeleton className="h-4 w-3/4" />
                   <Skeleton className="h-3 w-1/2" />
                 </div>
-              </div>
+              </li>
             ))
           ) : (
             [
@@ -48,15 +50,16 @@ export function States() {
               ["donor-portal-flows.pdf", "Jonah O. · 880 KB"],
               ["menu-board-photos.zip", "Lena T. · 41 MB"],
             ].map(([f, m]) => (
-              <div key={f} className="flex items-center gap-3">
-                <div className="size-10 rounded-md bg-muted" />
-                <div className="text-sm">
-                  <p className="font-medium">{f}</p>
-                  <p className="text-muted-foreground text-xs">{m}</p>
+              <li key={f} className="flex items-center gap-3">
+                <div aria-hidden="true" className="size-10 shrink-0 rounded-md bg-muted" />
+                <div className="min-w-0 text-sm">
+                  <p className="truncate font-medium">{f}</p>
+                  <p className="text-muted-foreground text-xs tabular-nums">{m}</p>
                 </div>
-              </div>
+              </li>
             ))
           )}
+          </ul>
           <Button variant="ghost" size="sm" onClick={() => setLoading(!loading)}>
             {loading ? "Finish loading" : "Show loading again"}
           </Button>
@@ -65,7 +68,7 @@ export function States() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Questions</CardTitle>
+          <CardTitle as="h2">Questions</CardTitle>
           <CardDescription>Accordion</CardDescription>
         </CardHeader>
         <CardContent>

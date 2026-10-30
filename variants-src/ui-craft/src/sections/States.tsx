@@ -35,7 +35,7 @@ export function States() {
           {loading ? (
             [0, 1, 2].map((i) => (
               <div key={i} className="flex items-center gap-3">
-                <Skeleton className="size-10" />
+                <Skeleton className="size-10 rounded-md" />
                 <div className="grid flex-1 gap-2">
                   <Skeleton className="h-4 w-3/4" />
                   <Skeleton className="h-3 w-1/2" />
@@ -49,7 +49,7 @@ export function States() {
               ["menu-board-photos.zip", "Lena T. · 41 MB"],
             ].map(([f, m]) => (
               <div key={f} className="flex items-center gap-3">
-                <div className="size-10 rounded-md bg-muted" />
+                <div aria-hidden className="size-10 rounded-md bg-muted" />
                 <div className="text-sm">
                   <p className="font-medium">{f}</p>
                   <p className="text-muted-foreground text-xs">{m}</p>

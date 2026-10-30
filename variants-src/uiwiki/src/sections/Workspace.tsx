@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { Archive, Copy, MoreHorizontal, Pencil, Trash2 } from "lucide-react"
 import { toast } from "sonner"
+import { playSound } from "@/lib/sound"
 import { projects, invoices, activity, statusVariant } from "@/data"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -56,7 +57,7 @@ export function Workspace() {
             <CardContent className="grid gap-3">
               <div className="flex items-center justify-between text-sm">
                 <Badge variant={statusVariant[p.status]}>{p.status}</Badge>
-                <span className="text-muted-foreground">Due {p.due}</span>
+                <span className="text-muted-foreground tabular-nums">Due {p.due}</span>
               </div>
               <Progress value={p.progress} />
             </CardContent>
@@ -66,7 +67,7 @@ export function Workspace() {
                   <Avatar key={t} className="border-2 border-background"><AvatarFallback>{t}</AvatarFallback></Avatar>
                 ))}
               </div>
-              <span className="text-sm text-muted-foreground">{p.progress}%</span>
+              <span className="text-sm text-muted-foreground tabular-nums">{p.progress}%</span>
             </CardFooter>
           </Card>
         ))}
@@ -77,8 +78,8 @@ export function Workspace() {
           <CardContent className="px-2">
             {selected.length > 0 && (
               <div className="flex items-center gap-2 px-2 py-2 text-sm">
-                <span>{selected.length} selected</span>
-                <Button size="sm" variant="outline" onClick={() => { toast(`Sent ${selected.length} reminder(s)`); setSelected([]) }}>Send reminder</Button>
+                <span className="tabular-nums">{selected.length} selected</span>
+                <Button size="sm" variant="outline" onClick={() => { toast(`Sent ${selected.length} reminder(s)`); playSound("success"); setSelected([]) }}>Send reminder</Button>
               </div>
             )}
             <Table>
@@ -98,11 +99,11 @@ export function Workspace() {
                     <TableCell>
                       <Checkbox checked={selected.includes(inv.number)} onCheckedChange={() => toggle(inv.number)} aria-label={`Select ${inv.number}`} />
                     </TableCell>
-                    <TableCell className="font-medium">{inv.number}</TableCell>
+                    <TableCell className="font-medium tabular-nums slashed-zero">{inv.number}</TableCell>
                     <TableCell>{inv.client}</TableCell>
-                    <TableCell>{inv.issued}</TableCell>
+                    <TableCell className="tabular-nums">{inv.issued}</TableCell>
                     <TableCell><Badge variant={statusVariant[inv.status]}>{inv.status}</Badge></TableCell>
-                    <TableCell className="text-right">{money(inv.amount)}</TableCell>
+                    <TableCell className="text-right tabular-nums">{money(inv.amount)}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

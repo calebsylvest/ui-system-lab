@@ -48,13 +48,14 @@ export const faqs = [
   { q: "How do I move a project to another workspace?", a: "Open the project menu and choose Move. Files, comments and time entries move with it; invoices stay with the original workspace." },
 ]
 
+// Emphasis follows urgency: the normal state is quiet, only states that need action get colour.
 export const statusVariant = {
-  "On track": "secondary",
-  "At risk": "destructive",
-  Paused: "outline",
-  Done: "default",
-  Paid: "secondary",
+  "On track": "outline",
+  "At risk": "warning",
+  Paused: "muted",
+  Done: "success",
+  Paid: "success",
   Sent: "outline",
   Overdue: "destructive",
-  Draft: "outline",
+  Draft: "muted",
 } as const

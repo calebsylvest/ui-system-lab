@@ -1,9 +1,10 @@
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { ArrowUp, Bot, Mic, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Textarea } from "@/components/ui/textarea"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { cn } from "@/lib/utils"
 
 type Msg = { role: "user" | "assistant"; text: string }
 
@@ -12,6 +13,8 @@ const replies = [
   "You logged 42.5 billable hours. Donor portal v2 took the most time at 14 hours, followed by the spring catalog at 11.",
   "Three invoices are unpaid, totaling $15,400. One is overdue.",
 ]
+
+const INITIAL = 2
 
 const suggestions = ["Which project needs attention?", "Summarize my hours", "What’s unpaid?"]
 
@@ -23,6 +26,15 @@ export function Assistant() {
   const [input, setInput] = useState("")
   const [thinking, setThinking] = useState(false)
   const n = useRef(0)
+  const list = useRef<HTMLDivElement>(null)
+
+  // Keep the newest message in view; the list scrolls inside a max-h-80 box.
+  useEffect(() => {
+    const el = list.current
+    if (!el || msgs.length <= INITIAL) return
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    el.scrollTo({ top: el.scrollHeight, behavior: reduce ? "auto" : "smooth" })
+  }, [msgs, thinking])
 
   function send(text: string) {
     if (!text.trim() || thinking) return
@@ -42,19 +54,19 @@ export function Assistant() {
         <CardDescription>Questions about your projects, hours and invoices.</CardDescription>
       </CardHeader>
       <CardContent className="grid gap-4">
-        <div className="grid max-h-80 gap-3 overflow-y-auto">
+        <div ref={list} className="grid max-h-80 gap-3 overflow-y-auto">
           {msgs.map((m, i) =>
             m.role === "user" ? (
               <div key={i} className="ml-auto max-w-[80%] rounded-lg bg-primary px-3 py-2 text-sm text-primary-foreground">{m.text}</div>
             ) : (
-              <div key={i} className="flex max-w-[85%] items-start gap-2">
+              <div key={i} className={cn("flex max-w-[85%] items-start gap-2", i >= INITIAL && "enter-message")}>
                 <Avatar className="size-7"><AvatarFallback><Bot className="size-4" /></AvatarFallback></Avatar>
                 <div className="rounded-lg bg-muted px-3 py-2 text-sm">{m.text}</div>
               </div>
             )
           )}
           {thinking && (
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <div className="enter-message flex items-center gap-2 text-sm text-muted-foreground">
               <Avatar className="size-7"><AvatarFallback><Bot className="size-4" /></AvatarFallback></Avatar>
               Thinking…
             </div>

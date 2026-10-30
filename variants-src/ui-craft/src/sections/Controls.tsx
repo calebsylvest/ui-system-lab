@@ -4,6 +4,7 @@ import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import { IconSwap } from "@/components/ui/icon-swap"
 
 export function Controls() {
   const [liked, setLiked] = useState(false)
@@ -31,10 +32,10 @@ export function Controls() {
           <Button size="sm">Small</Button>
           <Button>Default</Button>
           <Button size="lg">Large</Button>
-          <Button size="icon" variant="outline" aria-label="Add"><Plus /></Button>
+          <Button size="icon" variant="outline" aria-label="Add" className="hit-area"><Plus /></Button>
         </div>
         <div className="flex flex-wrap items-center gap-4">
-          <div className="flex rounded-md border p-0.5">
+          <div className="flex rounded-[calc(var(--radius-md)+2px)] border p-0.5">
             {[
               { k: "bold", icon: Bold, label: "Bold" },
               { k: "italic", icon: Italic, label: "Italic" },
@@ -51,17 +52,17 @@ export function Controls() {
             ))}
           </div>
           <Button variant="outline" aria-pressed={liked} onClick={() => setLiked(!liked)}>
-            <Heart className={liked ? "fill-current text-red-500" : ""} /> {liked ? "Liked" : "Like"}
+            <IconSwap active={liked} activeIcon={<Heart className="fill-current text-brand" />} inactiveIcon={<Heart />} /> {liked ? "Liked" : "Like"}
           </Button>
           <Button variant="outline" onClick={() => setStarred((s) => s + 1)}>
-            <Star /> Star <span className="text-muted-foreground">{starred}</span>
+            <Star /> Star <span className="text-muted-foreground tabular-nums">{starred}</span>
           </Button>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <Button variant="outline" onClick={() => toast("Draft saved")}>Plain toast</Button>
           <Button variant="outline" onClick={() => toast.success("Invoice INV-1042 sent")}>Success toast</Button>
           <Button variant="outline" onClick={() => toast.error("Payment failed", { description: "The card was declined. Ask the client for another card." })}>Error toast</Button>
-          <Button variant="outline" onClick={() => toast.promise(new Promise((r) => setTimeout(r, 1500)), { loading: "Syncing with QuickBooks", success: "Synced 12 invoices", error: "Sync failed" })}>
+          <Button variant="outline" onClick={() => toast.promise(new Promise((r) => setTimeout(r, 1500)), { loading: "Syncing with QuickBooks", success: "Synced 12 invoices", error: "Sync failed. Check the QuickBooks connection and try again." })}>
             <RefreshCw /> Promise toast
           </Button>
         </div>

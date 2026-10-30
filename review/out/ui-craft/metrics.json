@@ -1,0 +1,71 @@
+{
+  "id": "ui-craft",
+  "bundle": {
+    "js": 473720,
+    "jsGz": 142768,
+    "css": 47652,
+    "cssGz": 9545,
+    "font": 41236
+  },
+  "load": {
+    "fcp": 704,
+    "lcp": 704,
+    "cls": 0.00006595967610677084,
+    "tbt": 449
+  },
+  "interaction": {
+    "avgFrame": 18.03488095238099,
+    "p95Frame": 16.799999999999272,
+    "jank": 0.007177033492822967,
+    "longTaskMs": 977,
+    "inpProxy": 368,
+    "maxEvent": 368
+  },
+  "cpu": {
+    "script": 599.302,
+    "layout": 92.995,
+    "style": 1231.704,
+    "loadScript": 426.808,
+    "heapMB": 7.489772796630859
+  },
+  "steps": [
+    [
+      "dialog",
+      "ok"
+    ],
+    [
+      "menu",
+      "ok"
+    ],
+    [
+      "tabs",
+      "ok"
+    ],
+    [
+      "hover-cards",
+      "ok"
+    ],
+    [
+      "tooltip",
+      "ok"
+    ],
+    [
+      "accordion",
+      "ok"
+    ],
+    [
+      "toast",
+      "ok"
+    ],
+    [
+      "scroll",
+      "ok"
+    ],
+    [
+      "chat",
+      "ok"
+    ]
+  ],
+  "errors": [],
+  "runs": 3
+}

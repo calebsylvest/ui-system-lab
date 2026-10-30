@@ -1,0 +1,71 @@
+{
+  "id": "skills",
+  "bundle": {
+    "js": 471177,
+    "jsGz": 142425,
+    "css": 44293,
+    "cssGz": 8584,
+    "font": 0
+  },
+  "load": {
+    "fcp": 704,
+    "lcp": 704,
+    "cls": 0,
+    "tbt": 439
+  },
+  "interaction": {
+    "avgFrame": 17.97652582159628,
+    "p95Frame": 16.800000000000182,
+    "jank": 0.010575793184488837,
+    "longTaskMs": 653,
+    "inpProxy": 240,
+    "maxEvent": 240
+  },
+  "cpu": {
+    "script": 610.1179999999999,
+    "layout": 105.87700000000001,
+    "style": 1081.044,
+    "loadScript": 462.279,
+    "heapMB": 8.599613189697266
+  },
+  "steps": [
+    [
+      "dialog",
+      "ok"
+    ],
+    [
+      "menu",
+      "ok"
+    ],
+    [
+      "tabs",
+      "ok"
+    ],
+    [
+      "hover-cards",
+      "ok"
+    ],
+    [
+      "tooltip",
+      "ok"
+    ],
+    [
+      "accordion",
+      "ok"
+    ],
+    [
+      "toast",
+      "ok"
+    ],
+    [
+      "scroll",
+      "ok"
+    ],
+    [
+      "chat",
+      "ok"
+    ]
+  ],
+  "errors": [],
+  "runs": 3
+}

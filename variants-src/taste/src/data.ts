@@ -48,13 +48,33 @@ export const faqs = [
   { q: "How do I move a project to another workspace?", a: "Open the project menu and choose Move. Files, comments and time entries move with it; invoices stay with the original workspace." },
 ]
 
+// Pale pill pairs: colour says good or bad, neutral states stay grey (app-screens.md 7.6).
 export const statusVariant = {
-  "On track": "secondary",
-  "At risk": "destructive",
-  Paused: "outline",
-  Done: "default",
-  Paid: "secondary",
-  Sent: "outline",
-  Overdue: "destructive",
+  "On track": "positive",
+  "At risk": "negative",
+  Paused: "neutral",
+  Done: "neutral",
+  Paid: "positive",
+  Sent: "neutral",
+  Overdue: "negative",
   Draft: "outline",
 } as const
+
+// Each person keeps one hue everywhere they appear. Hues are chosen so that people listed next
+// to each other (a project team, the activity feed) sit at least 60 degrees apart.
+export const personHue: Record<string, number> = { MR: 20, JO: 140, AK: 210, PN: 80, CS: 330, LT: 45 }
+
+// Totals are computed from the rows, never typed in twice (app-screens.md 2.1).
+export const unpaidInvoices = invoices.filter((i) => i.status !== "Paid")
+export const outstandingTotal = unpaidInvoices.reduce((s, i) => s + i.amount, 0)
+export const overdueInvoices = invoices.filter((i) => i.status === "Overdue")
+export const overdueTotal = overdueInvoices.reduce((s, i) => s + i.amount, 0)
+export const projectCounts = {
+  active: projects.filter((p) => p.status === "On track" || p.status === "At risk").length,
+  paused: projects.filter((p) => p.status === "Paused").length,
+  done: projects.filter((p) => p.status === "Done").length,
+}
+console.assert(outstandingTotal === 15400, "Outstanding must match the assistant's $15,400")
+console.assert(unpaidInvoices.length === 3, "Three unpaid invoices")
+console.assert(overdueTotal === 5200, "Overdue must match INV-1040")
+console.assert(projectCounts.active + projectCounts.paused + projectCounts.done === projects.length, "Project counts must cover every project")

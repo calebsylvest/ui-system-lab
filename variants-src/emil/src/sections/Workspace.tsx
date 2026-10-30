@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { Archive, Copy, MoreHorizontal, Pencil, Trash2 } from "lucide-react"
 import { toast } from "sonner"
+import { plural } from "@/lib/utils"
 import { projects, invoices, activity, statusVariant } from "@/data"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -66,7 +67,7 @@ export function Workspace() {
                   <Avatar key={t} className="border-2 border-background"><AvatarFallback>{t}</AvatarFallback></Avatar>
                 ))}
               </div>
-              <span className="text-sm text-muted-foreground">{p.progress}%</span>
+              <span className="text-sm text-muted-foreground tabular-nums">{p.progress}%</span>
             </CardFooter>
           </Card>
         ))}
@@ -76,9 +77,9 @@ export function Workspace() {
         <Card className="py-2">
           <CardContent className="px-2">
             {selected.length > 0 && (
-              <div className="flex items-center gap-2 px-2 py-2 text-sm">
-                <span>{selected.length} selected</span>
-                <Button size="sm" variant="outline" onClick={() => { toast(`Sent ${selected.length} reminder(s)`); setSelected([]) }}>Send reminder</Button>
+              <div className="enter-fade flex items-center gap-2 px-2 py-2 text-sm">
+                <span className="tabular-nums">{selected.length} selected</span>
+                <Button size="sm" variant="outline" onClick={() => { toast(`Sent ${plural(selected.length, "reminder", "reminders")}`); setSelected([]) }}>Send reminder</Button>
               </div>
             )}
             <Table>
@@ -102,7 +103,7 @@ export function Workspace() {
                     <TableCell>{inv.client}</TableCell>
                     <TableCell>{inv.issued}</TableCell>
                     <TableCell><Badge variant={statusVariant[inv.status]}>{inv.status}</Badge></TableCell>
-                    <TableCell className="text-right">{money(inv.amount)}</TableCell>
+                    <TableCell className="text-right tabular-nums">{money(inv.amount)}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

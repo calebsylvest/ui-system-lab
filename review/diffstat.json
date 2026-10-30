@@ -1,0 +1,11 @@
+{"fluid":{"files":50,"add":12606,"del":464,"newDeps":["@base-ui/react","@fontsource-variable/inter","@radix-ui/* (10)","motion","pdfjs-dist"]},
+"skills":{"files":28,"add":219,"del":125,"newDeps":[]},
+"feel-better":{"files":22,"add":119,"del":55,"newDeps":[]},
+"libraries":{"files":7,"add":164,"del":17,"newDeps":["border-beam","bot-avatars","img-fx","liquid-gooey","thinking-orbs","three","voice-glow"]},
+"ui-craft":{"files":26,"add":300,"del":98,"newDeps":["@fontsource-variable/instrument-sans"]},
+"taste":{"files":30,"add":436,"del":218,"newDeps":["@fontsource/ibm-plex-sans","@fontsource/ibm-plex-mono"]},
+"uiwiki":{"files":25,"add":255,"del":53,"newDeps":[]},
+"ibelick":{"files":19,"add":156,"del":79,"newDeps":[]},
+"emil":{"files":20,"add":208,"del":35,"newDeps":[]},
+"kemiljk":{"files":17,"add":569,"del":234,"newDeps":[]},
+"magicui":{"files":9,"add":473,"del":16,"newDeps":["motion","next-themes"]}}

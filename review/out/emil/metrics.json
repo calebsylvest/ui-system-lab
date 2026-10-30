@@ -1,0 +1,71 @@
+{
+  "id": "emil",
+  "bundle": {
+    "js": 470272,
+    "jsGz": 142124,
+    "css": 43764,
+    "cssGz": 8485,
+    "font": 0
+  },
+  "load": {
+    "fcp": 648,
+    "lcp": 648,
+    "cls": 0,
+    "tbt": 420
+  },
+  "interaction": {
+    "avgFrame": 17.601792114695392,
+    "p95Frame": 16.799999999999272,
+    "jank": 0.007168458781362007,
+    "longTaskMs": 481,
+    "inpProxy": 208,
+    "maxEvent": 208
+  },
+  "cpu": {
+    "script": 547.4559999999999,
+    "layout": 94.737,
+    "style": 903.466,
+    "loadScript": 431.714,
+    "heapMB": 8.460487365722656
+  },
+  "steps": [
+    [
+      "dialog",
+      "ok"
+    ],
+    [
+      "menu",
+      "ok"
+    ],
+    [
+      "tabs",
+      "ok"
+    ],
+    [
+      "hover-cards",
+      "ok"
+    ],
+    [
+      "tooltip",
+      "ok"
+    ],
+    [
+      "accordion",
+      "ok"
+    ],
+    [
+      "toast",
+      "ok"
+    ],
+    [
+      "scroll",
+      "ok"
+    ],
+    [
+      "chat",
+      "ok"
+    ]
+  ],
+  "errors": [],
+  "runs": 3
+}

@@ -8,3 +8,8 @@ One test page ("Fieldwork", shadcn/ui defaults) rebuilt under different UI syste
 - `scripts/build-all.sh` — builds every app into `site/variants/`.
 
 Each variant should log what it changed in `CHANGES.md`.
+
+## Review
+- `review/review.json` — scores, verdicts and ranking (shown in the viewer's Report tab).
+- `review/out/<id>/` — screenshots (light, dark, phone) and benchmark metrics.
+- `bench/` — the Playwright benchmark (`bench/all.sh`, serve `site/` on port 4174 first).

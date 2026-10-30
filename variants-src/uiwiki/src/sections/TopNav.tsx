@@ -1,5 +1,6 @@
 import { Bell, LogOut, Search, Settings, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
 import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
@@ -17,7 +18,7 @@ export function TopNav() {
         <a href="#" className="font-semibold">Fieldwork</a>
         <nav className="hidden md:flex items-center gap-4 text-sm">
           {links.map((l, i) => (
-            <a key={l} href="#" className={i === 0 ? "font-medium" : "text-muted-foreground hover:text-foreground"}>
+            <a key={l} href="#" className={cn("relative transition-colors duration-150 after:absolute after:-inset-x-2 after:-inset-y-3", i === 0 ? "font-medium" : "text-muted-foreground hover:text-foreground")}>
               {l}
             </a>
           ))}
@@ -37,7 +38,7 @@ export function TopNav() {
           </Tooltip>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="rounded-full" aria-label="Account menu">
+              <button className="rounded-full transition-transform duration-150 ease-out active:scale-[0.96] motion-reduce:active:scale-100" aria-label="Account menu">
                 <Avatar><AvatarFallback>CS</AvatarFallback></Avatar>
               </button>
             </DropdownMenuTrigger>

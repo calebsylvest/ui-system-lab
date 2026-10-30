@@ -5,6 +5,23 @@
 
 :root {
   --radius: 0.625rem;
+  /* visual-no-pure-black-shadow: deep neutral, not #000 */
+  --shadow-color: 0.2 0 0;
+  /* visual-layered-shadows + visual-shadow-matches-elevation + visual-shadow-direction:
+     one top-down light source, layered, scale grows with elevation */
+  --elev-0: 0 1px 2px oklch(var(--shadow-color) / 0.06);
+  --elev-1: 0 1px 2px oklch(var(--shadow-color) / 0.05), 0 2px 6px oklch(var(--shadow-color) / 0.04);
+  --elev-2: 0 1px 2px oklch(var(--shadow-color) / 0.06), 0 4px 8px oklch(var(--shadow-color) / 0.05), 0 8px 16px oklch(var(--shadow-color) / 0.04);
+  --elev-3: 0 2px 4px oklch(var(--shadow-color) / 0.06), 0 8px 16px oklch(var(--shadow-color) / 0.06), 0 16px 32px oklch(var(--shadow-color) / 0.06), 0 24px 48px oklch(var(--shadow-color) / 0.04);
+  /* visual-button-shadow-anatomy: cut shadow, inner ambient, inner top highlight, 3 depth layers */
+  --button-shadow:
+    0 0 0 0.5px oklch(var(--shadow-color) / 0.35),
+    inset 0 0 0 1px oklch(1 0 0 / 0.05),
+    inset 0 1px 0 oklch(1 0 0 / 0.12),
+    0 1px 2px oklch(var(--shadow-color) / 0.1),
+    0 2px 4px oklch(var(--shadow-color) / 0.06),
+    0 4px 8px oklch(var(--shadow-color) / 0.03);
+  --button-text-shadow: 0 1px 1px oklch(var(--shadow-color) / 0.2);
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
@@ -20,12 +37,26 @@
   --accent: oklch(0.97 0 0);
   --accent-foreground: oklch(0.205 0 0);
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
+  /* visual-border-alpha-colors: alpha borders adapt to card/background/muted surfaces */
+  --border: oklch(0.145 0 0 / 9%);
+  --input: oklch(0.145 0 0 / 14%);
   --ring: oklch(0.708 0 0);
 }
 
 .dark {
+  --shadow-color: 0.08 0 0;
+  --elev-0: 0 1px 2px oklch(var(--shadow-color) / 0.3);
+  --elev-1: 0 1px 2px oklch(var(--shadow-color) / 0.3), 0 2px 6px oklch(var(--shadow-color) / 0.2);
+  --elev-2: 0 1px 2px oklch(var(--shadow-color) / 0.35), 0 4px 8px oklch(var(--shadow-color) / 0.3), 0 8px 16px oklch(var(--shadow-color) / 0.2);
+  --elev-3: 0 2px 4px oklch(var(--shadow-color) / 0.35), 0 8px 16px oklch(var(--shadow-color) / 0.35), 0 16px 32px oklch(var(--shadow-color) / 0.3), 0 24px 48px oklch(var(--shadow-color) / 0.2);
+  --button-shadow:
+    0 0 0 0.5px oklch(var(--shadow-color) / 0.8),
+    inset 0 0 0 1px oklch(1 0 0 / 0.08),
+    inset 0 1px 0 oklch(1 0 0 / 0.5),
+    0 1px 2px oklch(var(--shadow-color) / 0.4),
+    0 2px 4px oklch(var(--shadow-color) / 0.25),
+    0 4px 8px oklch(var(--shadow-color) / 0.15);
+  --button-text-shadow: 0 1px 0 oklch(1 0 0 / 0.25);
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.205 0 0);
@@ -47,6 +78,11 @@
 }
 
 @theme inline {
+  --shadow-xs: var(--elev-0);
+  --shadow-sm: var(--elev-1);
+  --shadow-md: var(--elev-2);
+  --shadow-lg: var(--elev-3);
+  --shadow-button: var(--button-shadow);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -73,5 +109,32 @@
 
 @layer base {
   * { @apply border-border outline-ring/50; }
-  body { @apply bg-background text-foreground; }
+  body {
+    @apply bg-background text-foreground;
+    /* type-antialiased-on-retina */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* type-no-font-synthesis, type-optical-sizing-auto (calt left on per type-opentype-contextual-alternates) */
+    font-synthesis: none;
+    font-optical-sizing: auto;
+  }
+  /* type-text-wrap-balance-headings */
+  h1, h2, h3, [data-slot="card-title"], [data-slot="dialog-title"] { text-wrap: balance; }
+  /* type-text-wrap-pretty */
+  p, [data-slot="card-description"], [data-slot="dialog-description"] { text-wrap: pretty; }
+  /* type-underline-offset */
+  a, [data-slot="accordion-trigger"], [data-slot="button"] {
+    text-underline-offset: 4px;
+    text-decoration-skip-ink: auto;
+  }
+  /* native-selection-styling */
+  ::selection { background: var(--primary); color: var(--primary-foreground); }
+  /* native-placeholder-styling: one rule instead of per-component overrides */
+  input::placeholder, textarea::placeholder { color: var(--muted-foreground); opacity: 1; }
+}
+
+/* timing-under-300ms / duration-max-300ms: Sonner ships 400ms toast transitions */
+[data-sonner-toaster] [data-sonner-toast] {
+  transition-duration: 250ms;
+  transition-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
 }

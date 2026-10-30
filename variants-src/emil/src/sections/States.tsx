@@ -20,7 +20,7 @@ export function States() {
           <FolderOpen className="size-8 text-muted-foreground" />
           <div>
             <p className="font-medium">No archived projects</p>
-            <p className="text-muted-foreground text-sm">Projects you archive show up here. Nothing is deleted.</p>
+            <p className="text-muted-foreground max-w-[65ch] text-sm">Projects you archive show up here. Nothing is deleted.</p>
           </div>
           <Button variant="outline" size="sm">View active projects</Button>
         </CardContent>
@@ -47,9 +47,9 @@ export function States() {
               ["catalog-cover-v3.fig", "Maya R. · 2.4 MB"],
               ["donor-portal-flows.pdf", "Jonah O. · 880 KB"],
               ["menu-board-photos.zip", "Lena T. · 41 MB"],
-            ].map(([f, m]) => (
-              <div key={f} className="flex items-center gap-3">
-                <div className="size-10 rounded-md bg-muted" />
+            ].map(([f, m], i) => (
+              <div key={f} className="enter-rise flex items-center gap-3" style={{ transitionDelay: `${i * 50}ms` }}>
+                <div className="size-10 shrink-0 rounded-md bg-muted" />
                 <div className="text-sm">
                   <p className="font-medium">{f}</p>
                   <p className="text-muted-foreground text-xs">{m}</p>

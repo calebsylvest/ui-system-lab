@@ -84,8 +84,22 @@ iframe { border: 0; width: 100%; height: 100%; background: #fff; transition: wid
 }
 .empty strong { display: block; color: var(--fg); font-size: 15px; margin-bottom: 6px; }
 .rate-on { color: var(--accent); font-weight: 500; }
-@media (max-width: 700px) { .keys { display: none; } }
+@media (max-width: 1500px) { .keys { display: none; } }
 .compare-only[hidden] { display: none !important; }
+.bar2 { background: var(--bg); border-bottom: 1px solid var(--line); padding-block: 8px; }
+.swatches { display: inline-flex; gap: 4px; align-items: center; }
+.sw { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--panel); box-shadow: 0 0 0 1px var(--line); cursor: pointer; padding: 0; }
+.sw[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--fg); }
+.sw.none { background: conic-gradient(from 45deg, var(--line) 0 25%, var(--panel) 0 50%, var(--line) 0 75%, var(--panel) 0); }
+.sw:focus-visible, .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+input[type=color] { width: 24px; height: 22px; border: 1px solid var(--line); border-radius: 6px; padding: 0; background: var(--panel); cursor: pointer; }
+.btn { font: inherit; color: var(--fg); background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 5px 10px; cursor: pointer; }
+.btn:hover { border-color: var(--accent); }
+.btn.primary { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+.sep { width: 1px; align-self: stretch; background: var(--line); }
+.status { color: var(--muted); min-width: 0; }
+@media (max-width: 800px) { .sep { display: none; } }
+
 .report { flex: 1; min-height: 0; overflow-y: auto; }
 .report-inner { max-width: 1120px; margin: 0 auto; display: grid; gap: 28px;
   padding-block: 24px 48px;
@@ -179,6 +193,74 @@ tr.base td { color: var(--muted); }
   <span class="keys compare-only"><kbd>1</kbd>–<kbd>9</kbd> variant · <kbd>S</kbd> split · <kbd>M</kbd> slow motion · <kbd>D</kbd> theme · <kbd>R</kbd> report</span>
 </div>
 
+<div class="bar bar2 compare-only" role="toolbar" aria-label="Brand stress test and synced actions">
+  <div class="group">
+    <span class="lbl">Primary</span>
+    <div class="swatches" id="swatches">
+      <button type="button" class="sw none" data-c="" aria-label="Each variant's own primary color" aria-pressed="true" title="Variant's own"></button>
+      <button type="button" class="sw" data-c="#e8590c" style="background:#e8590c" aria-label="Orange" aria-pressed="false"></button>
+      <button type="button" class="sw" data-c="#f5c400" style="background:#f5c400" aria-label="Yellow" aria-pressed="false"></button>
+      <button type="button" class="sw" data-c="#2f9e44" style="background:#2f9e44" aria-label="Green" aria-pressed="false"></button>
+      <button type="button" class="sw" data-c="#1c7ed6" style="background:#1c7ed6" aria-label="Blue" aria-pressed="false"></button>
+      <button type="button" class="sw" data-c="#7048e8" style="background:#7048e8" aria-label="Violet" aria-pressed="false"></button>
+      <button type="button" class="sw" data-c="#d6336c" style="background:#d6336c" aria-label="Pink" aria-pressed="false"></button>
+      <input type="color" id="primary-custom" value="#0ca678" aria-label="Custom primary color" title="Custom color">
+    </div>
+  </div>
+  <div class="group">
+    <label class="lbl" for="font">Font</label>
+    <select id="font">
+      <option value="">Variant's own</option>
+      <option value="inter">Inter</option>
+      <option value="geist">Geist</option>
+      <option value="plex">IBM Plex Sans</option>
+      <option value="manrope">Manrope</option>
+      <option value="dm-sans">DM Sans</option>
+      <option value="source-serif">Source Serif 4</option>
+    </select>
+  </div>
+  <div class="group">
+    <span class="lbl">Density</span>
+    <div class="seg" id="density">
+      <button type="button" data-v="compact" aria-pressed="false">Compact</button>
+      <button type="button" data-v="" aria-pressed="true">Default</button>
+      <button type="button" data-v="comfortable" aria-pressed="false">Comfortable</button>
+    </div>
+  </div>
+  <span class="sep" aria-hidden="true"></span>
+  <div class="group">
+    <label class="lbl" for="action">Play in both</label>
+    <select id="action">
+      <optgroup label="Overlays">
+        <option value="dialog">Open dialog (New project)</option>
+        <option value="menu">Open project menu</option>
+        <option value="sheet">Open side panel</option>
+        <option value="popover">Open filter popover</option>
+        <option value="combobox">Open people picker</option>
+        <option value="command">Open command menu</option>
+      </optgroup>
+      <optgroup label="Lists">
+        <option value="task-add">Add a task</option>
+        <option value="task-complete">Complete first open task</option>
+        <option value="task-move">Move first task down</option>
+        <option value="task-sort">Toggle sort by due date</option>
+        <option value="task-remove">Remove a task</option>
+        <option value="tab">Next tab</option>
+      </optgroup>
+      <optgroup label="Feedback">
+        <option value="toast">Show a toast</option>
+        <option value="save-fail">Save that fails (then Retry)</option>
+        <option value="retry">Retry</option>
+        <option value="offline">Toggle offline</option>
+        <option value="reload">Reload entries</option>
+      </optgroup>
+    </select>
+    <button type="button" class="btn primary" id="play">Play</button>
+    <button type="button" class="btn" id="close-all">Close</button>
+    <button type="button" class="btn" id="tour">Tour</button>
+  </div>
+  <span class="status" id="status" role="status"></span>
+</div>
 <div class="stage" id="stage"></div>
 <div class="report" id="report" hidden><div class="report-inner" id="report-inner"></div></div>
 
@@ -273,7 +355,7 @@ const REVIEW = {"summary": "The rule-based skills gave the best results for the 
 const METRICS = {"baseline": {"jsGz": 138, "cssGz": 7, "font": 0, "lcp": 772, "tbt": 486, "cls": 0, "p95": 17, "jank": 0.7, "inp": 240, "script": 593, "layout": 89, "style": 1026, "skipped": []}, "fluid": {"jsGz": 362, "cssGz": 13, "font": 332, "lcp": 1200, "tbt": 911, "cls": 0, "p95": 17, "jank": 1.0, "inp": 304, "script": 939, "layout": 268, "style": 1272, "skipped": ["hover-cards", "accordion"]}, "skills": {"jsGz": 139, "cssGz": 8, "font": 0, "lcp": 704, "tbt": 439, "cls": 0, "p95": 17, "jank": 1.1, "inp": 240, "script": 610, "layout": 106, "style": 1081, "skipped": []}, "feel-better": {"jsGz": 139, "cssGz": 9, "font": 0, "lcp": 796, "tbt": 507, "cls": 0, "p95": 17, "jank": 0.9, "inp": 288, "script": 647, "layout": 90, "style": 1185, "skipped": []}, "libraries": {"jsGz": 390, "cssGz": 8, "font": 0, "lcp": 0, "tbt": 18999, "cls": 0, "p95": 800, "jank": 12.4, "inp": 216, "script": 37139, "layout": 117, "style": 942, "skipped": ["toast"]}, "ui-craft": {"jsGz": 139, "cssGz": 9, "font": 40, "lcp": 704, "tbt": 449, "cls": 0.0, "p95": 17, "jank": 0.7, "inp": 368, "script": 599, "layout": 93, "style": 1232, "skipped": []}, "taste": {"jsGz": 140, "cssGz": 10, "font": 570, "lcp": 720, "tbt": 457, "cls": 0.002, "p95": 17, "jank": 0.7, "inp": 216, "script": 520, "layout": 117, "style": 502, "skipped": []}, "uiwiki": {"jsGz": 139, "cssGz": 9, "font": 0, "lcp": 788, "tbt": 516, "cls": 0, "p95": 17, "jank": 0.8, "inp": 216, "script": 561, "layout": 84, "style": 978, "skipped": []}, "ibelick": {"jsGz": 139, "cssGz": 8, "font": 0, "lcp": 724, "tbt": 469, "cls": 0, "p95": 17, "jank": 0.6, "inp": 200, "script": 518, "layout": 64, "style": 800, "skipped": []}, "emil": {"jsGz": 139, "cssGz": 8, "font": 0, "lcp": 648, "tbt": 420, "cls": 0, "p95": 17, "jank": 0.7, "inp": 208, "script": 547, "layout": 95, "style": 903, "skipped": []}, "kemiljk": {"jsGz": 140, "cssGz": 9, "font": 0, "lcp": 728, "tbt": 448, "cls": 0, "p95": 17, "jank": 0.6, "inp": 248, "script": 562, "layout": 97, "style": 996, "skipped": []}, "magicui": {"jsGz": 186, "cssGz": 9, "font": 0, "lcp": 872, "tbt": 567, "cls": 0.0, "p95": 17, "jank": 0.9, "inp": 240, "script": 1051, "layout": 767, "style": 1321, "skipped": []}};
 const IDLE = {"baseline": 0, "fluid": 0, "libraries": 55, "magicui": 13};
 
-const state = { mode: "single", width: "fill", theme: "light", rate: 1, sync: true, panes: ["baseline", "kemiljk"], page: "compare", active: 0, scroll: 0 };
+const state = { mode: "single", width: "fill", theme: "light", rate: 1, sync: true, panes: ["baseline", "kemiljk"], page: "compare", brand: { primary: "", font: "", density: "" }, active: 0, scroll: 0 };
 try { Object.assign(state, JSON.parse(localStorage.getItem("uilab") || "{}")); } catch (e) {}
 const save = () => { try { localStorage.setItem("uilab", JSON.stringify(state)); } catch (e) {} };
 
@@ -324,6 +406,7 @@ function makePane(i) {
     if (state.width !== "fill") f.style.width = state.width + "px";
     f.addEventListener("load", () => {
       post(f, { type: "lab:rate", rate: state.rate });
+      post(f, { type: "lab:brand", brand: state.brand });
       setTimeout(() => post(f, { type: "lab:scroll", ratio: state.scroll }), 120);
     });
     wrap.appendChild(f);
@@ -465,6 +548,64 @@ function showPage(pg) {
   save();
 }
 window.addEventListener("hashchange", () => showPage(location.hash === "#report" ? "report" : "compare"));
+
+// ---------- Brand stress test + synced actions ----------
+if (!state.brand) state.brand = { primary: "", font: "", density: "" };
+const statusEl = document.getElementById("status");
+function sendBrand() { frames().forEach((f) => post(f, { type: "lab:brand", brand: state.brand })); syncBrandUI(); save(); }
+function syncBrandUI() {
+  document.querySelectorAll("#swatches .sw").forEach((b) => b.setAttribute("aria-pressed", String((b.dataset.c || "") === (state.brand.primary || "") )));
+  document.getElementById("font").value = state.brand.font || "";
+  document.querySelectorAll("#density button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.v === (state.brand.density || ""))));
+}
+document.getElementById("swatches").addEventListener("click", (e) => {
+  const b = e.target.closest(".sw"); if (!b) return;
+  state.brand.primary = b.dataset.c || ""; sendBrand();
+});
+document.getElementById("primary-custom").addEventListener("input", (e) => { state.brand.primary = e.target.value; sendBrand(); });
+document.getElementById("font").addEventListener("change", (e) => { state.brand.font = e.target.value; sendBrand(); });
+document.getElementById("density").addEventListener("click", (e) => {
+  const b = e.target.closest("button"); if (!b) return;
+  state.brand.density = b.dataset.v; sendBrand();
+});
+
+const pending = {};
+function play(name) {
+  const fs = frames();
+  pending[name] = { want: fs.length, got: [] };
+  fs.forEach((f) => post(f, { type: "lab:action", name }));
+  statusEl.textContent = "";
+}
+window.addEventListener("message", (e) => {
+  const d = e.data || {};
+  if (d.type !== "lab:action-result" || !pending[d.name]) return;
+  const i = frames().findIndex((f) => f.contentWindow === e.source);
+  pending[d.name].got.push({ i, ok: d.ok });
+  const p = pending[d.name];
+  if (p.got.length === p.want) {
+    const missing = p.got.filter((g) => !g.ok).map((g) => byId(state.panes[g.i]).name);
+    statusEl.textContent = missing.length ? "Not found in " + missing.join(" and ") : "";
+    delete pending[d.name];
+  }
+});
+document.getElementById("play").addEventListener("click", () => play(document.getElementById("action").value));
+document.getElementById("close-all").addEventListener("click", () => play("close"));
+let touring = false;
+document.getElementById("tour").addEventListener("click", async (ev) => {
+  const btn = ev.currentTarget;
+  if (touring) { touring = false; return; }
+  touring = true; btn.textContent = "Stop";
+  const steps = ["dialog", "close", "menu", "close", "sheet", "close", "command", "close", "task-add", "task-complete", "task-sort", "task-remove", "save-fail", "toast", "reload"];
+  const pause = (ms) => new Promise((r) => setTimeout(r, ms / Math.max(state.rate, 0.2) ** 0.5));
+  for (const s of steps) {
+    if (!touring) break;
+    statusEl.textContent = "Tour: " + (document.querySelector('#action option[value="' + s + '"]')?.textContent || "close overlays");
+    play(s);
+    await pause(s === "close" ? 700 : 1500);
+  }
+  touring = false; btn.textContent = "Tour"; statusEl.textContent = "";
+});
+syncBrandUI();
 
 showPage(location.hash === "#report" ? "report" : (state.page || "compare"));
 </script>

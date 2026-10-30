@@ -5,6 +5,7 @@ import { Sidebar } from "@/sections/Sidebar"
 import { PageHeader } from "@/sections/PageHeader"
 import { Stats } from "@/sections/Stats"
 import { Workspace } from "@/sections/Workspace"
+import { RoundTwo } from "@/sections/RoundTwo"
 import { Settings } from "@/sections/Settings"
 import { Controls } from "@/sections/Controls"
 import { States } from "@/sections/States"
@@ -26,6 +27,7 @@ export default function App() {
         <PageHeader />
         <Stats />
         <Workspace />
+        <RoundTwo />
         <div className="grid gap-6 lg:grid-cols-2">
           <Controls />
           <Assistant />

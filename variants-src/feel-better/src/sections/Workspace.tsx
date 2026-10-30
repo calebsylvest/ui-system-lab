@@ -66,7 +66,7 @@ export function Workspace() {
                   <Avatar key={t} className="border-2 border-background"><AvatarFallback>{t}</AvatarFallback></Avatar>
                 ))}
               </div>
-              <span className="text-sm text-muted-foreground">{p.progress}%</span>
+              <span className="text-sm text-muted-foreground tabular-nums">{p.progress}%</span>
             </CardFooter>
           </Card>
         ))}
@@ -77,7 +77,7 @@ export function Workspace() {
           <CardContent className="px-2">
             {selected.length > 0 && (
               <div className="flex items-center gap-2 px-2 py-2 text-sm">
-                <span>{selected.length} selected</span>
+                <span className="tabular-nums">{selected.length} selected</span>
                 <Button size="sm" variant="outline" onClick={() => { toast(`Sent ${selected.length} reminder(s)`); setSelected([]) }}>Send reminder</Button>
               </div>
             )}
@@ -100,9 +100,9 @@ export function Workspace() {
                     </TableCell>
                     <TableCell className="font-medium">{inv.number}</TableCell>
                     <TableCell>{inv.client}</TableCell>
-                    <TableCell>{inv.issued}</TableCell>
+                    <TableCell className="tabular-nums">{inv.issued}</TableCell>
                     <TableCell><Badge variant={statusVariant[inv.status]}>{inv.status}</Badge></TableCell>
-                    <TableCell className="text-right">{money(inv.amount)}</TableCell>
+                    <TableCell className="text-right tabular-nums">{money(inv.amount)}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

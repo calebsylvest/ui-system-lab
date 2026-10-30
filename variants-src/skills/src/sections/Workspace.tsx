@@ -16,6 +16,11 @@ import {
 
 const money = (n: number) => n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 })
 
+// better-writing: whole strings per plural category, never `reminder(s)`
+const plural = new Intl.PluralRules("en-US")
+const remindersSent = (n: number) => (plural.select(n) === "one" ? `${n} reminder sent` : `${n} reminders sent`)
+const invoicesSelected = (n: number) => (plural.select(n) === "one" ? `${n} invoice selected` : `${n} invoices selected`)
+
 function ProjectMenu({ name }: { name: string }) {
   return (
     <DropdownMenu>
@@ -24,8 +29,8 @@ function ProjectMenu({ name }: { name: string }) {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem><Pencil /> Rename</DropdownMenuItem>
-        <DropdownMenuItem onSelect={() => toast(`Duplicated ${name}`)}><Copy /> Duplicate</DropdownMenuItem>
-        <DropdownMenuItem onSelect={() => toast(`Archived ${name}`, { action: { label: "Undo", onClick: () => {} } })}><Archive /> Archive</DropdownMenuItem>
+        <DropdownMenuItem onSelect={() => toast(`“${name}” duplicated`)}><Copy /> Duplicate</DropdownMenuItem>
+        <DropdownMenuItem onSelect={() => toast(`“${name}” archived`, { action: { label: "Undo", onClick: () => {} }, duration: Infinity, closeButton: true })}><Archive /> Archive</DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem variant="destructive"><Trash2 /> Delete</DropdownMenuItem>
       </DropdownMenuContent>
@@ -56,7 +61,7 @@ export function Workspace() {
             <CardContent className="grid gap-3">
               <div className="flex items-center justify-between text-sm">
                 <Badge variant={statusVariant[p.status]}>{p.status}</Badge>
-                <span className="text-muted-foreground">Due {p.due}</span>
+                <span className="text-muted-foreground">{p.due === "—" ? "No due date" : `Due ${p.due}`}</span>
               </div>
               <Progress value={p.progress} />
             </CardContent>
@@ -66,7 +71,7 @@ export function Workspace() {
                   <Avatar key={t} className="border-2 border-background"><AvatarFallback>{t}</AvatarFallback></Avatar>
                 ))}
               </div>
-              <span className="text-sm text-muted-foreground">{p.progress}%</span>
+              <span className="text-sm text-muted-foreground tabular-nums">{p.progress}%</span>
             </CardFooter>
           </Card>
         ))}
@@ -75,21 +80,23 @@ export function Workspace() {
       <TabsContent value="invoices">
         <Card className="py-2">
           <CardContent className="px-2">
+            {/* Stable polite region, rendered before its text changes */}
+            <div role="status" className="sr-only">{selected.length > 0 ? invoicesSelected(selected.length) : ""}</div>
             {selected.length > 0 && (
               <div className="flex items-center gap-2 px-2 py-2 text-sm">
-                <span>{selected.length} selected</span>
-                <Button size="sm" variant="outline" onClick={() => { toast(`Sent ${selected.length} reminder(s)`); setSelected([]) }}>Send reminder</Button>
+                <span className="tabular-nums">{selected.length} selected</span>
+                <Button size="sm" variant="outline" onClick={() => { toast(remindersSent(selected.length)); setSelected([]) }}>Send reminder</Button>
               </div>
             )}
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-8" />
+                  <TableHead className="w-8"><span className="sr-only">Select</span></TableHead>
                   <TableHead>Invoice</TableHead>
                   <TableHead>Client</TableHead>
                   <TableHead>Issued</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Amount</TableHead>
+                  <TableHead className="text-end">Amount</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -102,7 +109,7 @@ export function Workspace() {
                     <TableCell>{inv.client}</TableCell>
                     <TableCell>{inv.issued}</TableCell>
                     <TableCell><Badge variant={statusVariant[inv.status]}>{inv.status}</Badge></TableCell>
-                    <TableCell className="text-right">{money(inv.amount)}</TableCell>
+                    <TableCell className="text-end tabular-nums">{money(inv.amount)}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

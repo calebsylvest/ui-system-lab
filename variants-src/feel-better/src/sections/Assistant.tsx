@@ -45,11 +45,11 @@ export function Assistant() {
         <div className="grid max-h-80 gap-3 overflow-y-auto">
           {msgs.map((m, i) =>
             m.role === "user" ? (
-              <div key={i} className="ml-auto max-w-[80%] rounded-lg bg-primary px-3 py-2 text-sm text-primary-foreground">{m.text}</div>
+              <div key={i} className="ml-auto max-w-[80%] rounded-lg bg-primary px-3 py-2 text-sm text-pretty text-primary-foreground">{m.text}</div>
             ) : (
               <div key={i} className="flex max-w-[85%] items-start gap-2">
                 <Avatar className="size-7"><AvatarFallback><Bot className="size-4" /></AvatarFallback></Avatar>
-                <div className="rounded-lg bg-muted px-3 py-2 text-sm">{m.text}</div>
+                <div className="rounded-lg bg-muted px-3 py-2 text-sm text-pretty">{m.text}</div>
               </div>
             )
           )}
@@ -68,10 +68,10 @@ export function Assistant() {
         <form onSubmit={(e) => { e.preventDefault(); send(input) }} className="relative">
           <Textarea id="assistant-input" value={input} onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(input) } }}
-            placeholder="Ask about a project, client or invoice" className="min-h-20 pr-24" />
+            placeholder="Ask about a project, client or invoice" className="min-h-20 rounded-xl pr-24" />
           <div className="absolute bottom-2 right-2 flex gap-1">
-            <Button type="button" variant="ghost" size="icon" aria-label="Dictate" className="size-8"><Mic /></Button>
-            <Button type="submit" size="icon" aria-label="Send" className="size-8" disabled={!input.trim() || thinking}><ArrowUp /></Button>
+            <Button type="button" variant="ghost" size="icon" aria-label="Dictate" className="size-8 rounded-sm after:min-w-9"><Mic /></Button>
+            <Button type="submit" size="icon" aria-label="Send" className="size-8 rounded-sm after:min-w-9" disabled={!input.trim() || thinking}><ArrowUp /></Button>
           </div>
         </form>
       </CardContent>

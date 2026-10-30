@@ -31,10 +31,10 @@ export function PageHeader() {
   return (
     <section className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
       <div>
-        <h1 className="text-2xl font-semibold">Projects</h1>
-        <p className="text-muted-foreground text-sm">6 active projects across 6 clients. 42.5 hours logged this week.</p>
+        <h1 className="stagger-item text-2xl font-semibold [--stagger:0]">Projects</h1>
+        <p className="stagger-item text-muted-foreground text-sm [--stagger:1]">6 active projects across 6 clients. 42.5 hours logged this week.</p>
       </div>
-      <div className="flex gap-2">
+      <div className="stagger-item flex gap-2 [--stagger:2]">
         <Button variant="outline" onClick={() => toast("Export started", { description: "We’ll email you the CSV in a minute." })}>
           <Download /> Export
         </Button>

@@ -31,7 +31,8 @@ export function States() {
           <CardTitle>Recent files</CardTitle>
           <CardDescription>Loading state</CardDescription>
         </CardHeader>
-        <CardContent className="grid gap-3">
+        <CardContent className="grid gap-3" aria-busy={loading}>
+          <p role="status" className="sr-only">{loading ? "Loading recent files…" : "Recent files loaded"}</p>
           {loading ? (
             [0, 1, 2].map((i) => (
               <div key={i} className="flex items-center gap-3">
@@ -44,14 +45,14 @@ export function States() {
             ))
           ) : (
             [
-              ["catalog-cover-v3.fig", "Maya R. · 2.4 MB"],
-              ["donor-portal-flows.pdf", "Jonah O. · 880 KB"],
-              ["menu-board-photos.zip", "Lena T. · 41 MB"],
+              ["catalog-cover-v3.fig", "Maya R. · 2.4\u00A0MB"],
+              ["donor-portal-flows.pdf", "Jonah O. · 880\u00A0KB"],
+              ["menu-board-photos.zip", "Lena T. · 41\u00A0MB"],
             ].map(([f, m]) => (
               <div key={f} className="flex items-center gap-3">
                 <div className="size-10 rounded-md bg-muted" />
-                <div className="text-sm">
-                  <p className="font-medium">{f}</p>
+                <div className="min-w-0 text-sm">
+                  <p className="font-medium break-words">{f}</p>
                   <p className="text-muted-foreground text-xs">{m}</p>
                 </div>
               </div>

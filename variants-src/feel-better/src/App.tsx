@@ -27,7 +27,7 @@ export default function App() {
       <footer className="border-t">
         <div className="mx-auto flex max-w-6xl flex-wrap justify-between gap-2 px-4 py-6 text-sm text-muted-foreground">
           <span>Fieldwork Studio · Plano, TX</span>
-          <span>Baseline: shadcn/ui defaults, no polish applied</span>
+          <span>Variant: Make interfaces feel better</span>
         </div>
       </footer>
       <Toaster position="bottom-right" />

@@ -15,7 +15,7 @@ export function Stats() {
         <Card key={s.label} className="gap-2">
           <CardHeader>
             <CardDescription>{s.label}</CardDescription>
-            <CardTitle className="text-2xl">{s.value}</CardTitle>
+            <CardTitle as="p" className="text-2xl tabular-nums">{s.value}</CardTitle>
           </CardHeader>
           <CardContent className="grid gap-2">
             <p className="text-muted-foreground text-xs">{s.note}</p>

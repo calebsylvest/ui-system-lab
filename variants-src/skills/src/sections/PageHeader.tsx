@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useRef, useState } from "react"
 import { Download, Plus } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
@@ -15,26 +15,28 @@ export function PageHeader() {
   const [open, setOpen] = useState(false)
   const [name, setName] = useState("")
   const [error, setError] = useState(false)
+  const nameRef = useRef<HTMLInputElement>(null)
 
   function create(e: React.FormEvent) {
     e.preventDefault()
     if (!name.trim()) {
       setError(true)
+      nameRef.current?.focus() // focusing the invalid field announces its error
       return
     }
     setOpen(false)
     setName("")
     setError(false)
-    toast.success(`Created “${name.trim()}”`, { description: "It’s in your project list now." })
+    toast.success(`“${name.trim()}” created`, { description: "It’s in your project list now." })
   }
 
   return (
     <section className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
       <div>
         <h1 className="text-2xl font-semibold">Projects</h1>
-        <p className="text-muted-foreground text-sm">6 active projects across 6 clients. 42.5 hours logged this week.</p>
+        <p className="text-muted-foreground text-sm text-pretty">6 active projects across 6 clients. 42.5&nbsp;hours logged this week.</p>
       </div>
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
         <Button variant="outline" onClick={() => toast("Export started", { description: "We’ll email you the CSV in a minute." })}>
           <Download /> Export
         </Button>
@@ -43,17 +45,18 @@ export function PageHeader() {
             <Button><Plus /> New project</Button>
           </DialogTrigger>
           <DialogContent>
-            <form onSubmit={create} className="grid gap-4">
+            <form onSubmit={create} noValidate className="grid gap-4">
               <DialogHeader>
                 <DialogTitle>New project</DialogTitle>
                 <DialogDescription>Give it a name and a client. You can add the team and budget later.</DialogDescription>
               </DialogHeader>
               <div className="grid gap-2">
-                <Label htmlFor="np-name">Project name</Label>
-                <Input id="np-name" value={name} aria-invalid={error}
+                <Label htmlFor="np-name">Project name <span className="text-muted-foreground font-normal">(required)</span></Label>
+                <Input id="np-name" name="name" ref={nameRef} required autoComplete="off" value={name}
+                  aria-invalid={error} aria-describedby={error ? "np-name-error" : undefined}
                   onChange={(e) => { setName(e.target.value); setError(false) }}
                   placeholder="e.g. Holiday landing page" />
-                {error && <p className="text-destructive text-sm">Enter a project name.</p>}
+                {error && <p id="np-name-error" className="text-destructive text-sm">Enter a project name.</p>}
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="np-client">Client</Label>
@@ -69,7 +72,7 @@ export function PageHeader() {
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="np-notes">Notes</Label>
-                <Textarea id="np-notes" placeholder="Scope, links, anything the team should know" />
+                <Textarea id="np-notes" name="notes" placeholder="e.g. Launch before Black Friday. Brand assets are in the shared drive." />
               </div>
               <DialogFooter>
                 <DialogClose asChild><Button type="button" variant="outline">Cancel</Button></DialogClose>

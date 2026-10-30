@@ -19,10 +19,21 @@
   --muted-foreground: oklch(0.556 0 0);
   --accent: oklch(0.97 0 0);
   --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
+  /* better-colors: lightness lowered and chroma pulled inside sRGB (was 0.577 0.245, out of gamut).
+     Destructive text on its /10 menu highlight measured 3.99:1; now 5.13:1. White on fill 6.15:1. */
+  --destructive: oklch(0.52 0.21 27.325);
+  --destructive-foreground: oklch(1 0 0);
   --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
+  /* better-accessibility 1.4.11: input/checkbox/switch boundaries need 3:1. 0.922 measured 1.26:1 on white; 0.64 measures 3.36:1 */
+  --input: oklch(0.64 0 0);
+  --border-strong: oklch(0.64 0 0);
   --ring: oklch(0.708 0 0);
+  /* better-ui shadow ring: elevation without a structural border */
+  --shadow-border:
+    0px 0px 0px 1px oklch(0 0 0 / 0.06),
+    0px 1px 2px -1px oklch(0 0 0 / 0.06),
+    0px 2px 4px 0px oklch(0 0 0 / 0.04);
+  --header-height: 3.5rem;
 }
 
 .dark {
@@ -40,10 +51,15 @@
   --muted-foreground: oklch(0.708 0 0);
   --accent: oklch(0.269 0 0);
   --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
+  /* chroma pulled inside sRGB (was 0.191). White on this fill measured 2.89:1; dark text measures 6.91:1 */
+  --destructive: oklch(0.704 0.187 22.216);
+  --destructive-foreground: oklch(0.145 0 0);
   --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
+  /* 15% white measured 1.57:1 against the card; 0.52 measures 3.25:1 (card) and 3.59:1 (page) */
+  --input: oklch(0.52 0 0);
+  --border-strong: oklch(0.52 0 0);
   --ring: oklch(0.556 0 0);
+  --shadow-border: 0 0 0 1px oklch(1 0 0 / 0.08);
 }
 
 @theme inline {
@@ -66,12 +82,20 @@
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border-strong: var(--border-strong);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
 }
 
 @layer base {
-  * { @apply border-border outline-ring/50; }
-  body { @apply bg-background text-foreground; }
+  * { @apply border-border; }
+  html {
+    /* better-layout: anchored targets and focused elements never land under the sticky header (WCAG 2.4.11) */
+    scroll-padding-block-start: calc(var(--header-height) + 0.5rem);
+  }
+  body { @apply bg-background text-foreground antialiased; }
+  /* better-accessibility: keep the browser's own focus indicator, just give it room */
+  :focus-visible { outline-offset: 2px; }
 }

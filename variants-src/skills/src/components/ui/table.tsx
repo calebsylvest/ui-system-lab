@@ -13,9 +13,9 @@ function TableRow({ className, ...props }: React.ComponentProps<"tr">) {
   return <tr data-slot="table-row" className={cn("hover:bg-muted/50 data-[state=selected]:bg-muted border-b transition-colors", className)} {...props} />
 }
 function TableHead({ className, ...props }: React.ComponentProps<"th">) {
-  return <th data-slot="table-head" className={cn("text-foreground h-10 px-2 text-left align-middle font-medium whitespace-nowrap [&:has([role=checkbox])]:pr-0", className)} {...props} />
+  return <th data-slot="table-head" className={cn("text-foreground h-10 px-2 text-start align-middle font-medium whitespace-nowrap [&:has([role=checkbox])]:pe-0", className)} {...props} />
 }
 function TableCell({ className, ...props }: React.ComponentProps<"td">) {
-  return <td data-slot="table-cell" className={cn("p-2 align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0", className)} {...props} />
+  return <td data-slot="table-cell" className={cn("p-2 align-middle whitespace-nowrap [&:has([role=checkbox])]:pe-0", className)} {...props} />
 }
 export { Table, TableHeader, TableBody, TableHead, TableRow, TableCell }

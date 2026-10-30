@@ -50,7 +50,7 @@ export function Settings() {
             </div>
             <div className="grid gap-2">
               <Label htmlFor="ws-rate">Default hourly rate</Label>
-              <Input id="ws-rate" type="number" defaultValue={135} />
+              <Input id="ws-rate" type="number" defaultValue={135} className="tabular-nums" />
             </div>
             <div className="grid gap-2">
               <Label htmlFor="ws-terms">Payment terms</Label>

@@ -1,9 +1,10 @@
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { ArrowUp, Bot, Mic, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Textarea } from "@/components/ui/textarea"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Label } from "@/components/ui/label"
 
 type Msg = { role: "user" | "assistant"; text: string }
 
@@ -23,9 +24,18 @@ export function Assistant() {
   const [input, setInput] = useState("")
   const [thinking, setThinking] = useState(false)
   const n = useRef(0)
+  const listRef = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLTextAreaElement>(null)
+
+  // better-layout: a new message must never land past the scroll edge unseen
+  useEffect(() => {
+    const el = listRef.current
+    if (el) el.scrollTop = el.scrollHeight
+  }, [msgs.length, thinking])
 
   function send(text: string) {
-    if (!text.trim() || thinking) return
+    if (!text.trim()) { inputRef.current?.focus(); return }
+    if (thinking) return
     setMsgs((m) => [...m, { role: "user", text }])
     setInput("")
     setThinking(true)
@@ -42,14 +52,14 @@ export function Assistant() {
         <CardDescription>Questions about your projects, hours and invoices.</CardDescription>
       </CardHeader>
       <CardContent className="grid gap-4">
-        <div className="grid max-h-80 gap-3 overflow-y-auto">
+        <div ref={listRef} className="grid max-h-80 gap-3 overflow-y-auto">
           {msgs.map((m, i) =>
             m.role === "user" ? (
-              <div key={i} className="ml-auto max-w-[80%] rounded-lg bg-primary px-3 py-2 text-sm text-primary-foreground">{m.text}</div>
+              <div key={i} className="ms-auto max-w-[80%] rounded-lg bg-primary px-3 py-2 text-sm text-pretty text-primary-foreground">{m.text}</div>
             ) : (
               <div key={i} className="flex max-w-[85%] items-start gap-2">
                 <Avatar className="size-7"><AvatarFallback><Bot className="size-4" /></AvatarFallback></Avatar>
-                <div className="rounded-lg bg-muted px-3 py-2 text-sm">{m.text}</div>
+                <div className="rounded-lg bg-muted px-3 py-2 text-sm text-pretty">{m.text}</div>
               </div>
             )
           )}
@@ -60,18 +70,23 @@ export function Assistant() {
             </div>
           )}
         </div>
+        {/* Polite region, rendered empty first: announces "thinking" and each reply */}
+        <div role="status" className="sr-only">
+          {thinking ? "Fieldwork is thinking…" : msgs[msgs.length - 1].role === "assistant" && msgs.length > 2 ? msgs[msgs.length - 1].text : ""}
+        </div>
         <div className="flex flex-wrap gap-2">
           {suggestions.map((s) => (
             <Button key={s} variant="outline" size="sm" onClick={() => send(s)} disabled={thinking}>{s}</Button>
           ))}
         </div>
         <form onSubmit={(e) => { e.preventDefault(); send(input) }} className="relative">
-          <Textarea id="assistant-input" value={input} onChange={(e) => setInput(e.target.value)}
+          <Label htmlFor="assistant-input" className="sr-only">Message Fieldwork</Label>
+          <Textarea id="assistant-input" ref={inputRef} value={input} onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(input) } }}
-            placeholder="Ask about a project, client or invoice" className="min-h-20 pr-24" />
-          <div className="absolute bottom-2 right-2 flex gap-1">
+            placeholder="e.g. Which invoices are overdue?" className="min-h-20 rounded-2xl pe-24" />
+          <div className="absolute bottom-2 end-2 flex gap-1">
             <Button type="button" variant="ghost" size="icon" aria-label="Dictate" className="size-8"><Mic /></Button>
-            <Button type="submit" size="icon" aria-label="Send" className="size-8" disabled={!input.trim() || thinking}><ArrowUp /></Button>
+            <Button type="submit" size="icon" aria-label="Send message" className="size-8" aria-disabled={thinking || undefined}><ArrowUp /></Button>
           </div>
         </form>
       </CardContent>

@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@source not "../CHANGES.md";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -23,6 +24,18 @@
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
   --ring: oklch(0.708 0 0);
+
+  /* Shadow-as-border (surfaces.md): ring + lift + ambient, all transparent */
+  --surface-shadow:
+    0px 0px 0px 1px oklch(0 0 0 / 0.06),
+    0px 1px 2px -1px oklch(0 0 0 / 0.06),
+    0px 2px 4px 0px oklch(0 0 0 / 0.04);
+  --surface-shadow-hover:
+    0px 0px 0px 1px oklch(0 0 0 / 0.08),
+    0px 1px 2px -1px oklch(0 0 0 / 0.08),
+    0px 2px 4px 0px oklch(0 0 0 / 0.06);
+  /* Toasts: same 1px transparent ring in place of the solid border, plus sonner's own lift */
+  --toast-shadow: 0px 0px 0px 1px oklch(0 0 0 / 0.06), 0px 4px 12px oklch(0 0 0 / 0.1);
 }
 
 .dark {
@@ -44,6 +57,11 @@
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.556 0 0);
+
+  /* Dark mode: a single white ring; layered depth is invisible on dark surfaces */
+  --surface-shadow: 0 0 0 1px oklch(1 0 0 / 0.08);
+  --surface-shadow-hover: 0 0 0 1px oklch(1 0 0 / 0.13);
+  --toast-shadow: 0 0 0 1px oklch(1 0 0 / 0.08), 0px 4px 12px oklch(0 0 0 / 0.1);
 }
 
 @theme inline {
@@ -69,9 +87,39 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --shadow-border: var(--surface-shadow);
+  --shadow-border-hover: var(--surface-shadow-hover);
 }
 
 @layer base {
   * { @apply border-border outline-ring/50; }
+  /* Font smoothing, applied once at the root (typography.md) */
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
   body { @apply bg-background text-foreground; }
+  /* Text wrapping: balance short headings, pretty for short-to-medium text */
+  h1, h2, h3 { text-wrap: balance; }
+  p, li, figcaption, blockquote { text-wrap: pretty; }
+}
+
+/* Split-and-stagger enter for infrequent staged entrances (animations.md).
+   One-shot sequence, so a keyframe is correct here. Set --stagger on each chunk
+   (0, 1, 2…) for a ~100ms step. Skipped entirely when reduced motion is requested. */
+@media (prefers-reduced-motion: no-preference) {
+  .stagger-item {
+    opacity: 0;
+    transform: translateY(12px);
+    filter: blur(4px);
+    animation: fade-in-up 400ms ease-out forwards;
+    animation-delay: calc(var(--stagger, 0) * 100ms);
+  }
+}
+@keyframes fade-in-up {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
 }

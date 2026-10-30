@@ -1,0 +1,263 @@
+<title>UI System Lab</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&display=swap">
+<style>
+/* Layout: one-screen tool. A slim control bar on top, then one or two full-height frames of the same test page. */
+:root {
+  --bg: #eef0ef;
+  --panel: #ffffff;
+  --fg: #1b2120;
+  --muted: #5f6a68;
+  --line: #d7dcda;
+  --accent: #1f6b64;
+  --accent-fg: #ffffff;
+  --chip: #e3e8e6;
+  --font-ui: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #121615; --panel: #1a1f1e; --fg: #e6ebe9; --muted: #95a19e; --line: #2c3432;
+    --accent: #5fbcb1; --accent-fg: #0d1514; --chip: #242b2a; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #121615; --panel: #1a1f1e; --fg: #e6ebe9; --muted: #95a19e; --line: #2c3432;
+  --accent: #5fbcb1; --accent-fg: #0d1514; --chip: #242b2a; color-scheme: dark;
+}
+html, body { height: 100%; }
+body {
+  background: var(--bg); color: var(--fg); font-family: var(--font-ui); font-size: 13px;
+  display: flex; flex-direction: column;
+}
+.bar {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px;
+  padding-block: 10px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  background: var(--panel); border-bottom: 1px solid var(--line);
+}
+.brand { font-weight: 600; font-size: 14px; margin-right: 4px; }
+.group { display: flex; align-items: center; gap: 6px; }
+.group > .lbl { color: var(--muted); }
+.seg { display: inline-flex; background: var(--chip); border-radius: 8px; padding: 2px; gap: 2px; }
+.seg button {
+  font: inherit; color: var(--muted); background: transparent; border: 0; border-radius: 6px;
+  padding: 5px 10px; cursor: pointer; transition: background .15s, color .15s;
+}
+.seg button:hover { color: var(--fg); }
+.seg button[aria-pressed="true"] { background: var(--panel); color: var(--fg); box-shadow: 0 1px 2px rgb(0 0 0 / .08); }
+.seg button:focus-visible, select:focus-visible, .chk input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+select {
+  font: inherit; color: var(--fg); background: var(--panel); border: 1px solid var(--line);
+  border-radius: 6px; padding: 5px 8px; max-width: 280px;
+}
+.chk { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); cursor: pointer; }
+.chk input { accent-color: var(--accent); }
+.spacer { flex: 1; }
+.keys { color: var(--muted); }
+kbd {
+  font-family: var(--font-ui); font-size: 11px; background: var(--chip); border: 1px solid var(--line);
+  border-radius: 4px; padding: 0 5px; color: var(--fg);
+}
+.stage {
+  flex: 1; min-height: 0; display: grid; gap: 12px;
+  padding-block: 12px;
+  padding-left: max(12px, env(safe-area-inset-left, 0px));
+  padding-right: max(12px, env(safe-area-inset-right, 0px));
+}
+.stage.split { grid-template-columns: 1fr 1fr; }
+@media (max-width: 800px) { .stage.split { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; } }
+.pane { min-width: 0; min-height: 0; display: flex; flex-direction: column; gap: 6px; }
+.pane-head { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.pane-head strong { font-weight: 600; }
+.pane-head span { color: var(--muted); }
+.frame-wrap {
+  flex: 1; min-height: 0; display: flex; justify-content: center;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 10px; overflow: hidden;
+}
+iframe { border: 0; width: 100%; height: 100%; background: #fff; transition: width .2s ease; }
+.frame-wrap.narrow iframe { border-left: 1px solid var(--line); border-right: 1px solid var(--line); }
+.empty {
+  margin: auto; max-width: 42ch; text-align: center; color: var(--muted); padding: 24px; line-height: 1.5;
+}
+.empty strong { display: block; color: var(--fg); font-size: 15px; margin-bottom: 6px; }
+.rate-on { color: var(--accent); font-weight: 500; }
+@media (max-width: 700px) { .keys { display: none; } }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="bar" role="toolbar" aria-label="Comparison controls">
+  <span class="brand">UI System Lab</span>
+
+  <div class="group">
+    <span class="lbl">View</span>
+    <div class="seg" id="mode">
+      <button type="button" data-v="single" aria-pressed="true">Single</button>
+      <button type="button" data-v="split" aria-pressed="false">Side by side</button>
+    </div>
+  </div>
+
+  <div class="group">
+    <span class="lbl">Width</span>
+    <div class="seg" id="width">
+      <button type="button" data-v="fill" aria-pressed="true">Full</button>
+      <button type="button" data-v="820" aria-pressed="false">Tablet</button>
+      <button type="button" data-v="390" aria-pressed="false">Phone</button>
+    </div>
+  </div>
+
+  <div class="group">
+    <span class="lbl">Theme</span>
+    <div class="seg" id="theme">
+      <button type="button" data-v="light" aria-pressed="true">Light</button>
+      <button type="button" data-v="dark" aria-pressed="false">Dark</button>
+    </div>
+  </div>
+
+  <div class="group">
+    <span class="lbl">Motion</span>
+    <div class="seg" id="rate">
+      <button type="button" data-v="1" aria-pressed="true">1×</button>
+      <button type="button" data-v="0.5" aria-pressed="false">0.5×</button>
+      <button type="button" data-v="0.2" aria-pressed="false">0.2×</button>
+    </div>
+  </div>
+
+  <label class="chk"><input type="checkbox" id="sync" checked> Sync scroll</label>
+
+  <span class="spacer"></span>
+  <span class="keys"><kbd>1</kbd>–<kbd>6</kbd> variant · <kbd>S</kbd> split · <kbd>M</kbd> slow motion · <kbd>D</kbd> theme</span>
+</div>
+
+<div class="stage" id="stage"></div>
+
+<script>
+const VARIANTS = [
+  { id: "baseline", name: "Baseline", note: "shadcn/ui defaults, untouched", path: "variants/baseline/index.html", ready: true },
+  { id: "fluid", name: "Fluid Functionalism", note: "Component library with spring hovers", path: "variants/fluid/index.html", ready: false },
+  { id: "skills", name: "Interface skills", note: "jakubkrehel/skills (better-interface)", path: "variants/skills/index.html", ready: false },
+  { id: "feel-better", name: "Make interfaces feel better", note: "Single detail-polish skill", path: "variants/feel-better/index.html", ready: false },
+  { id: "transitions", name: "transitions.dev", note: "Motion recipes and motion agent", path: "variants/transitions/index.html", ready: false },
+  { id: "libraries", name: "libraries.dev", note: "AI effect add-ons", path: "variants/libraries/index.html", ready: false },
+];
+
+const state = { mode: "single", width: "fill", theme: "light", rate: 1, sync: true, panes: ["baseline", "fluid"], active: 0, scroll: 0 };
+try { Object.assign(state, JSON.parse(localStorage.getItem("uilab") || "{}")); } catch (e) {}
+const save = () => { try { localStorage.setItem("uilab", JSON.stringify(state)); } catch (e) {} };
+
+const stage = document.getElementById("stage");
+const byId = (id) => VARIANTS.find((v) => v.id === id) || VARIANTS[0];
+
+function frames() { return [...stage.querySelectorAll("iframe")]; }
+function post(frame, msg) { try { frame.contentWindow.postMessage(msg, "*"); } catch (e) {} }
+
+function render() {
+  stage.className = "stage" + (state.mode === "split" ? " split" : "");
+  stage.innerHTML = "";
+  const count = state.mode === "split" ? 2 : 1;
+  for (let i = 0; i < count; i++) stage.appendChild(makePane(i));
+  syncSegs();
+  save();
+}
+
+function makePane(i) {
+  const v = byId(state.panes[i]);
+  const pane = document.createElement("section");
+  pane.className = "pane";
+
+  const head = document.createElement("div");
+  head.className = "pane-head";
+  const sel = document.createElement("select");
+  sel.id = "pick-" + i;
+  sel.setAttribute("aria-label", i === 0 ? "Left variant" : "Right variant");
+  VARIANTS.forEach((o, n) => {
+    const opt = document.createElement("option");
+    opt.value = o.id;
+    opt.textContent = (n + 1) + ". " + o.name + (o.ready ? "" : " (not built)");
+    if (o.id === v.id) opt.selected = true;
+    sel.appendChild(opt);
+  });
+  sel.addEventListener("change", () => { state.panes[i] = sel.value; state.active = i; render(); });
+  sel.addEventListener("focus", () => { state.active = i; });
+  const note = document.createElement("span");
+  note.textContent = v.note;
+  head.append(sel, note);
+
+  const wrap = document.createElement("div");
+  wrap.className = "frame-wrap" + (state.width !== "fill" ? " narrow" : "");
+  if (v.ready) {
+    const f = document.createElement("iframe");
+    f.title = v.name;
+    f.src = v.path + "?theme=" + state.theme;
+    if (state.width !== "fill") f.style.width = state.width + "px";
+    f.addEventListener("load", () => {
+      post(f, { type: "lab:rate", rate: state.rate });
+      setTimeout(() => post(f, { type: "lab:scroll", ratio: state.scroll }), 120);
+    });
+    wrap.appendChild(f);
+  } else {
+    wrap.innerHTML = '<div class="empty"><strong>' + v.name + ' isn’t built yet</strong>This variant will be the baseline page with ' + v.name + ' applied. Pick Baseline to see the starting point.</div>';
+  }
+  pane.append(head, wrap);
+  return pane;
+}
+
+function syncSegs() {
+  const vals = { mode: state.mode, width: String(state.width), theme: state.theme, rate: String(state.rate) };
+  for (const [id, val] of Object.entries(vals)) {
+    document.querySelectorAll("#" + id + " button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.v === val)));
+  }
+  document.getElementById("sync").checked = state.sync;
+}
+
+function setOpt(key, val) {
+  state[key] = val;
+  if (key === "mode" || key === "width") { render(); return; }
+  if (key === "theme") frames().forEach((f) => post(f, { type: "lab:theme", theme: val }));
+  if (key === "rate") frames().forEach((f) => post(f, { type: "lab:rate", rate: val }));
+  syncSegs(); save();
+}
+
+document.querySelectorAll(".seg").forEach((seg) => {
+  seg.addEventListener("click", (e) => {
+    const b = e.target.closest("button");
+    if (!b) return;
+    const v = b.dataset.v;
+    setOpt(seg.id, seg.id === "rate" ? Number(v) : v);
+  });
+});
+document.getElementById("sync").addEventListener("change", (e) => { state.sync = e.target.checked; save(); });
+
+window.addEventListener("message", (e) => {
+  const d = e.data || {};
+  if (d.type === "lab:key") {
+    const i = frames().findIndex((f) => f.contentWindow === e.source);
+    if (i >= 0) state.active = i;
+    onKey(d.key);
+    return;
+  }
+  if (d.type !== "lab:scroll") return;
+  state.scroll = d.ratio;
+  if (!state.sync) return;
+  frames().forEach((f) => { if (f.contentWindow !== e.source) post(f, d); });
+});
+
+// Shortcuts also work while a frame has focus: the bridge script inside each variant forwards them.
+function onKey(key) {
+  const n = Number(key);
+  if (n >= 1 && n <= VARIANTS.length) {
+    const target = state.mode === "split" ? state.active : 0;
+    state.panes[target] = VARIANTS[n - 1].id;
+    render();
+  } else if (key === "s") setOpt("mode", state.mode === "split" ? "single" : "split");
+  else if (key === "m") setOpt("rate", state.rate === 1 ? 0.2 : 1);
+  else if (key === "d") setOpt("theme", state.theme === "dark" ? "light" : "dark");
+}
+window.addEventListener("keydown", (e) => {
+  if (e.metaKey || e.ctrlKey || e.altKey || e.target.tagName === "SELECT") return;
+  onKey(e.key);
+});
+
+render();
+</script>

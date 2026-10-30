@@ -5,9 +5,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Skeleton } from "@/components/ui/skeleton"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { faqs } from "@/data"
+import { ImageGeneration } from "img-fx"
+import { useReducedMotion } from "@/lib/effects"
 
 export function States() {
   const [loading, setLoading] = useState(true)
+  const reduced = useReducedMotion()
 
   return (
     <section className="grid gap-4 lg:grid-cols-3">
@@ -31,11 +34,13 @@ export function States() {
           <CardTitle>Recent files</CardTitle>
           <CardDescription>Loading state</CardDescription>
         </CardHeader>
-        <CardContent className="grid gap-3">
+        <CardContent className="grid gap-3" aria-busy={loading}>
           {loading ? (
             [0, 1, 2].map((i) => (
               <div key={i} className="flex items-center gap-3">
-                <Skeleton className="size-10" />
+                <ImageGeneration preset="sweep-gradient" strength={0.5} paused={reduced} aria-hidden="true">
+                  <div className="size-10 rounded-md bg-muted" />
+                </ImageGeneration>
                 <div className="grid flex-1 gap-2">
                   <Skeleton className="h-4 w-3/4" />
                   <Skeleton className="h-3 w-1/2" />

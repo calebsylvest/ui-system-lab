@@ -6,6 +6,7 @@
 :root {
   --radius: 0.625rem;
   --background: oklch(1 0 0);
+  --tab-indicator: var(--background);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
@@ -27,6 +28,7 @@
 
 .dark {
   --background: oklch(0.145 0 0);
+  --tab-indicator: color-mix(in oklab, oklch(0.269 0 0), white 5%);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.205 0 0);
   --card-foreground: oklch(0.985 0 0);
@@ -74,4 +76,14 @@
 @layer base {
   * { @apply border-border outline-ring/50; }
   body { @apply bg-background text-foreground; }
+}
+
+/* libraries.dev: liquid-gooey tab indicator. The liquid is the active surface,
+   so the Radix triggers sit above it and drop their own active background. */
+.liquid-tabs > [data-slot="tabs-trigger"] {
+  position: relative;
+  z-index: 1;
+  background: transparent;
+  box-shadow: none;
+  border-color: transparent;
 }

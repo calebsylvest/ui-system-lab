@@ -8,7 +8,8 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Progress } from "@/components/ui/progress"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Tabs, TabsContent, TabsTrigger } from "@/components/ui/tabs"
+import { LiquidTabsList } from "@/components/LiquidTabsList"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger,
@@ -39,11 +40,11 @@ export function Workspace() {
 
   return (
     <Tabs defaultValue="projects">
-      <TabsList>
+      <LiquidTabsList>
         <TabsTrigger value="projects">Projects</TabsTrigger>
         <TabsTrigger value="invoices">Invoices</TabsTrigger>
         <TabsTrigger value="activity">Activity</TabsTrigger>
-      </TabsList>
+      </LiquidTabsList>
 
       <TabsContent value="projects" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {projects.map((p) => (

@@ -1,6 +1,6 @@
 const { chromium } = require('playwright');
 const ids = ['baseline','fluid','skills','feel-better','libraries','ui-craft','taste','uiwiki','ibelick','emil','kemiljk','magicui'];
-const names = ['dialog','close','menu','close','tab','toast','task-add','task-complete','task-move','task-sort','task-remove','sheet','close','popover','close','combobox','close','command','close','save-fail','offline','offline','reload'];
+const names = ['dialog','close','menu','close','tab','toast','task-add','task-complete','task-move','task-sort','task-remove','sheet','close','popover','close','combobox','close','command','close','save-fail','offline','offline','reload','ledger-sort','ledger-next','ledger-filter','ledger-empty','ledger-clear','wizard-invalid','wizard-fill','wizard-next','wizard-back','wizard-cancel','close'];
 (async () => {
   const b = await chromium.launch();
   for (const id of ids) {

@@ -1,0 +1,83 @@
+{
+  "id": "kemiljk",
+  "bundle": {
+    "js": 516723,
+    "jsGz": 155055,
+    "css": 56855,
+    "cssGz": 10350,
+    "font": 0
+  },
+  "load": {
+    "fcp": 932,
+    "lcp": 932,
+    "cls": 0,
+    "tbt": 661
+  },
+  "interaction": {
+    "avgFrame": 19.46793750000005,
+    "p95Frame": 33.29999999999927,
+    "jank": 0.02303860523038605,
+    "longTaskMs": 2127,
+    "inpProxy": 256,
+    "maxEvent": 256
+  },
+  "cpu": {
+    "script": 1163.305,
+    "layout": 276.90500000000003,
+    "style": 3007.772,
+    "loadScript": 600.697,
+    "heapMB": 7.5992889404296875
+  },
+  "steps": [
+    [
+      "dialog",
+      "ok"
+    ],
+    [
+      "menu",
+      "ok"
+    ],
+    [
+      "tabs",
+      "ok"
+    ],
+    [
+      "hover-cards",
+      "ok"
+    ],
+    [
+      "tooltip",
+      "ok"
+    ],
+    [
+      "accordion",
+      "ok"
+    ],
+    [
+      "toast",
+      "ok"
+    ],
+    [
+      "scroll",
+      "ok"
+    ],
+    [
+      "chat",
+      "ok"
+    ],
+    [
+      "r2-tasks",
+      "ok"
+    ],
+    [
+      "r2-overlays",
+      "ok"
+    ],
+    [
+      "r2-sync",
+      "ok"
+    ]
+  ],
+  "errors": [],
+  "runs": 3
+}

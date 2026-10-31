@@ -1,32 +1,32 @@
 {
   "id": "ibelick",
   "bundle": {
-    "js": 514662,
-    "jsGz": 153473,
-    "css": 46268,
-    "cssGz": 8720,
+    "js": 531870,
+    "jsGz": 158069,
+    "css": 47776,
+    "cssGz": 8990,
     "font": 0
   },
   "load": {
-    "fcp": 888,
-    "lcp": 888,
+    "fcp": 1636,
+    "lcp": 1636,
     "cls": 0,
-    "tbt": 614
+    "tbt": 1249
   },
   "interaction": {
-    "avgFrame": 17.542170717919785,
-    "p95Frame": 16.799999999999272,
-    "jank": 0.007390562819783968,
-    "longTaskMs": 1113,
-    "inpProxy": 232,
-    "maxEvent": 232
+    "avgFrame": 19.303367003367022,
+    "p95Frame": 33.29999999999927,
+    "jank": 0.016456921587608905,
+    "longTaskMs": 3539,
+    "inpProxy": 384,
+    "maxEvent": 384
   },
   "cpu": {
-    "script": 1016.979,
-    "layout": 195.426,
-    "style": 1986.2759999999996,
-    "loadScript": 567.074,
-    "heapMB": 7.127323150634766
+    "script": 2060.003,
+    "layout": 475.843,
+    "style": 4342.773,
+    "loadScript": 1052.035,
+    "heapMB": 7.5643768310546875
   },
   "steps": [
     [
@@ -75,6 +75,14 @@
     ],
     [
       "r2-sync",
+      "ok"
+    ],
+    [
+      "r3-ledger",
+      "ok"
+    ],
+    [
+      "r3-form",
       "ok"
     ]
   ],

@@ -1,0 +1,83 @@
+{
+  "id": "ibelick",
+  "bundle": {
+    "js": 514662,
+    "jsGz": 153473,
+    "css": 46268,
+    "cssGz": 8720,
+    "font": 0
+  },
+  "load": {
+    "fcp": 888,
+    "lcp": 888,
+    "cls": 0,
+    "tbt": 614
+  },
+  "interaction": {
+    "avgFrame": 17.542170717919785,
+    "p95Frame": 16.799999999999272,
+    "jank": 0.007390562819783968,
+    "longTaskMs": 1113,
+    "inpProxy": 232,
+    "maxEvent": 232
+  },
+  "cpu": {
+    "script": 1016.979,
+    "layout": 195.426,
+    "style": 1986.2759999999996,
+    "loadScript": 567.074,
+    "heapMB": 7.127323150634766
+  },
+  "steps": [
+    [
+      "dialog",
+      "ok"
+    ],
+    [
+      "menu",
+      "ok"
+    ],
+    [
+      "tabs",
+      "ok"
+    ],
+    [
+      "hover-cards",
+      "ok"
+    ],
+    [
+      "tooltip",
+      "ok"
+    ],
+    [
+      "accordion",
+      "ok"
+    ],
+    [
+      "toast",
+      "ok"
+    ],
+    [
+      "scroll",
+      "ok"
+    ],
+    [
+      "chat",
+      "ok"
+    ],
+    [
+      "r2-tasks",
+      "ok"
+    ],
+    [
+      "r2-overlays",
+      "ok"
+    ],
+    [
+      "r2-sync",
+      "ok"
+    ]
+  ],
+  "errors": [],
+  "runs": 3
+}

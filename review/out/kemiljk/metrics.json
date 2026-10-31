@@ -1,32 +1,32 @@
 {
   "id": "kemiljk",
   "bundle": {
-    "js": 516723,
-    "jsGz": 155055,
-    "css": 56855,
-    "cssGz": 10350,
+    "js": 539061,
+    "jsGz": 160952,
+    "css": 59503,
+    "cssGz": 10798,
     "font": 0
   },
   "load": {
-    "fcp": 932,
-    "lcp": 932,
+    "fcp": 1712,
+    "lcp": 1712,
     "cls": 0,
-    "tbt": 661
+    "tbt": 1325
   },
   "interaction": {
-    "avgFrame": 19.46793750000005,
-    "p95Frame": 33.29999999999927,
-    "jank": 0.02303860523038605,
-    "longTaskMs": 2127,
-    "inpProxy": 256,
-    "maxEvent": 256
+    "avgFrame": 21.71305510968435,
+    "p95Frame": 33.400000000001455,
+    "jank": 0.035541195476575124,
+    "longTaskMs": 5570,
+    "inpProxy": 408,
+    "maxEvent": 408
   },
   "cpu": {
-    "script": 1163.305,
-    "layout": 276.90500000000003,
-    "style": 3007.772,
-    "loadScript": 600.697,
-    "heapMB": 7.5992889404296875
+    "script": 2157.863,
+    "layout": 560.536,
+    "style": 5554.7029999999995,
+    "loadScript": 1073.758,
+    "heapMB": 7.572544097900391
   },
   "steps": [
     [
@@ -75,6 +75,14 @@
     ],
     [
       "r2-sync",
+      "ok"
+    ],
+    [
+      "r3-ledger",
+      "ok"
+    ],
+    [
+      "r3-form",
       "ok"
     ]
   ],

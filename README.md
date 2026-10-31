@@ -13,3 +13,8 @@ Each variant should log what it changed in `CHANGES.md`.
 - `review/review.json` — scores, verdicts and ranking (shown in the viewer's Report tab).
 - `review/out/<id>/` — screenshots (light, dark, phone) and benchmark metrics.
 - `bench/` — the Playwright benchmark (`bench/all.sh`, serve `site/` on port 4174 first).
+
+## Publishing
+- Public report: `site/index.html` (final results only). Private notes with history and the real-device benchmark: `notes/index.html` (open with `#history` or `#bench`).
+- Both are fragments; `python3 scripts/wrap.py <fragment> <out.html>` makes the full document that gets published with the `site/variants` files.
+- Blind judging: `review/blind/` (brief, three judges' scores, and the code-to-system key).

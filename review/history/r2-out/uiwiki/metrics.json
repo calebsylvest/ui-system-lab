@@ -1,0 +1,83 @@
+{
+  "id": "uiwiki",
+  "bundle": {
+    "js": 510389,
+    "jsGz": 153099,
+    "css": 53640,
+    "cssGz": 9898,
+    "font": 0
+  },
+  "load": {
+    "fcp": 864,
+    "lcp": 864,
+    "cls": 0,
+    "tbt": 588
+  },
+  "interaction": {
+    "avgFrame": 18.746743063932506,
+    "p95Frame": 16.80000000000291,
+    "jank": 0.016887816646562123,
+    "longTaskMs": 2630,
+    "inpProxy": 224,
+    "maxEvent": 224
+  },
+  "cpu": {
+    "script": 1167.1900000000003,
+    "layout": 303.002,
+    "style": 3453.386,
+    "loadScript": 576.4449999999999,
+    "heapMB": 7.493255615234375
+  },
+  "steps": [
+    [
+      "dialog",
+      "ok"
+    ],
+    [
+      "menu",
+      "ok"
+    ],
+    [
+      "tabs",
+      "ok"
+    ],
+    [
+      "hover-cards",
+      "ok"
+    ],
+    [
+      "tooltip",
+      "ok"
+    ],
+    [
+      "accordion",
+      "ok"
+    ],
+    [
+      "toast",
+      "ok"
+    ],
+    [
+      "scroll",
+      "ok"
+    ],
+    [
+      "chat",
+      "ok"
+    ],
+    [
+      "r2-tasks",
+      "ok"
+    ],
+    [
+      "r2-overlays",
+      "ok"
+    ],
+    [
+      "r2-sync",
+      "ok"
+    ]
+  ],
+  "errors": [],
+  "runs": 3
+}

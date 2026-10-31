@@ -1,0 +1,83 @@
+{
+  "id": "feel-better",
+  "bundle": {
+    "js": 509075,
+    "jsGz": 152490,
+    "css": 52606,
+    "cssGz": 9563,
+    "font": 0
+  },
+  "load": {
+    "fcp": 844,
+    "lcp": 844,
+    "cls": 0,
+    "tbt": 559
+  },
+  "interaction": {
+    "avgFrame": 17.680375426621218,
+    "p95Frame": 16.799999999999272,
+    "jank": 0.009670079635949944,
+    "longTaskMs": 1161,
+    "inpProxy": 232,
+    "maxEvent": 232
+  },
+  "cpu": {
+    "script": 1036.852,
+    "layout": 201.03799999999998,
+    "style": 2068.123,
+    "loadScript": 529.3299999999999,
+    "heapMB": 9.172489166259766
+  },
+  "steps": [
+    [
+      "dialog",
+      "ok"
+    ],
+    [
+      "menu",
+      "ok"
+    ],
+    [
+      "tabs",
+      "ok"
+    ],
+    [
+      "hover-cards",
+      "ok"
+    ],
+    [
+      "tooltip",
+      "ok"
+    ],
+    [
+      "accordion",
+      "ok"
+    ],
+    [
+      "toast",
+      "ok"
+    ],
+    [
+      "scroll",
+      "ok"
+    ],
+    [
+      "chat",
+      "ok"
+    ],
+    [
+      "r2-tasks",
+      "ok"
+    ],
+    [
+      "r2-overlays",
+      "ok"
+    ],
+    [
+      "r2-sync",
+      "ok"
+    ]
+  ],
+  "errors": [],
+  "runs": 3
+}

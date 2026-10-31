@@ -1,32 +1,32 @@
 {
   "id": "libraries",
   "bundle": {
-    "js": 1434179,
-    "jsGz": 408744,
-    "css": 47234,
-    "cssGz": 8743,
+    "js": 1448380,
+    "jsGz": 412720,
+    "css": 48030,
+    "cssGz": 8923,
     "font": 0
   },
   "load": {
     "fcp": null,
     "lcp": 0,
     "cls": 0,
-    "tbt": 18985
+    "tbt": 22927
   },
   "interaction": {
-    "avgFrame": 50.322384428223835,
-    "p95Frame": 66.70000000000073,
-    "jank": 0.05826017557861133,
-    "longTaskMs": 40155,
-    "inpProxy": 224,
-    "maxEvent": 224
+    "avgFrame": 35.79295950155764,
+    "p95Frame": 83.40000000000146,
+    "jank": 0.06455617628801986,
+    "longTaskMs": 28537,
+    "inpProxy": 464,
+    "maxEvent": 464
   },
   "cpu": {
-    "script": 43416.76700000001,
-    "layout": 267.09700000000004,
-    "style": 2017.518,
-    "loadScript": 20617.019,
-    "heapMB": 14.806407928466797
+    "script": 26635.798,
+    "layout": 486.722,
+    "style": 4216.34,
+    "loadScript": 23785.12,
+    "heapMB": 11.665824890136719
   },
   "steps": [
     [
@@ -75,6 +75,14 @@
     ],
     [
       "r2-sync",
+      "ok"
+    ],
+    [
+      "r3-ledger",
+      "ok"
+    ],
+    [
+      "r3-form",
       "ok"
     ]
   ],

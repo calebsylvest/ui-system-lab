@@ -1,32 +1,32 @@
 {
   "id": "baseline",
   "bundle": {
-    "js": 504928,
-    "jsGz": 151552,
-    "css": 43867,
-    "cssGz": 8293,
+    "js": 519116,
+    "jsGz": 155388,
+    "css": 45886,
+    "cssGz": 8658,
     "font": 0
   },
   "load": {
-    "fcp": 744,
-    "lcp": 744,
+    "fcp": 1404,
+    "lcp": 1404,
     "cls": 0,
-    "tbt": 478
+    "tbt": 1036
   },
   "interaction": {
-    "avgFrame": 17.564095292115773,
-    "p95Frame": 16.799999999999272,
-    "jank": 0.00737379466817924,
-    "longTaskMs": 1177,
-    "inpProxy": 216,
-    "maxEvent": 216
+    "avgFrame": 18.87388414055081,
+    "p95Frame": 33.29999999999927,
+    "jank": 0.017094017094017096,
+    "longTaskMs": 3085,
+    "inpProxy": 392,
+    "maxEvent": 392
   },
   "cpu": {
-    "script": 1030.124,
-    "layout": 197.98,
-    "style": 1971.568,
-    "loadScript": 473.333,
-    "heapMB": 9.03717041015625
+    "script": 1918.0959999999998,
+    "layout": 369.53999999999996,
+    "style": 4229.336,
+    "loadScript": 866.5110000000001,
+    "heapMB": 9.550457000732422
   },
   "steps": [
     [
@@ -75,6 +75,14 @@
     ],
     [
       "r2-sync",
+      "ok"
+    ],
+    [
+      "r3-ledger",
+      "ok"
+    ],
+    [
+      "r3-form",
       "ok"
     ]
   ],

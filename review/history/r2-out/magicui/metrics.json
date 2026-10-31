@@ -1,0 +1,83 @@
+{
+  "id": "magicui",
+  "bundle": {
+    "js": 654834,
+    "jsGz": 201129,
+    "css": 51533,
+    "cssGz": 9542,
+    "font": 0
+  },
+  "load": {
+    "fcp": 1020,
+    "lcp": 1020,
+    "cls": 0.00006658838060167101,
+    "tbt": 690
+  },
+  "interaction": {
+    "avgFrame": 18.30162601626021,
+    "p95Frame": 16.80000000000291,
+    "jank": 0.012013729977116704,
+    "longTaskMs": 1587,
+    "inpProxy": 304,
+    "maxEvent": 304
+  },
+  "cpu": {
+    "script": 2341.858,
+    "layout": 1404.3809999999999,
+    "style": 2634.386,
+    "loadScript": 922.098,
+    "heapMB": 9.019817352294922
+  },
+  "steps": [
+    [
+      "dialog",
+      "ok"
+    ],
+    [
+      "menu",
+      "ok"
+    ],
+    [
+      "tabs",
+      "ok"
+    ],
+    [
+      "hover-cards",
+      "ok"
+    ],
+    [
+      "tooltip",
+      "ok"
+    ],
+    [
+      "accordion",
+      "ok"
+    ],
+    [
+      "toast",
+      "ok"
+    ],
+    [
+      "scroll",
+      "ok"
+    ],
+    [
+      "chat",
+      "ok"
+    ],
+    [
+      "r2-tasks",
+      "ok"
+    ],
+    [
+      "r2-overlays",
+      "ok"
+    ],
+    [
+      "r2-sync",
+      "ok"
+    ]
+  ],
+  "errors": [],
+  "runs": 3
+}

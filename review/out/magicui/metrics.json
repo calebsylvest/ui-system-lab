@@ -1,32 +1,32 @@
 {
   "id": "magicui",
   "bundle": {
-    "js": 654834,
-    "jsGz": 201129,
-    "css": 51533,
-    "cssGz": 9542,
+    "js": 687925,
+    "jsGz": 211147,
+    "css": 52506,
+    "cssGz": 9759,
     "font": 0
   },
   "load": {
-    "fcp": 1020,
-    "lcp": 1020,
+    "fcp": 2144,
+    "lcp": 2144,
     "cls": 0.00006658838060167101,
-    "tbt": 690
+    "tbt": 1620
   },
   "interaction": {
-    "avgFrame": 18.30162601626021,
-    "p95Frame": 16.80000000000291,
-    "jank": 0.012013729977116704,
-    "longTaskMs": 1587,
-    "inpProxy": 304,
-    "maxEvent": 304
+    "avgFrame": 20.582893401015212,
+    "p95Frame": 33.39999999999782,
+    "jank": 0.02459016393442623,
+    "longTaskMs": 4548,
+    "inpProxy": 576,
+    "maxEvent": 576
   },
   "cpu": {
-    "script": 2341.858,
-    "layout": 1404.3809999999999,
-    "style": 2634.386,
-    "loadScript": 922.098,
-    "heapMB": 9.019817352294922
+    "script": 3349.466,
+    "layout": 537.9529999999999,
+    "style": 4790.037,
+    "loadScript": 1548.773,
+    "heapMB": 10.060157775878906
   },
   "steps": [
     [
@@ -75,6 +75,14 @@
     ],
     [
       "r2-sync",
+      "ok"
+    ],
+    [
+      "r3-ledger",
+      "ok"
+    ],
+    [
+      "r3-form",
       "ok"
     ]
   ],

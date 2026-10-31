@@ -1,0 +1,365 @@
+{
+ "summary": "kemiljk ranked first. Its skills treated messy data and edge cases as part of the design: long client names wrap, missing ledger values read 'No due date' or 'Not tied to a project', the total notes 'net of 1 credit', and the benchmark showed no meaningful cost. taste came a close second with the most complete visual rethink, a sidebar app shell and a header summary that leads with what needs attention, and it was the only variant with no sampled contrast failures in either theme; a clipped Add button and truncated phone amounts held its fidelity score down. skills and ui-craft followed, with ui-craft drawing the accessibility judge's top rank but losing points for a phone layout that is 895px wide in a 390px viewport. The systems that helped this app most were rule sets about content, semantics and layout that the agent applied to the existing shadcn components, while motion-only skills (feel-better, emil, uiwiki) left the page looking and scoring like the baseline. The libraries cost the most: Fluid Functionalism added about 233 KB of gzipped JavaScript and 332 KB of fonts and lost input borders and the phone grid, Magic UI added about 54 KB of JavaScript for effects judges did not count as improvements, and the libraries.dev effects raised blocking time from about 1 s to about 23 s and kept roughly a third of the main thread busy at idle. For a working app UI, start with a content and behavior skill such as kemiljk or skills, add a visual-direction skill like taste if the product needs a new look, and check the phone layout and font weight it adds before shipping.",
+ "method": "One Fieldwork page (React, Tailwind and default shadcn/ui) was rebuilt eleven times, each by a separate AI agent that read only one system's documentation. Three blind judges, a product designer, a design engineer and an accessibility and UX-writing specialist, scored anonymized builds on five axes against the unchanged baseline at 3. Performance was measured in headless Chromium with a 4x CPU throttle and no GPU and scored relative to the baseline.",
+ "ranking": [
+  "kemiljk",
+  "taste",
+  "skills",
+  "ui-craft",
+  "ibelick",
+  "uiwiki",
+  "feel-better",
+  "emil",
+  "magicui",
+  "libraries",
+  "fluid"
+ ],
+ "groups": [
+  {
+   "label": "Rule skills: visual direction",
+   "ids": [
+    "taste",
+    "ui-craft"
+   ],
+   "note": "Changed tokens, type, layout and copy across the whole page. Biggest visible gains, and the only rule skills that introduced layout bugs."
+  },
+  {
+   "label": "Rule skills: content, behavior and accessibility",
+   "ids": [
+    "kemiljk",
+    "skills",
+    "ibelick"
+   ],
+   "note": "Kept the baseline look and worked on copy for edge cases, field-error semantics, task-row structure and focus. No added dependencies and no measurable performance cost."
+  },
+  {
+   "label": "Rule skills: motion and polish",
+   "ids": [
+    "feel-better",
+    "emil",
+    "uiwiki"
+   ],
+   "note": "Added list transitions, reorder motion or a wizard progress bar. Judges saw these pages as baseline with small additions."
+  },
+  {
+   "label": "Component library",
+   "ids": [
+    "fluid"
+   ],
+   "note": "Replaced shadcn components with the library's own. Largest change, largest bundle, and the only system all three judges ranked last."
+  },
+  {
+   "label": "Effect packs",
+   "ids": [
+    "magicui",
+    "libraries"
+   ],
+   "note": "Added animated and decorative components on top of the baseline. Judges saw no improvement, and both cost performance."
+  }
+ ],
+ "systems": {
+  "kemiljk": {
+   "scores": {
+    "visual": 4.0,
+    "interaction": 3.67,
+    "accessibility": 4.0,
+    "fidelity": 4.0,
+    "productFit": 5.0,
+    "performanceCost": 5.0
+   },
+   "judgeRanks": [
+    2,
+    1,
+    3
+   ],
+   "verdict": "The strongest content pass in the test. It handles every messy ledger case in plain language and adds a skip link, clear 2px focus outlines and a Clear filters action without breaking anything. Its weak spots are reduced motion, which it does not honor, and reorder and sort, which have no positional motion.",
+   "bestFor": "Data-heavy app screens with messy, real content",
+   "highlights": [
+    "Ledger: long client names wrap, an Invoice column, 'net of 1 credit' total, overdue figure in red",
+    "Missing values read 'No due date', 'Not tied to a project', 'Set when sent'",
+    "Tabs show counts and the wizard shows a 'Fill in the required fields' hint",
+    "Failed-save state with a clear inline error and Retry"
+   ],
+   "issues": [
+    "Reduced motion not honored; about 12 long animations still run",
+    "Wrapped client names make very tall ledger rows on phone, and top-nav search squeezes to 'Search p' at 390px",
+    "Small muted counts measure about 4.35:1 in the light theme"
+   ],
+   "effort": "small (17 files, about 800 lines changed), no new dependencies"
+  },
+  "taste": {
+   "scores": {
+    "visual": 4.33,
+    "interaction": 4.0,
+    "accessibility": 4.33,
+    "fidelity": 3.33,
+    "productFit": 4.33,
+    "performanceCost": 4.5
+   },
+   "judgeRanks": [
+    1,
+    3,
+    2
+   ],
+   "verdict": "The most complete redesign: a sidebar app shell, a header summary that names what is at risk or overdue, grouped settings and restrained status color in both themes. It has the cleanest contrast and full reduced-motion support, but it introduces two layout bugs. Two judges ranked it in the top two and the design engineer ranked it third.",
+   "bestFor": "Giving an app a new, coherent visual direction",
+   "highlights": [
+    "Sidebar shell and a header summary that leads with at-risk and overdue items",
+    "Ledger header reads '14 entries · 3 overdue' with the total owed",
+    "280ms FLIP reorder and zero-duration motion under reduced motion",
+    "Phone ledger tucks the project under the client name"
+   ],
+   "issues": [
+    "Task Add button overflows its card by about 20px at 1280px",
+    "Phone ledger amounts clip to '$1,...' and need horizontal scroll",
+    "Retry in the failed-save state reads as plain text"
+   ],
+   "effort": "medium (30 files), adds IBM Plex Sans and Mono (about 570 KB of fonts)"
+  },
+  "skills": {
+   "scores": {
+    "visual": 4.0,
+    "interaction": 3.33,
+    "accessibility": 4.0,
+    "fidelity": 4.0,
+    "productFit": 4.0,
+    "performanceCost": 5.0
+   },
+   "judgeRanks": [
+    3,
+    2,
+    5
+   ],
+   "verdict": "A careful refinement of the baseline with the best-calibrated list motion. Task metadata moves under the title so phone rows stay readable, long names wrap, and errors are linked to their fields. The accessibility judge ranked it lower, fifth, citing the always-enabled Next button and missing reduced-motion handling on some animations.",
+   "bestFor": "Polishing behavior and list interactions without a redesign",
+   "highlights": [
+    "Task rows with metadata under the title, readable on phone",
+    "150ms FLIP on move and sort that switches to fades under reduced motion",
+    "Skip link and actionable error copy ('Enter the full email address, like billing@client.com')",
+    "Wizard Next marks invalid fields and focuses the first one"
+   ],
+   "issues": [
+    "Settings billing-email error no longer shown on load",
+    "Next looks enabled while the form is invalid",
+    "Some 2000ms animations still run under reduced motion"
+   ],
+   "effort": "medium (28 files, about 340 lines changed), no new dependencies"
+  },
+  "ui-craft": {
+   "scores": {
+    "visual": 3.67,
+    "interaction": 3.67,
+    "accessibility": 4.33,
+    "fidelity": 2.67,
+    "productFit": 3.67,
+    "performanceCost": 3.5
+   },
+   "judgeRanks": [
+    4,
+    4,
+    1
+   ],
+   "verdict": "Strong desktop polish and the best accessibility work in the test: a numbered wizard stepper, inline hints, linked field errors, solid 2px focus rings and full reduced-motion support. The phone layout is broken, which pulled its fidelity score below baseline. The accessibility judge ranked it first; the other two ranked it fourth.",
+   "bestFor": "Form guidance, error copy and accessibility on desktop",
+   "highlights": [
+    "Numbered wizard stepper with next-step hints and an error icon",
+    "Ledger total labeled 'Total · all 14 entries' with credits and negatives clearly marked",
+    "Consistent 2px focus rings",
+    "No-results empty state that tells you how to recover"
+   ],
+   "issues": [
+    "Page is 895px wide in a 390px phone viewport (horizontal scroll)",
+    "Sort icons removed from all but the active column header",
+    "Sections lose their h2 headings"
+   ],
+   "effort": "medium (26 files, about 400 lines changed), adds Instrument Sans; slower interaction response in the benchmark (INP 744 ms vs 392 ms)"
+  },
+  "ibelick": {
+   "scores": {
+    "visual": 3.0,
+    "interaction": 3.0,
+    "accessibility": 3.33,
+    "fidelity": 3.33,
+    "productFit": 3.33,
+    "performanceCost": 5.0
+   },
+   "judgeRanks": [
+    6,
+    6,
+    4
+   ],
+   "verdict": "Looks like the baseline but improves semantics and number formatting. Field errors use role=alert and aria-describedby, the discard prompt is an alertdialog, and the disabled Next explains how to continue. The accessibility judge rated it above baseline; the other two saw no visual change.",
+   "bestFor": "Semantic and copy fixes with minimal visual change",
+   "highlights": [
+    "Ledger hours aligned to two decimals (9,512.00) and a 'Total for 14 entries' label",
+    "Wizard hint 'To continue, enter a valid billing email'",
+    "Heading structure and alertdialog for discard"
+   ],
+   "issues": [
+    "Task titles truncate to a few characters on phone ('Send cat…')",
+    "Dark-theme At risk, Overdue and Delete badges remain about 2.89:1"
+   ],
+   "effort": "small (19 files, about 235 lines changed), no new dependencies"
+  },
+  "uiwiki": {
+   "scores": {
+    "visual": 3.0,
+    "interaction": 3.0,
+    "accessibility": 3.0,
+    "fidelity": 3.33,
+    "productFit": 3.0,
+    "performanceCost": 5.0
+   },
+   "judgeRanks": [
+    5,
+    5,
+    6
+   ],
+   "verdict": "Near-baseline with a few targeted additions: a wizard progress bar with 'Step 1 of 3', monospace invoice IDs and wrapping task titles. Remove is shortened to 250ms, and reorder and sort have no motion.",
+   "bestFor": "Small, rule-by-rule refinements",
+   "highlights": [
+    "Wizard progress bar with 'Step 1 of 3'",
+    "Task titles wrap instead of truncating",
+    "Monospace invoice IDs in the ledger"
+   ],
+   "issues": [
+    "Stepper wraps awkwardly at 390px ('Step 1 of / 3')",
+    "Adds an 'Interface sounds' setting the product did not ask for",
+    "Reduced motion not honored; dark badge contrast unchanged at about 2.89:1"
+   ],
+   "effort": "medium (25 files, about 310 lines changed), no new dependencies"
+  },
+  "feel-better": {
+   "scores": {
+    "visual": 3.0,
+    "interaction": 3.0,
+    "accessibility": 3.0,
+    "fidelity": 3.33,
+    "productFit": 3.0,
+    "performanceCost": 5.0
+   },
+   "judgeRanks": [
+    7,
+    8,
+    7
+   ],
+   "verdict": "Visually the baseline with slight spacing and type tweaks. It adds a blur-and-translate enter and exit on task add and remove that drops out under reduced motion, and links errors on two fields. Nothing broke.",
+   "bestFor": "Light motion polish on add and remove",
+   "highlights": [
+    "Task add and remove animate in and out, and stop under reduced motion",
+    "Errors linked to two inputs via aria-describedby"
+   ],
+   "issues": [
+    "Three 400ms fade-in-up animations re-run alongside every sampled action",
+    "Reorder has no motion"
+   ],
+   "effort": "medium (22 files, about 175 lines changed), no new dependencies"
+  },
+  "emil": {
+   "scores": {
+    "visual": 3.0,
+    "interaction": 3.0,
+    "accessibility": 3.0,
+    "fidelity": 3.33,
+    "productFit": 3.0,
+    "performanceCost": 5.0
+   },
+   "judgeRanks": [
+    9,
+    7,
+    8
+   ],
+   "verdict": "Visually identical to the baseline, with under 0.5% of pixels differing. Its contribution is motion: a 250ms FLIP on reorder and sort with fade-only fallbacks under reduced motion, plus errors linked on two fields.",
+   "bestFor": "Reorder and sort motion",
+   "highlights": [
+    "250ms FLIP when tasks move or the list is sorted",
+    "Fade-only path under reduced motion"
+   ],
+   "issues": [
+    "Side panel still takes 500ms to enter"
+   ],
+   "effort": "small (20 files, about 240 lines changed), no new dependencies"
+  },
+  "magicui": {
+   "scores": {
+    "visual": 3.0,
+    "interaction": 3.0,
+    "accessibility": 3.0,
+    "fidelity": 3.33,
+    "productFit": 3.0,
+    "performanceCost": 3.5
+   },
+   "judgeRanks": [
+    10,
+    10,
+    9
+   ],
+   "verdict": "The page looks like the baseline. Blur-fade section reveals, KPI number tickers and a hover spotlight on project cards are the visible additions, and 600ms add and remove animations made the task list feel slow to the design engineer. It runs more animations under reduced motion than the baseline and adds JavaScript weight.",
+   "bestFor": "Marketing-style entrance effects, not app screens",
+   "highlights": [
+    "KPI values count up from 0, with the final value available to screen readers",
+    "Cursor-following spotlight on project cards"
+   ],
+   "issues": [
+    "600ms add and remove animations are slow for a work tool",
+    "19 animations under reduced motion versus 13 in the baseline"
+   ],
+   "effort": "small (9 files, about 490 lines added), adds motion and next-themes (+54 KB gzipped JS, LCP 2144 ms vs 1404 ms)"
+  },
+  "libraries": {
+   "scores": {
+    "visual": 3.0,
+    "interaction": 3.0,
+    "accessibility": 3.0,
+    "fidelity": 3.33,
+    "productFit": 3.0,
+    "performanceCost": 1
+   },
+   "judgeRanks": [
+    8,
+    9,
+    10
+   ],
+   "verdict": "Outside the assistant panel the page is pixel-identical to the baseline; judges saw only a new AI avatar. The effects behind it are expensive: blocking time rose from about 1 s to about 23 s, the 95th-percentile frame from 33 ms to 83 ms, and about 34% of the main thread stays busy at idle. Field errors remain unlinked to their inputs.",
+   "bestFor": "Isolated showcase effects where performance does not matter",
+   "highlights": [
+    "Thinking orbs and a border beam on the assistant's waiting state",
+    "Generated bot avatar in the chat panel"
+   ],
+   "issues": [
+    "Total blocking time about 22.9 s vs 1.0 s baseline, and about 34% main-thread CPU at idle",
+    "Field errors have no aria-describedby",
+    "Raises the simulated assistant reply wait from 1.6 s to 3.2 s to fit the package's rules"
+   ],
+   "effort": "small (7 files, about 180 lines changed), adds border-beam, bot-avatars, img-fx, liquid-gooey, thinking-orbs, three and voice-glow (+251 KB gzipped JS)"
+  },
+  "fluid": {
+   "scores": {
+    "visual": 2.0,
+    "interaction": 3.0,
+    "accessibility": 2.0,
+    "fidelity": 2.0,
+    "productFit": 2.0,
+    "performanceCost": 2.0
+   },
+   "judgeRanks": [
+    11,
+    11,
+    11
+   ],
+   "verdict": "All three judges ranked it last. Swapping in the library's components gave fast 80ms transitions, dot status badges and good failed-save copy, but inputs lost their borders, the delete action lost its destructive color, settings labels were rearranged, and the phone project grid stays at three columns. It is also the heaviest build.",
+   "bestFor": "New projects built on the library from the start",
+   "highlights": [
+    "Dot-style status badges in the ledger and on project cards",
+    "Snappy 80ms transitions and a sliding tab indicator",
+    "Failed-save message with a clear title and Retry"
+   ],
+   "issues": [
+    "Form inputs have 0px borders and transparent backgrounds, so wizard and settings fields look like plain text (WCAG 1.4.11)",
+    "Phone project grid stays three columns at 390px and titles break per word",
+    "Delete rendered neutral gray; reduced motion not honored; several focus stops lack a visible ring"
+   ],
+   "effort": "large (50 files, about 13,000 lines changed), adds Base UI, 10 Radix packages, motion, Inter Variable and pdfjs-dist (+233 KB gzipped JS, 332 KB fonts, LCP 2236 ms vs 1404 ms)"
+  }
+ }
+}

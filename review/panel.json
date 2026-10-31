@@ -1,0 +1,523 @@
+{
+ "fluid": {
+  "code": "E",
+  "scores": {
+   "visual": 2.0,
+   "interaction": 3.0,
+   "accessibility": 2.0,
+   "fidelity": 2.0,
+   "productFit": 2.0
+  },
+  "judgeAvgs": [
+   2.2,
+   2.2,
+   2.2
+  ],
+  "judgeRanks": [
+   11,
+   11,
+   11
+  ],
+  "judgeNotes": [
+   {
+    "lens": "senior product designer: visual hierarchy, typography, color in both themes, phone layout, presentation of messy data",
+    "notes": "Strips card containers and input chrome down to bare text, so forms stop looking editable. Delete loses its destructive color, and the toggle labels are moved to the right. On phone the project cards are forced into 3 columns and the titles get crushed.",
+    "best": "Snappy 80ms transitions and dot-style status badges",
+    "issues": [
+     "Form inputs have 0px border and transparent background (wizard/settings fields look like plain text)",
+     "Phone: project grid stays 3-up at 390px, titles break per word",
+     "Delete button rendered neutral gray, not destructive",
+     "Reduced motion not honored"
+    ]
+   },
+   {
+    "lens": "design engineer: motion quality, reduced motion, focus/keyboard, verified regressions",
+    "notes": "Airy, borderless restyle with dot status badges and blue toggles; fast 80ms transitions. But inputs lost their borders, so the new-client form and settings show invisible fields.",
+    "best": "Status dots in ledger and project badges",
+    "issues": [
+     "Form inputs have 0px borders: wizard fields invisible in both themes",
+     "Settings layout scrambled (labels detached, toggles relabelled)",
+     "Low-contrast disabled/muted controls"
+    ]
+   },
+   {
+    "lens": "accessibility specialist and UX writer",
+    "notes": "Good error copy and live regions, but form inputs lose visible boundaries (invisible in dark), phone layout crushes project cards into three unreadable columns, and grey text is faint throughout.",
+    "best": "Restructured failed-save message with clear title and Retry",
+    "issues": [
+     "Text inputs have no visible boundary (WCAG 1.4.11)",
+     "Phone layout broken: 3-column cards with wrapped words",
+     "Ignores brand-yellow tokens",
+     "Several focus stops with no visible ring"
+    ]
+   }
+  ]
+ },
+ "skills": {
+  "code": "D",
+  "scores": {
+   "visual": 4.0,
+   "interaction": 3.33,
+   "accessibility": 4.0,
+   "fidelity": 4.0,
+   "productFit": 4.0
+  },
+  "judgeAvgs": [
+   3.8,
+   4.0,
+   3.8
+  ],
+  "judgeRanks": [
+   3,
+   2,
+   5
+  ],
+  "judgeNotes": [
+   {
+    "lens": "senior product designer: visual hierarchy, typography, color in both themes, phone layout, presentation of messy data",
+    "notes": "A careful baseline refinement. Task metadata moves under the title, so phone rows read well; long names wrap; there's a skip link; and the wizard's Next stays enabled but marks invalid fields and focuses the first one. Visual change is modest.",
+    "best": "Task rows restructured (meta under title) so phone list stays readable",
+    "issues": [
+     "Settings billing email 'billing@fieldwork' no longer flagged on load (validation deferred)",
+     "Reduced-motion context still runs 2000ms animations"
+    ]
+   },
+   {
+    "lens": "design engineer: motion quality, reduced motion, focus/keyboard, verified regressions",
+    "notes": "150ms FLIP on move/sort and enter/exit on add/remove; under reduced motion it swaps to fades and skips FLIP. Task rows restructured with meta line, ledger wraps long names, errors linked by aria-describedby.",
+    "best": "Best-calibrated list motion with a correct reduced-motion fallback",
+    "issues": [
+     "Workspace billing-email error no longer shown in default state (only helper text)",
+     "Example-text placeholders ('Send invoice to Calder') read like real data"
+    ]
+   },
+   {
+    "lens": "accessibility specialist and UX writer",
+    "notes": "Wraps long names, clear error copy ('Enter the full email address, like billing@client.com'), helpful search placeholder, no dark-theme contrast failures. Good live regions.",
+    "best": "Dark theme passes contrast; wrapped long names",
+    "issues": [
+     "Avatar initials ~4.35:1 in light",
+     "Next stays visually enabled while form is invalid",
+     "No reduced-motion handling (12 animations)"
+    ]
+   }
+  ]
+ },
+ "feel-better": {
+  "code": "G",
+  "scores": {
+   "visual": 3.0,
+   "interaction": 3.0,
+   "accessibility": 3.0,
+   "fidelity": 3.33,
+   "productFit": 3.0
+  },
+  "judgeAvgs": [
+   3.0,
+   3.0,
+   3.2
+  ],
+  "judgeRanks": [
+   7,
+   8,
+   7
+  ],
+  "judgeNotes": [
+   {
+    "lens": "senior product designer: visual hierarchy, typography, color in both themes, phone layout, presentation of messy data",
+    "notes": "Barely different from baseline: slight spacing and type tweaks, with the same structure in both themes and on phone. No regressions seen.",
+    "best": "Nothing broken",
+    "issues": []
+   },
+   {
+    "lens": "design engineer: motion quality, reduced motion, focus/keyboard, verified regressions",
+    "notes": "Visually baseline; adds enter/exit on task add/remove (blur+translate) that disappears under reduced motion, but reorder has no motion.",
+    "best": "Item enter animation respects reduced motion",
+    "issues": [
+     "Three 400ms fade-in-up animations re-run alongside every action sampled"
+    ]
+   },
+   {
+    "lens": "accessibility specialist and UX writer",
+    "notes": "Essentially baseline with errors linked via aria-describedby on 2 fields. No visible regressions.",
+    "best": "Errors associated with inputs",
+    "issues": [
+     "Dark badge contrast ~2.89:1 unchanged",
+     "Sections lack h2s"
+    ]
+   }
+  ]
+ },
+ "libraries": {
+  "code": "B",
+  "scores": {
+   "visual": 3.0,
+   "interaction": 3.0,
+   "accessibility": 3.0,
+   "fidelity": 3.33,
+   "productFit": 3.0
+  },
+  "judgeAvgs": [
+   3.0,
+   3.0,
+   3.2
+  ],
+  "judgeRanks": [
+   8,
+   9,
+   10
+  ],
+  "judgeNotes": [
+   {
+    "lens": "senior product designer: visual hierarchy, typography, color in both themes, phone layout, presentation of messy data",
+    "notes": "Visually identical to baseline; the r2/r3/overlay screenshots pixel-diff to 0%. No improvement and no regression.",
+    "best": "No regressions",
+    "issues": []
+   },
+   {
+    "lens": "design engineer: motion quality, reduced motion, focus/keyboard, verified regressions",
+    "notes": "Effectively baseline aside from an AI avatar; motion and focus unchanged, error messages not linked.",
+    "best": "No regressions",
+    "issues": [
+     "Invalid fields have no aria-describedby"
+    ]
+   },
+   {
+    "lens": "accessibility specialist and UX writer",
+    "notes": "Indistinguishable from baseline; field errors still not programmatically associated.",
+    "best": "No regressions",
+    "issues": [
+     "Errors not linked to inputs (0 aria-describedby)",
+     "Dark badge contrast ~2.89:1 unchanged"
+    ]
+   }
+  ]
+ },
+ "ui-craft": {
+  "code": "A",
+  "scores": {
+   "visual": 3.67,
+   "interaction": 3.67,
+   "accessibility": 4.33,
+   "fidelity": 2.67,
+   "productFit": 3.67
+  },
+  "judgeAvgs": [
+   3.2,
+   3.4,
+   4.2
+  ],
+  "judgeRanks": [
+   4,
+   4,
+   1
+  ],
+  "judgeNotes": [
+   {
+    "lens": "senior product designer: visual hierarchy, typography, color in both themes, phone layout, presentation of messy data",
+    "notes": "Desktop polish is good: a numbered stepper, inline hints, an error icon, formatted numbers, a 'Total \u00b7 all 14 entries' label, and full reduced-motion support. But the phone layout is broken: main content is 895px wide in a 390px viewport.",
+    "best": "Wizard and validation microcopy with clear next-step hints",
+    "issues": [
+     "Phone horizontal overflow: documentElement.scrollWidth 895 at 390px (MAIN grid)",
+     "Sortable header icons removed except on active column"
+    ]
+   },
+   {
+    "lens": "design engineer: motion quality, reduced motion, focus/keyboard, verified regressions",
+    "notes": "Nice step indicator, form hints, 2px solid focus rings and full reduced-motion zeroing; error messages linked. But the page no longer fits a phone.",
+    "best": "Consistent 2px focus rings and form guidance",
+    "issues": [
+     "Phone layout broken: document is 895px wide at a 390px viewport (horizontal scroll)",
+     "No motion on task move"
+    ]
+   },
+   {
+    "lens": "accessibility specialist and UX writer",
+    "notes": "Strongest a11y work: field errors wired via aria-describedby with actionable examples, many live regions, zero long animations under reduced motion, solid 2px focus outline. Ledger surfaces credits/negatives clearly and the empty state tells you how to recover.",
+    "best": "Actionable error and empty-state copy plus reduced-motion compliance",
+    "issues": [
+     "Em-dash placeholders for missing values measure ~2.97:1 in light theme",
+     "Sections lose h2 headings (0 h2)"
+    ]
+   }
+  ]
+ },
+ "taste": {
+  "code": "J",
+  "scores": {
+   "visual": 4.33,
+   "interaction": 4.0,
+   "accessibility": 4.33,
+   "fidelity": 3.33,
+   "productFit": 4.33
+  },
+  "judgeAvgs": [
+   4.2,
+   3.8,
+   4.2
+  ],
+  "judgeRanks": [
+   1,
+   3,
+   2
+  ],
+  "judgeNotes": [
+   {
+    "lens": "senior product designer: visual hierarchy, typography, color in both themes, phone layout, presentation of messy data",
+    "notes": "The most complete rethink: a sidebar app shell, a header summary that leads with what needs attention, grouped settings, and status color used with restraint in both themes. On phone the ledger tucks the project under the client name. It respects reduced motion (no animations run under reduce).",
+    "best": "Content-led hierarchy (at-risk/overdue summary, '3 overdue, $10,361.25' in ledger header, project sub-line on phone)",
+    "issues": [
+     "Task 'Add' button overflows its card by ~20px at 1280 (button right 759 vs card 738)",
+     "Ledger amounts still clip and need horizontal scroll at 390px"
+    ]
+   },
+   {
+    "lens": "design engineer: motion quality, reduced motion, focus/keyboard, verified regressions",
+    "notes": "Most ambitious: sidebar shell, summary sentence, labelled settings groups, 280ms FLIP reorder, zero-duration everything under reduced motion, consistent box-shadow focus rings. But it introduces layout bugs.",
+    "best": "Coherent app-shell restructure with full reduced-motion support",
+    "issues": [
+     "Task 'Add' button overflows the card's right edge (r2)",
+     "Phone ledger truncates amounts to '$1,...'"
+    ]
+   },
+   {
+    "lens": "accessibility specialist and UX writer",
+    "notes": "Only variant with zero sampled text-contrast failures in both themes, and zero long animations under reduced motion. Ledger summary ('14 entries \u00b7 3 overdue') and header copy communicate the messy data well.",
+    "best": "Clean contrast in both themes plus informative ledger summary",
+    "issues": [
+     "Retry in failed-save state reads as plain text, weak affordance",
+     "No-results empty state collapsed into a single table row, less prominent"
+    ]
+   }
+  ]
+ },
+ "uiwiki": {
+  "code": "K",
+  "scores": {
+   "visual": 3.0,
+   "interaction": 3.0,
+   "accessibility": 3.0,
+   "fidelity": 3.33,
+   "productFit": 3.0
+  },
+  "judgeAvgs": [
+   3.0,
+   3.0,
+   3.2
+  ],
+  "judgeRanks": [
+   5,
+   5,
+   6
+  ],
+  "judgeNotes": [
+   {
+    "lens": "senior product designer: visual hierarchy, typography, color in both themes, phone layout, presentation of messy data",
+    "notes": "Small changes: a wizard progress bar with 'Step 1 of 3', monospace invoice IDs, and task titles that wrap. It reads as baseline otherwise.",
+    "best": "Wizard progress indicator",
+    "issues": [
+     "Stepper wraps awkwardly at 390px ('Step 1 of / 3', '3 Review' on its own line)"
+    ]
+   },
+   {
+    "lens": "design engineer: motion quality, reduced motion, focus/keyboard, verified regressions",
+    "notes": "Near-baseline with a wizard progress bar and 'Step 1 of 3'. No reorder/sort motion; remove shortened to 250ms and suppressed under reduced motion.",
+    "best": "Wizard progress indicator",
+    "issues": [
+     "Adds an 'Interface sounds' setting not asked for by the product"
+    ]
+   },
+   {
+    "lens": "accessibility specialist and UX writer",
+    "notes": "Near-baseline; adds a step progress bar and 'Step 1 of 3'. Errors partly described (2 of 3 fields).",
+    "best": "Explicit wizard progress",
+    "issues": [
+     "Dark badge contrast ~2.89:1 unchanged",
+     "Reduced motion not honored"
+    ]
+   }
+  ]
+ },
+ "ibelick": {
+  "code": "M",
+  "scores": {
+   "visual": 3.0,
+   "interaction": 3.0,
+   "accessibility": 3.33,
+   "fidelity": 3.33,
+   "productFit": 3.33
+  },
+  "judgeAvgs": [
+   3.0,
+   3.0,
+   3.6
+  ],
+  "judgeRanks": [
+   6,
+   6,
+   4
+  ],
+  "judgeNotes": [
+   {
+    "lens": "senior product designer: visual hierarchy, typography, color in both themes, phone layout, presentation of messy data",
+    "notes": "Number formatting is consistent (9,512.00), and there's a 'Total for 14 entries' label and a continue hint in the wizard. Otherwise it's the baseline look.",
+    "best": "Consistent two-decimal hour formatting in ledger",
+    "issues": [
+     "Task titles truncate to a few characters on phone ('Send cat\u2026', 'Review-d\u2026')"
+    ]
+   },
+   {
+    "lens": "design engineer: motion quality, reduced motion, focus/keyboard, verified regressions",
+    "notes": "Light copy tweaks (decimals aligned, wizard hint, 'Total for 14 entries'); motion essentially unchanged and reduced motion drops the remove transition.",
+    "best": "Aligned two-decimal hour figures in ledger",
+    "issues": []
+   },
+   {
+    "lens": "accessibility specialist and UX writer",
+    "notes": "Looks like baseline but semantics improved: role=alert field errors, aria-describedby, alertdialog for discard, heading structure, guidance 'To continue, enter a valid billing email'. Reduced motion largely honored.",
+    "best": "Error semantics and the explanatory disabled-Next hint",
+    "issues": [
+     "Dark-theme At risk/Overdue/Delete badges still ~2.89:1"
+    ]
+   }
+  ]
+ },
+ "emil": {
+  "code": "F",
+  "scores": {
+   "visual": 3.0,
+   "interaction": 3.0,
+   "accessibility": 3.0,
+   "fidelity": 3.33,
+   "productFit": 3.0
+  },
+  "judgeAvgs": [
+   3.0,
+   3.0,
+   3.2
+  ],
+  "judgeRanks": [
+   9,
+   7,
+   8
+  ],
+  "judgeNotes": [
+   {
+    "lens": "senior product designer: visual hierarchy, typography, color in both themes, phone layout, presentation of messy data",
+    "notes": "Effectively the baseline: under 0.5% of pixels differ, and those are spacing nudges. Nothing gained or lost.",
+    "best": "No regressions",
+    "issues": []
+   },
+   {
+    "lens": "design engineer: motion quality, reduced motion, focus/keyboard, verified regressions",
+    "notes": "Visually identical to baseline; adds 250ms FLIP on reorder/sort and fade-only fallbacks under reduced motion.",
+    "best": "FLIP reorder with fade-only reduced-motion path",
+    "issues": [
+     "Side panel enter still 500ms, sluggish"
+    ]
+   },
+   {
+    "lens": "accessibility specialist and UX writer",
+    "notes": "Visually identical to baseline; adds aria-describedby on two fields. Neutral.",
+    "best": "Errors associated with inputs",
+    "issues": [
+     "Dark badge contrast ~2.89:1 unchanged"
+    ]
+   }
+  ]
+ },
+ "kemiljk": {
+  "code": "C",
+  "scores": {
+   "visual": 4.0,
+   "interaction": 3.67,
+   "accessibility": 4.0,
+   "fidelity": 4.0,
+   "productFit": 5.0
+  },
+  "judgeAvgs": [
+   4.2,
+   4.2,
+   4.0
+  ],
+  "judgeRanks": [
+   2,
+   1,
+   3
+  ],
+  "judgeNotes": [
+   {
+    "lens": "senior product designer: visual hierarchy, typography, color in both themes, phone layout, presentation of messy data",
+    "notes": "The strongest handling of messy data: long names wrap, there's an Invoice column, the total reads 'net of 1 credit', the overdue figure is red, tabs show counts, and dates say 'Finished' or 'No due date'. Adds a skip link, 2px focus outlines, Clear filters and a 'Fill in the required fields' hint, with no regressions found.",
+    "best": "Copy and data presentation that treats edge cases as first-class",
+    "issues": [
+     "Wrapped client names create very tall ledger rows on phone",
+     "Top-nav search squeezes to 'Search p' at 390px",
+     "Reduced motion not honored (150ms animations remain)"
+    ]
+   },
+   {
+    "lens": "design engineer: motion quality, reduced motion, focus/keyboard, verified regressions",
+    "notes": "Strongest content pass: ledger wraps long names, explains missing values ('No due date', 'Not tied to a project'), overdue stat in red, clear inline error with Retry. Remove uses a 260ms view transition and reduced motion drops it cleanly; error messages wired via aria-describedby.",
+    "best": "Edge-case content handling in ledger and sync states",
+    "issues": [
+     "Reorder/sort have no positional motion (only color transitions)"
+    ]
+   },
+   {
+    "lens": "accessibility specialist and UX writer",
+    "notes": "Best UX writing: missing values become 'Not tied to a project', 'No due date', 'Set when sent'; totals note 'net of 1 credit'; long client names wrap instead of truncating. Errors are described to fields.",
+    "best": "Plain-language handling of missing ledger values",
+    "issues": [
+     "Motion not reduced under prefers-reduced-motion (12 long animations)",
+     "Small muted counts ~4.35:1 in light theme"
+    ]
+   }
+  ]
+ },
+ "magicui": {
+  "code": "H",
+  "scores": {
+   "visual": 3.0,
+   "interaction": 3.0,
+   "accessibility": 3.0,
+   "fidelity": 3.33,
+   "productFit": 3.0
+  },
+  "judgeAvgs": [
+   3.0,
+   3.0,
+   3.2
+  ],
+  "judgeRanks": [
+   10,
+   10,
+   9
+  ],
+  "judgeNotes": [
+   {
+    "lens": "senior product designer: visual hierarchy, typography, color in both themes, phone layout, presentation of messy data",
+    "notes": "Effectively the baseline: under 0.5% of pixels differ. Nothing gained or lost.",
+    "best": "No regressions",
+    "issues": []
+   },
+   {
+    "lens": "design engineer: motion quality, reduced motion, focus/keyboard, verified regressions",
+    "notes": "Visually identical to baseline; adds 600ms add/remove animations that shorten to 120ms under reduced motion.",
+    "best": "Errors linked to fields",
+    "issues": [
+     "600ms list animations are slow for a work tool"
+    ]
+   },
+   {
+    "lens": "accessibility specialist and UX writer",
+    "notes": "Visually identical to baseline with minor error association; more animations under reduced motion (19 vs 13).",
+    "best": "Errors associated with inputs",
+    "issues": [
+     "Reduced motion worse than baseline",
+     "Dark badge contrast ~2.89:1 unchanged"
+    ]
+   }
+  ]
+ }
+}

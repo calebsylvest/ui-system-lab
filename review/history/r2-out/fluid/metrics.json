@@ -1,0 +1,83 @@
+{
+  "id": "fluid",
+  "bundle": {
+    "js": 1277859,
+    "jsGz": 390029,
+    "css": 85750,
+    "cssGz": 15068,
+    "font": 340256
+  },
+  "load": {
+    "fcp": 1264,
+    "lcp": 1264,
+    "cls": 0,
+    "tbt": 946
+  },
+  "interaction": {
+    "avgFrame": 18.40957150806906,
+    "p95Frame": 16.800000000000182,
+    "jank": 0.013544018058690745,
+    "longTaskMs": 2067,
+    "inpProxy": 360,
+    "maxEvent": 360
+  },
+  "cpu": {
+    "script": 1909.9869999999999,
+    "layout": 423.457,
+    "style": 2818.942,
+    "loadScript": 818.0169999999999,
+    "heapMB": 10.819892883300781
+  },
+  "steps": [
+    [
+      "dialog",
+      "ok"
+    ],
+    [
+      "menu",
+      "ok"
+    ],
+    [
+      "tabs",
+      "ok"
+    ],
+    [
+      "hover-cards",
+      "skip"
+    ],
+    [
+      "tooltip",
+      "ok"
+    ],
+    [
+      "accordion",
+      "skip"
+    ],
+    [
+      "toast",
+      "ok"
+    ],
+    [
+      "scroll",
+      "ok"
+    ],
+    [
+      "chat",
+      "ok"
+    ],
+    [
+      "r2-tasks",
+      "ok"
+    ],
+    [
+      "r2-overlays",
+      "ok"
+    ],
+    [
+      "r2-sync",
+      "ok"
+    ]
+  ],
+  "errors": [],
+  "runs": 3
+}

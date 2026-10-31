@@ -1,32 +1,32 @@
 {
   "id": "uiwiki",
   "bundle": {
-    "js": 510389,
-    "jsGz": 153099,
-    "css": 53640,
-    "cssGz": 9898,
+    "js": 527691,
+    "jsGz": 157529,
+    "css": 55061,
+    "cssGz": 10172,
     "font": 0
   },
   "load": {
-    "fcp": 864,
-    "lcp": 864,
+    "fcp": 1556,
+    "lcp": 1556,
     "cls": 0,
-    "tbt": 588
+    "tbt": 1203
   },
   "interaction": {
-    "avgFrame": 18.746743063932506,
-    "p95Frame": 16.80000000000291,
-    "jank": 0.016887816646562123,
-    "longTaskMs": 2630,
-    "inpProxy": 224,
-    "maxEvent": 224
+    "avgFrame": 22.72060273972608,
+    "p95Frame": 33.400000000001455,
+    "jank": 0.03535353535353535,
+    "longTaskMs": 7435,
+    "inpProxy": 480,
+    "maxEvent": 480
   },
   "cpu": {
-    "script": 1167.1900000000003,
-    "layout": 303.002,
-    "style": 3453.386,
-    "loadScript": 576.4449999999999,
-    "heapMB": 7.493255615234375
+    "script": 2329.3660000000004,
+    "layout": 633.3550000000001,
+    "style": 7325.817,
+    "loadScript": 914.792,
+    "heapMB": 7.579853057861328
   },
   "steps": [
     [
@@ -75,6 +75,14 @@
     ],
     [
       "r2-sync",
+      "ok"
+    ],
+    [
+      "r3-ledger",
+      "ok"
+    ],
+    [
+      "r3-form",
       "ok"
     ]
   ],

@@ -1,0 +1,762 @@
+<title>UI System Lab Notes</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&display=swap">
+<style>
+/* Layout: one-screen tool. A slim control bar on top, then one or two full-height frames of the same test page. */
+:root {
+  --bg: #eef0ef;
+  --panel: #ffffff;
+  --fg: #1b2120;
+  --muted: #5f6a68;
+  --line: #d7dcda;
+  --accent: #1f6b64;
+  --accent-fg: #ffffff;
+  --chip: #e3e8e6;
+  --warn: #b4441f;
+  --font-ui: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #121615; --panel: #1a1f1e; --fg: #e6ebe9; --muted: #95a19e; --line: #2c3432;
+    --accent: #5fbcb1; --accent-fg: #0d1514; --chip: #242b2a; --warn: #f0885e; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #121615; --panel: #1a1f1e; --fg: #e6ebe9; --muted: #95a19e; --line: #2c3432;
+  --accent: #5fbcb1; --accent-fg: #0d1514; --chip: #242b2a; --warn: #f0885e; color-scheme: dark;
+}
+html, body { height: 100%; }
+body {
+  background: var(--bg); color: var(--fg); font-family: var(--font-ui); font-size: 13px;
+  display: flex; flex-direction: column;
+}
+.bar {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px;
+  padding-block: 10px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  background: var(--panel); border-bottom: 1px solid var(--line);
+}
+.brand { font-weight: 600; font-size: 14px; margin-right: 4px; }
+.group { display: flex; align-items: center; gap: 6px; }
+.group > .lbl { color: var(--muted); }
+.seg { display: inline-flex; background: var(--chip); border-radius: 8px; padding: 2px; gap: 2px; }
+.seg button {
+  font: inherit; color: var(--muted); background: transparent; border: 0; border-radius: 6px;
+  padding: 5px 10px; cursor: pointer; transition: background .15s, color .15s;
+}
+.seg button:hover { color: var(--fg); }
+.seg button[aria-pressed="true"] { background: var(--panel); color: var(--fg); box-shadow: 0 1px 2px rgb(0 0 0 / .08); }
+.seg button:focus-visible, select:focus-visible, .chk input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+select {
+  font: inherit; color: var(--fg); background: var(--panel); border: 1px solid var(--line);
+  border-radius: 6px; padding: 5px 8px; max-width: 280px;
+}
+.chk { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); cursor: pointer; }
+.chk input { accent-color: var(--accent); }
+.spacer { flex: 1; }
+.keys { color: var(--muted); }
+kbd {
+  font-family: var(--font-ui); font-size: 11px; background: var(--chip); border: 1px solid var(--line);
+  border-radius: 4px; padding: 0 5px; color: var(--fg);
+}
+.stage {
+  flex: 1; min-height: 0; display: grid; gap: 12px;
+  padding-block: 12px;
+  padding-left: max(12px, env(safe-area-inset-left, 0px));
+  padding-right: max(12px, env(safe-area-inset-right, 0px));
+}
+.stage.split { grid-template-columns: 1fr 1fr; }
+@media (max-width: 800px) { .stage.split { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; } }
+.pane { min-width: 0; min-height: 0; display: flex; flex-direction: column; gap: 6px; }
+.pane-head { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.pane-head strong { font-weight: 600; }
+.pane-head span { color: var(--muted); }
+.frame-wrap {
+  flex: 1; min-height: 0; display: flex; justify-content: center;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 10px; overflow: hidden;
+}
+iframe { border: 0; width: 100%; height: 100%; background: #fff; transition: width .2s ease; }
+.frame-wrap.narrow iframe { border-left: 1px solid var(--line); border-right: 1px solid var(--line); }
+.empty {
+  margin: auto; max-width: 42ch; text-align: center; color: var(--muted); padding: 24px; line-height: 1.5;
+}
+.empty strong { display: block; color: var(--fg); font-size: 15px; margin-bottom: 6px; }
+.rate-on { color: var(--accent); font-weight: 500; }
+@media (max-width: 1500px) { .keys { display: none; } }
+.compare-only[hidden] { display: none !important; }
+.bar2 { background: var(--bg); border-bottom: 1px solid var(--line); padding-block: 8px; }
+.swatches { display: inline-flex; gap: 4px; align-items: center; }
+.sw { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--panel); box-shadow: 0 0 0 1px var(--line); cursor: pointer; padding: 0; }
+.sw[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--fg); }
+.sw.none { background: conic-gradient(from 45deg, var(--line) 0 25%, var(--panel) 0 50%, var(--line) 0 75%, var(--panel) 0); }
+.sw:focus-visible, .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+input[type=color] { width: 24px; height: 22px; border: 1px solid var(--line); border-radius: 6px; padding: 0; background: var(--panel); cursor: pointer; }
+.btn { font: inherit; color: var(--fg); background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 5px 10px; cursor: pointer; }
+.btn:hover { border-color: var(--accent); }
+.btn.primary { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+.sep { width: 1px; align-self: stretch; background: var(--line); }
+.status { color: var(--muted); min-width: 0; }
+@media (max-width: 800px) { .sep { display: none; } }
+
+.report { flex: 1; min-height: 0; overflow-y: auto; }
+.report-inner { max-width: 1120px; margin: 0 auto; display: grid; gap: 28px;
+  padding-block: 24px 48px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.report-inner > * { min-width: 0; }
+.report h1 { font-size: 22px; font-weight: 600; margin: 0; text-wrap: balance; }
+.report h2 { font-size: 15px; font-weight: 600; margin: 0 0 10px; }
+.report p { margin: 0; line-height: 1.55; }
+.lede { font-size: 14px; max-width: 72ch; color: var(--fg); }
+.sub { color: var(--muted); max-width: 72ch; line-height: 1.5; }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; }
+.tbl-wrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); white-space: nowrap; vertical-align: middle; }
+th { font-weight: 500; color: var(--muted); font-size: 12px; }
+tr:last-child td { border-bottom: 0; }
+td.num, th.num { text-align: right; }
+td.wrap { white-space: normal; min-width: 180px; max-width: 260px; line-height: 1.35; }
+tbody tr.clickable { cursor: pointer; }
+tbody tr.clickable:hover { background: var(--chip); }
+tr.base td { color: var(--muted); }
+.rank { color: var(--muted); width: 28px; }
+.sys { font-weight: 500; }
+.dots { display: inline-flex; gap: 3px; }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--line); }
+.dot.on { background: var(--accent); }
+.avg { font-weight: 600; }
+.chip { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 999px; background: var(--chip); color: var(--muted); }
+.bad { color: var(--warn); font-weight: 500; }
+.groups { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+.group-card { padding: 14px 16px; display: grid; gap: 6px; }
+.group-card strong { font-weight: 600; }
+.cards { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
+.card { padding: 16px; display: grid; gap: 10px; align-content: start; min-width: 0; }
+.card-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.card-head strong { font-size: 14px; font-weight: 600; }
+.card ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; line-height: 1.45; }
+.card .lbl2 { font-size: 12px; color: var(--muted); font-weight: 500; }
+.card button.open { justify-self: start; font: inherit; background: var(--chip); color: var(--fg); border: 1px solid var(--line); border-radius: 6px; padding: 5px 10px; cursor: pointer; }
+.card button.open:hover { border-color: var(--accent); }
+.card button.open:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.links { display: inline-flex; gap: 10px; flex-wrap: wrap; }
+.links a, .ext { color: var(--accent); text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--accent) 40%, transparent); text-underline-offset: 2px; }
+.links a:hover, .ext:hover { text-decoration-color: currentColor; }
+.links a:focus-visible, .ext:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+.score { display: inline-flex; white-space: nowrap; align-items: center; gap: 6px; font-variant-numeric: tabular-nums; }
+.sbar { width: 34px; height: 6px; border-radius: 3px; background: var(--line); overflow: hidden; display: inline-block; }
+.sbar > span { display: block; height: 100%; background: var(--accent); }
+.bar-cell { display: flex; align-items: center; gap: 8px; justify-content: flex-end; }
+.mini { height: 6px; border-radius: 3px; background: var(--accent); opacity: .7; }
+.mini.hot { background: var(--warn); opacity: .9; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="bar" role="toolbar" aria-label="Comparison controls">
+  <span class="brand">UI System Lab</span>
+
+  <div class="seg" id="page">
+    <button type="button" data-v="compare" aria-pressed="true">Compare</button>
+    <button type="button" data-v="report" aria-pressed="false">Report</button>
+    <button type="button" data-v="history" aria-pressed="false">History</button>
+  </div>
+
+  <div class="group compare-only">
+    <span class="lbl">View</span>
+    <div class="seg" id="mode">
+      <button type="button" data-v="single" aria-pressed="true">Single</button>
+      <button type="button" data-v="split" aria-pressed="false">Side by side</button>
+    </div>
+  </div>
+
+  <div class="group compare-only">
+    <span class="lbl">Width</span>
+    <div class="seg" id="width">
+      <button type="button" data-v="fill" aria-pressed="true">Full</button>
+      <button type="button" data-v="820" aria-pressed="false">Tablet</button>
+      <button type="button" data-v="390" aria-pressed="false">Phone</button>
+    </div>
+  </div>
+
+  <div class="group compare-only">
+    <span class="lbl">Theme</span>
+    <div class="seg" id="theme">
+      <button type="button" data-v="light" aria-pressed="true">Light</button>
+      <button type="button" data-v="dark" aria-pressed="false">Dark</button>
+    </div>
+  </div>
+
+  <div class="group compare-only">
+    <span class="lbl">Motion</span>
+    <div class="seg" id="rate">
+      <button type="button" data-v="1" aria-pressed="true">1×</button>
+      <button type="button" data-v="0.5" aria-pressed="false">0.5×</button>
+      <button type="button" data-v="0.2" aria-pressed="false">0.2×</button>
+    </div>
+  </div>
+
+  <label class="chk compare-only"><input type="checkbox" id="sync" checked> Sync scroll</label>
+
+  <span class="spacer"></span>
+  <span class="keys compare-only"><kbd>1</kbd>–<kbd>9</kbd> variant · <kbd>S</kbd> split · <kbd>M</kbd> slow motion · <kbd>D</kbd> theme · <kbd>R</kbd> report</span>
+</div>
+
+<div class="bar bar2 compare-only" role="toolbar" aria-label="Brand stress test and synced actions">
+  <div class="group">
+    <span class="lbl">Primary</span>
+    <div class="swatches" id="swatches">
+      <button type="button" class="sw none" data-c="" aria-label="Each variant's own primary color" aria-pressed="true" title="Variant's own"></button>
+      <button type="button" class="sw" data-c="#e8590c" style="background:#e8590c" aria-label="Orange" aria-pressed="false"></button>
+      <button type="button" class="sw" data-c="#f5c400" style="background:#f5c400" aria-label="Yellow" aria-pressed="false"></button>
+      <button type="button" class="sw" data-c="#2f9e44" style="background:#2f9e44" aria-label="Green" aria-pressed="false"></button>
+      <button type="button" class="sw" data-c="#1c7ed6" style="background:#1c7ed6" aria-label="Blue" aria-pressed="false"></button>
+      <button type="button" class="sw" data-c="#7048e8" style="background:#7048e8" aria-label="Violet" aria-pressed="false"></button>
+      <button type="button" class="sw" data-c="#d6336c" style="background:#d6336c" aria-label="Pink" aria-pressed="false"></button>
+      <input type="color" id="primary-custom" value="#0ca678" aria-label="Custom primary color" title="Custom color">
+    </div>
+  </div>
+  <div class="group">
+    <label class="lbl" for="font">Font</label>
+    <select id="font">
+      <option value="">Variant's own</option>
+      <option value="inter">Inter</option>
+      <option value="geist">Geist</option>
+      <option value="plex">IBM Plex Sans</option>
+      <option value="manrope">Manrope</option>
+      <option value="dm-sans">DM Sans</option>
+      <option value="source-serif">Source Serif 4</option>
+    </select>
+  </div>
+  <div class="group">
+    <span class="lbl">Density</span>
+    <div class="seg" id="density">
+      <button type="button" data-v="compact" aria-pressed="false">Compact</button>
+      <button type="button" data-v="" aria-pressed="true">Default</button>
+      <button type="button" data-v="comfortable" aria-pressed="false">Comfortable</button>
+    </div>
+  </div>
+  <span class="sep" aria-hidden="true"></span>
+  <div class="group">
+    <label class="lbl" for="action">Play in both</label>
+    <select id="action">
+      <optgroup label="Overlays">
+        <option value="dialog">Open dialog (New project)</option>
+        <option value="menu">Open project menu</option>
+        <option value="sheet">Open side panel</option>
+        <option value="popover">Open filter popover</option>
+        <option value="combobox">Open people picker</option>
+        <option value="command">Open command menu</option>
+      </optgroup>
+      <optgroup label="Lists">
+        <option value="task-add">Add a task</option>
+        <option value="task-complete">Complete first open task</option>
+        <option value="task-move">Move first task down</option>
+        <option value="task-sort">Toggle sort by due date</option>
+        <option value="task-remove">Remove a task</option>
+        <option value="tab">Next tab</option>
+      </optgroup>
+      <optgroup label="Table">
+        <option value="ledger-sort">Sort by amount</option>
+        <option value="ledger-next">Next page</option>
+        <option value="ledger-filter">Search “north”</option>
+        <option value="ledger-empty">Search with no results</option>
+        <option value="ledger-clear">Clear filters</option>
+      </optgroup>
+      <optgroup label="Form">
+        <option value="wizard-fill">Fill in a valid client</option>
+        <option value="wizard-invalid">Enter a bad email</option>
+        <option value="wizard-next">Next step</option>
+        <option value="wizard-back">Previous step</option>
+        <option value="wizard-cancel">Cancel with unsaved changes</option>
+      </optgroup>
+      <optgroup label="Feedback">
+        <option value="toast">Show a toast</option>
+        <option value="save-fail">Save that fails (then Retry)</option>
+        <option value="retry">Retry</option>
+        <option value="offline">Toggle offline</option>
+        <option value="reload">Reload entries</option>
+      </optgroup>
+    </select>
+    <button type="button" class="btn primary" id="play">Play</button>
+    <button type="button" class="btn" id="close-all">Close</button>
+    <button type="button" class="btn" id="tour">Tour</button>
+  </div>
+  <span class="status" id="status" role="status"></span>
+</div>
+<div class="stage" id="stage"></div>
+<div class="report" id="history" hidden><div class="report-inner" id="history-inner"></div></div>
+<div class="report" id="report" hidden><div class="report-inner" id="report-inner"></div></div>
+
+<script>window.__BENCH = location.hash === "#bench";</script>
+<script>
+const VARIANTS = [
+ {
+  "id": "baseline",
+  "name": "Baseline",
+  "note": "shadcn/ui defaults, untouched",
+  "path": "variants/baseline/index.html",
+  "ready": true
+ },
+ {
+  "id": "kemiljk",
+  "name": "kemiljk skills",
+  "note": "Karl Koch's design lenses",
+  "path": "variants/kemiljk/index.html",
+  "ready": true
+ },
+ {
+  "id": "taste",
+  "name": "taste-skill",
+  "note": "Art direction rules (Leonxlnx)",
+  "path": "variants/taste/index.html",
+  "ready": true
+ },
+ {
+  "id": "skills",
+  "name": "Interface skills",
+  "note": "Jakub Krehel, better-interface",
+  "path": "variants/skills/index.html",
+  "ready": true
+ },
+ {
+  "id": "ui-craft",
+  "name": "UI Craft",
+  "note": "olzn/ui-craft suite",
+  "path": "variants/ui-craft/index.html",
+  "ready": true
+ },
+ {
+  "id": "ibelick",
+  "name": "ui-skills",
+  "note": "ibelick: baseline-ui, a11y, motion perf",
+  "path": "variants/ibelick/index.html",
+  "ready": true
+ },
+ {
+  "id": "uiwiki",
+  "name": "userinterface.wiki",
+  "note": "Raphael Salaja's rules",
+  "path": "variants/uiwiki/index.html",
+  "ready": true
+ },
+ {
+  "id": "feel-better",
+  "name": "Make interfaces feel better",
+  "note": "Jakub Krehel, detail polish",
+  "path": "variants/feel-better/index.html",
+  "ready": true
+ },
+ {
+  "id": "emil",
+  "name": "Emil Kowalski skills",
+  "note": "Design engineering and motion",
+  "path": "variants/emil/index.html",
+  "ready": true
+ },
+ {
+  "id": "magicui",
+  "name": "Magic UI",
+  "note": "Animated component registry",
+  "path": "variants/magicui/index.html",
+  "ready": true
+ },
+ {
+  "id": "libraries",
+  "name": "libraries.dev",
+  "note": "AI effect packages",
+  "path": "variants/libraries/index.html",
+  "ready": true
+ },
+ {
+  "id": "fluid",
+  "name": "Fluid Functionalism",
+  "note": "Component library",
+  "path": "variants/fluid/index.html",
+  "ready": true
+ }
+];
+const REVIEW = {"summary": "kemiljk ranked first. Its skills treated messy data and edge cases as part of the design: long client names wrap, missing ledger values read 'No due date' or 'Not tied to a project', the total notes 'net of 1 credit', and the benchmark showed no meaningful cost. taste came a close second with the most complete visual rethink, a sidebar app shell and a header summary that leads with what needs attention, and it was the only variant with no sampled contrast failures in either theme; a clipped Add button and truncated phone amounts held its fidelity score down. skills and ui-craft followed, with ui-craft drawing the accessibility judge's top rank but losing points for a phone layout that is 895px wide in a 390px viewport. The systems that helped this app most were rule sets about content, semantics and layout that the agent applied to the existing shadcn components, while motion-only skills (feel-better, emil, uiwiki) left the page looking and scoring like the baseline. The libraries cost the most: Fluid Functionalism added about 233 KB of gzipped JavaScript and 332 KB of fonts and lost input borders and the phone grid, Magic UI added about 54 KB of JavaScript for effects judges did not count as improvements, and the libraries.dev effects raised blocking time from about 1 s to about 23 s and kept roughly a third of the main thread busy at idle. For a working app UI, start with a content and behavior skill such as kemiljk or skills, add a visual-direction skill like taste if the product needs a new look, and check the phone layout and font weight it adds before shipping.", "method": "One Fieldwork page (React, Tailwind and default shadcn/ui) was rebuilt eleven times, each by a separate AI agent that read only one system's documentation. Three blind judges, a product designer, a design engineer and an accessibility and UX-writing specialist, scored anonymized builds on five axes against the unchanged baseline at 3. Performance was measured in headless Chromium with a 4x CPU throttle and no GPU and scored relative to the baseline.", "ranking": ["kemiljk", "taste", "skills", "ui-craft", "ibelick", "uiwiki", "feel-better", "emil", "magicui", "libraries", "fluid"], "groups": [{"label": "Rule skills: visual direction", "ids": ["taste", "ui-craft"], "note": "Changed tokens, type, layout and copy across the whole page. Biggest visible gains, and the only rule skills that introduced layout bugs."}, {"label": "Rule skills: content, behavior and accessibility", "ids": ["kemiljk", "skills", "ibelick"], "note": "Kept the baseline look and worked on copy for edge cases, field-error semantics, task-row structure and focus. No added dependencies and no measurable performance cost."}, {"label": "Rule skills: motion and polish", "ids": ["feel-better", "emil", "uiwiki"], "note": "Added list transitions, reorder motion or a wizard progress bar. Judges saw these pages as baseline with small additions."}, {"label": "Component library", "ids": ["fluid"], "note": "Replaced shadcn components with the library's own. Largest change, largest bundle, and the only system all three judges ranked last."}, {"label": "Effect packs", "ids": ["magicui", "libraries"], "note": "Added animated and decorative components on top of the baseline. Judges saw no improvement, and both cost performance."}], "systems": {"kemiljk": {"scores": {"visual": 4.0, "interaction": 3.67, "accessibility": 4.0, "fidelity": 4.0, "productFit": 5.0, "performanceCost": 5.0}, "judgeRanks": [2, 1, 3], "verdict": "The strongest content pass in the test. It handles every messy ledger case in plain language and adds a skip link, clear 2px focus outlines and a Clear filters action without breaking anything. Its weak spots are reduced motion, which it does not honor, and reorder and sort, which have no positional motion.", "bestFor": "Data-heavy app screens with messy, real content", "highlights": ["Ledger: long client names wrap, an Invoice column, 'net of 1 credit' total, overdue figure in red", "Missing values read 'No due date', 'Not tied to a project', 'Set when sent'", "Tabs show counts and the wizard shows a 'Fill in the required fields' hint", "Failed-save state with a clear inline error and Retry"], "issues": ["Reduced motion not honored; about 12 long animations still run", "Wrapped client names make very tall ledger rows on phone, and top-nav search squeezes to 'Search p' at 390px", "Small muted counts measure about 4.35:1 in the light theme"], "effort": "small (17 files, about 800 lines changed), no new dependencies"}, "taste": {"scores": {"visual": 4.33, "interaction": 4.0, "accessibility": 4.33, "fidelity": 3.33, "productFit": 4.33, "performanceCost": 4.5}, "judgeRanks": [1, 3, 2], "verdict": "The most complete redesign: a sidebar app shell, a header summary that names what is at risk or overdue, grouped settings and restrained status color in both themes. It has the cleanest contrast and full reduced-motion support, but it introduces two layout bugs. Two judges ranked it in the top two and the design engineer ranked it third.", "bestFor": "Giving an app a new, coherent visual direction", "highlights": ["Sidebar shell and a header summary that leads with at-risk and overdue items", "Ledger header reads '14 entries · 3 overdue' with the total owed", "280ms FLIP reorder and zero-duration motion under reduced motion", "Phone ledger tucks the project under the client name"], "issues": ["Task Add button overflows its card by about 20px at 1280px", "Phone ledger amounts clip to '$1,...' and need horizontal scroll", "Retry in the failed-save state reads as plain text"], "effort": "medium (30 files), adds IBM Plex Sans and Mono (about 570 KB of fonts)"}, "skills": {"scores": {"visual": 4.0, "interaction": 3.33, "accessibility": 4.0, "fidelity": 4.0, "productFit": 4.0, "performanceCost": 5.0}, "judgeRanks": [3, 2, 5], "verdict": "A careful refinement of the baseline with the best-calibrated list motion. Task metadata moves under the title so phone rows stay readable, long names wrap, and errors are linked to their fields. The accessibility judge ranked it lower, fifth, citing the always-enabled Next button and missing reduced-motion handling on some animations.", "bestFor": "Polishing behavior and list interactions without a redesign", "highlights": ["Task rows with metadata under the title, readable on phone", "150ms FLIP on move and sort that switches to fades under reduced motion", "Skip link and actionable error copy ('Enter the full email address, like billing@client.com')", "Wizard Next marks invalid fields and focuses the first one"], "issues": ["Settings billing-email error no longer shown on load", "Next looks enabled while the form is invalid", "Some 2000ms animations still run under reduced motion"], "effort": "medium (28 files, about 340 lines changed), no new dependencies"}, "ui-craft": {"scores": {"visual": 3.67, "interaction": 3.67, "accessibility": 4.33, "fidelity": 2.67, "productFit": 3.67, "performanceCost": 3.5}, "judgeRanks": [4, 4, 1], "verdict": "Strong desktop polish and the best accessibility work in the test: a numbered wizard stepper, inline hints, linked field errors, solid 2px focus rings and full reduced-motion support. The phone layout is broken, which pulled its fidelity score below baseline. The accessibility judge ranked it first; the other two ranked it fourth.", "bestFor": "Form guidance, error copy and accessibility on desktop", "highlights": ["Numbered wizard stepper with next-step hints and an error icon", "Ledger total labeled 'Total · all 14 entries' with credits and negatives clearly marked", "Consistent 2px focus rings", "No-results empty state that tells you how to recover"], "issues": ["Page is 895px wide in a 390px phone viewport (horizontal scroll)", "Sort icons removed from all but the active column header", "Sections lose their h2 headings"], "effort": "medium (26 files, about 400 lines changed), adds Instrument Sans; slower interaction response in the benchmark (INP 744 ms vs 392 ms)"}, "ibelick": {"scores": {"visual": 3.0, "interaction": 3.0, "accessibility": 3.33, "fidelity": 3.33, "productFit": 3.33, "performanceCost": 5.0}, "judgeRanks": [6, 6, 4], "verdict": "Looks like the baseline but improves semantics and number formatting. Field errors use role=alert and aria-describedby, the discard prompt is an alertdialog, and the disabled Next explains how to continue. The accessibility judge rated it above baseline; the other two saw no visual change.", "bestFor": "Semantic and copy fixes with minimal visual change", "highlights": ["Ledger hours aligned to two decimals (9,512.00) and a 'Total for 14 entries' label", "Wizard hint 'To continue, enter a valid billing email'", "Heading structure and alertdialog for discard"], "issues": ["Task titles truncate to a few characters on phone ('Send cat…')", "Dark-theme At risk, Overdue and Delete badges remain about 2.89:1"], "effort": "small (19 files, about 235 lines changed), no new dependencies"}, "uiwiki": {"scores": {"visual": 3.0, "interaction": 3.0, "accessibility": 3.0, "fidelity": 3.33, "productFit": 3.0, "performanceCost": 5.0}, "judgeRanks": [5, 5, 6], "verdict": "Near-baseline with a few targeted additions: a wizard progress bar with 'Step 1 of 3', monospace invoice IDs and wrapping task titles. Remove is shortened to 250ms, and reorder and sort have no motion.", "bestFor": "Small, rule-by-rule refinements", "highlights": ["Wizard progress bar with 'Step 1 of 3'", "Task titles wrap instead of truncating", "Monospace invoice IDs in the ledger"], "issues": ["Stepper wraps awkwardly at 390px ('Step 1 of / 3')", "Adds an 'Interface sounds' setting the product did not ask for", "Reduced motion not honored; dark badge contrast unchanged at about 2.89:1"], "effort": "medium (25 files, about 310 lines changed), no new dependencies"}, "feel-better": {"scores": {"visual": 3.0, "interaction": 3.0, "accessibility": 3.0, "fidelity": 3.33, "productFit": 3.0, "performanceCost": 5.0}, "judgeRanks": [7, 8, 7], "verdict": "Visually the baseline with slight spacing and type tweaks. It adds a blur-and-translate enter and exit on task add and remove that drops out under reduced motion, and links errors on two fields. Nothing broke.", "bestFor": "Light motion polish on add and remove", "highlights": ["Task add and remove animate in and out, and stop under reduced motion", "Errors linked to two inputs via aria-describedby"], "issues": ["Three 400ms fade-in-up animations re-run alongside every sampled action", "Reorder has no motion"], "effort": "medium (22 files, about 175 lines changed), no new dependencies"}, "emil": {"scores": {"visual": 3.0, "interaction": 3.0, "accessibility": 3.0, "fidelity": 3.33, "productFit": 3.0, "performanceCost": 5.0}, "judgeRanks": [9, 7, 8], "verdict": "Visually identical to the baseline, with under 0.5% of pixels differing. Its contribution is motion: a 250ms FLIP on reorder and sort with fade-only fallbacks under reduced motion, plus errors linked on two fields.", "bestFor": "Reorder and sort motion", "highlights": ["250ms FLIP when tasks move or the list is sorted", "Fade-only path under reduced motion"], "issues": ["Side panel still takes 500ms to enter"], "effort": "small (20 files, about 240 lines changed), no new dependencies"}, "magicui": {"scores": {"visual": 3.0, "interaction": 3.0, "accessibility": 3.0, "fidelity": 3.33, "productFit": 3.0, "performanceCost": 3.5}, "judgeRanks": [10, 10, 9], "verdict": "The page looks like the baseline. Blur-fade section reveals, KPI number tickers and a hover spotlight on project cards are the visible additions, and 600ms add and remove animations made the task list feel slow to the design engineer. It runs more animations under reduced motion than the baseline and adds JavaScript weight.", "bestFor": "Marketing-style entrance effects, not app screens", "highlights": ["KPI values count up from 0, with the final value available to screen readers", "Cursor-following spotlight on project cards"], "issues": ["600ms add and remove animations are slow for a work tool", "19 animations under reduced motion versus 13 in the baseline"], "effort": "small (9 files, about 490 lines added), adds motion and next-themes (+54 KB gzipped JS, LCP 2144 ms vs 1404 ms)"}, "libraries": {"scores": {"visual": 3.0, "interaction": 3.0, "accessibility": 3.0, "fidelity": 3.33, "productFit": 3.0, "performanceCost": 1}, "judgeRanks": [8, 9, 10], "verdict": "Outside the assistant panel the page is pixel-identical to the baseline; judges saw only a new AI avatar. The effects behind it are expensive: blocking time rose from about 1 s to about 23 s, the 95th-percentile frame from 33 ms to 83 ms, and about 34% of the main thread stays busy at idle. Field errors remain unlinked to their inputs.", "bestFor": "Isolated showcase effects where performance does not matter", "highlights": ["Thinking orbs and a border beam on the assistant's waiting state", "Generated bot avatar in the chat panel"], "issues": ["Total blocking time about 22.9 s vs 1.0 s baseline, and about 34% main-thread CPU at idle", "Field errors have no aria-describedby", "Raises the simulated assistant reply wait from 1.6 s to 3.2 s to fit the package's rules"], "effort": "small (7 files, about 180 lines changed), adds border-beam, bot-avatars, img-fx, liquid-gooey, thinking-orbs, three and voice-glow (+251 KB gzipped JS)"}, "fluid": {"scores": {"visual": 2.0, "interaction": 3.0, "accessibility": 2.0, "fidelity": 2.0, "productFit": 2.0, "performanceCost": 2.0}, "judgeRanks": [11, 11, 11], "verdict": "All three judges ranked it last. Swapping in the library's components gave fast 80ms transitions, dot status badges and good failed-save copy, but inputs lost their borders, the delete action lost its destructive color, settings labels were rearranged, and the phone project grid stays at three columns. It is also the heaviest build.", "bestFor": "New projects built on the library from the start", "highlights": ["Dot-style status badges in the ledger and on project cards", "Snappy 80ms transitions and a sliding tab indicator", "Failed-save message with a clear title and Retry"], "issues": ["Form inputs have 0px borders and transparent backgrounds, so wizard and settings fields look like plain text (WCAG 1.4.11)", "Phone project grid stays three columns at 390px and titles break per word", "Delete rendered neutral gray; reduced motion not honored; several focus stops lack a visible ring"], "effort": "large (50 files, about 13,000 lines changed), adds Base UI, 10 Radix packages, motion, Inter Variable and pdfjs-dist (+233 KB gzipped JS, 332 KB fonts, LCP 2236 ms vs 1404 ms)"}}};
+const METRICS = {"baseline": {"jsGz": 152, "cssGz": 8, "font": 0, "lcp": 1404, "tbt": 1036, "p95": 33, "jank": 1.7, "inp": 392, "script": 1918, "layout": 370, "style": 4229}, "fluid": {"jsGz": 385, "cssGz": 15, "font": 332, "lcp": 2236, "tbt": 1988, "p95": 33, "jank": 2.4, "inp": 408, "script": 3187, "layout": 630, "style": 5692}, "skills": {"jsGz": 155, "cssGz": 10, "font": 0, "lcp": 1816, "tbt": 1442, "p95": 33, "jank": 2.1, "inp": 424, "script": 2300, "layout": 607, "style": 4683}, "feel-better": {"jsGz": 153, "cssGz": 10, "font": 0, "lcp": 1488, "tbt": 1091, "p95": 33, "jank": 1.8, "inp": 456, "script": 2102, "layout": 383, "style": 4669}, "libraries": {"jsGz": 403, "cssGz": 9, "font": 0, "lcp": 0, "tbt": 22927, "p95": 83, "jank": 6.5, "inp": 464, "script": 26636, "layout": 487, "style": 4216}, "ui-craft": {"jsGz": 202, "cssGz": 11, "font": 40, "lcp": 1880, "tbt": 1624, "p95": 33, "jank": 2.6, "inp": 744, "script": 2561, "layout": 498, "style": 6251}, "taste": {"jsGz": 157, "cssGz": 11, "font": 570, "lcp": 1564, "tbt": 1284, "p95": 17, "jank": 2.1, "inp": 488, "script": 2248, "layout": 493, "style": 3663}, "uiwiki": {"jsGz": 154, "cssGz": 10, "font": 0, "lcp": 1556, "tbt": 1203, "p95": 33, "jank": 3.5, "inp": 480, "script": 2329, "layout": 633, "style": 7326}, "ibelick": {"jsGz": 154, "cssGz": 9, "font": 0, "lcp": 1636, "tbt": 1249, "p95": 33, "jank": 1.6, "inp": 384, "script": 2060, "layout": 476, "style": 4343}, "emil": {"jsGz": 154, "cssGz": 9, "font": 0, "lcp": 1404, "tbt": 1032, "p95": 33, "jank": 1.7, "inp": 456, "script": 2125, "layout": 506, "style": 4387}, "kemiljk": {"jsGz": 157, "cssGz": 11, "font": 0, "lcp": 1712, "tbt": 1325, "p95": 33, "jank": 3.6, "inp": 408, "script": 2158, "layout": 561, "style": 5555}, "magicui": {"jsGz": 206, "cssGz": 10, "font": 0, "lcp": 2144, "tbt": 1620, "p95": 33, "jank": 2.5, "inp": 576, "script": 3349, "layout": 538, "style": 4790}};
+const DEPS = {"fluid": "motion, Base UI, Radix ×11, pdf.js, Inter", "libraries": "6 effect packages + three.js", "magicui": "motion, next-themes", "ui-craft": "motion, Instrument Sans", "taste": "IBM Plex Sans + Mono"};
+const PERF_NOTE = "Headless Chromium with the CPU slowed 4× and no GPU, median of 3 runs over a scripted session that uses every section. Read each row against the baseline rather than as real-world numbers. Idle CPU is the share of the main thread busy while nobody touches the page.";
+const METHOD_HTML = "<p>Every system started from the same baseline page: shadcn/ui defaults with dashboard cards, a task list, overlays, async states, a messy data table and a multi-step form. A separate AI agent applied each system, reading only that system’s own docs, and logged its changes. Three blind judges then scored anonymized copies from light, dark, phone and overlay screenshots plus scripted checks of focus, keyboard paths, motion, reduced motion and every interactive state. Each judge had a different lens: product design, design engineering, and accessibility and UX writing. Scores are their mean, so treat differences under about 0.2 as ties.</p><p style=\"margin-top:8px\">Use the Compare view to check any claim: Play in both runs the same action in two variants at once, and the brand controls test how each system holds up with another color, font or density.</p>";
+const LINKS = {"baseline": [["shadcn/ui", "https://ui.shadcn.com"]], "kemiljk": [["GitHub", "https://github.com/kemiljk/skills"]], "skills": [["GitHub", "https://github.com/jakubkrehel/skills"]], "taste": [["GitHub", "https://github.com/Leonxlnx/taste-skill"]], "ui-craft": [["GitHub", "https://github.com/olzn/ui-craft"]], "emil": [["GitHub", "https://github.com/emilkowalski/skills"]], "uiwiki": [["GitHub", "https://github.com/raphaelsalaja/userinterface-wiki"]], "ibelick": [["GitHub", "https://github.com/ibelick/ui-skills"]], "feel-better": [["GitHub", "https://github.com/jakubkrehel/make-interfaces-feel-better"]], "magicui": [["Site", "https://magicui.design"], ["GitHub", "https://github.com/magicuidesign/magicui"]], "fluid": [["Site", "https://www.fluidfunctionalism.com"], ["GitHub", "https://github.com/mickadesign/fluid-functionalism"]], "libraries": [["Site", "https://libraries.dev"], ["GitHub", "https://github.com/Jakubantalik/Libraries.dev"]]};
+const IDLE = {"libraries": 34};
+
+const state = { mode: "single", width: "fill", theme: "light", rate: 1, sync: true, panes: ["baseline", "kemiljk"], page: "compare", brand: { primary: "", font: "", density: "" }, active: 0, scroll: 0 };
+try { Object.assign(state, JSON.parse(localStorage.getItem("uilab") || "{}")); } catch (e) {}
+const save = () => { try { localStorage.setItem("uilab", JSON.stringify(state)); } catch (e) {} };
+
+const stage = document.getElementById("stage");
+const byId = (id) => VARIANTS.find((v) => v.id === id) || VARIANTS[0];
+
+function frames() { return [...stage.querySelectorAll("iframe")]; }
+function post(frame, msg) { try { frame.contentWindow.postMessage(msg, "*"); } catch (e) {} }
+
+function render() {
+  stage.className = "stage" + (state.mode === "split" ? " split" : "");
+  stage.innerHTML = "";
+  const count = state.mode === "split" ? 2 : 1;
+  for (let i = 0; i < count; i++) stage.appendChild(makePane(i));
+  syncSegs();
+  save();
+}
+
+function makePane(i) {
+  const v = byId(state.panes[i]);
+  const pane = document.createElement("section");
+  pane.className = "pane";
+
+  const head = document.createElement("div");
+  head.className = "pane-head";
+  const sel = document.createElement("select");
+  sel.id = "pick-" + i;
+  sel.setAttribute("aria-label", i === 0 ? "Left variant" : "Right variant");
+  VARIANTS.forEach((o, n) => {
+    const opt = document.createElement("option");
+    opt.value = o.id;
+    opt.textContent = (n + 1) + ". " + o.name + (o.ready ? "" : " (not built)");
+    if (o.id === v.id) opt.selected = true;
+    sel.appendChild(opt);
+  });
+  sel.addEventListener("change", () => { state.panes[i] = sel.value; state.active = i; render(); });
+  sel.addEventListener("focus", () => { state.active = i; });
+  const note = document.createElement("span");
+  note.textContent = v.note;
+  head.append(sel, note);
+
+  const wrap = document.createElement("div");
+  wrap.className = "frame-wrap" + (state.width !== "fill" ? " narrow" : "");
+  if (v.ready) {
+    const f = document.createElement("iframe");
+    f.title = v.name;
+    f.src = v.path + "?theme=" + state.theme;
+    if (state.width !== "fill") f.style.width = state.width + "px";
+    f.addEventListener("load", () => {
+      post(f, { type: "lab:rate", rate: state.rate });
+      post(f, { type: "lab:brand", brand: state.brand });
+      setTimeout(() => post(f, { type: "lab:scroll", ratio: state.scroll }), 120);
+    });
+    wrap.appendChild(f);
+  } else {
+    wrap.innerHTML = '<div class="empty"><strong>' + v.name + ' isn’t built yet</strong>This variant will be the baseline page with ' + v.name + ' applied. Pick Baseline to see the starting point.</div>';
+  }
+  pane.append(head, wrap);
+  return pane;
+}
+
+function syncSegs() {
+  const vals = { mode: state.mode, width: String(state.width), theme: state.theme, rate: String(state.rate) };
+  for (const [id, val] of Object.entries(vals)) {
+    document.querySelectorAll("#" + id + " button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.v === val)));
+  }
+  document.getElementById("sync").checked = state.sync;
+}
+
+function setOpt(key, val) {
+  state[key] = val;
+  if (key === "mode" || key === "width") { render(); return; }
+  if (key === "theme") frames().forEach((f) => post(f, { type: "lab:theme", theme: val }));
+  if (key === "rate") frames().forEach((f) => post(f, { type: "lab:rate", rate: val }));
+  syncSegs(); save();
+}
+
+document.querySelectorAll(".seg").forEach((seg) => {
+  seg.addEventListener("click", (e) => {
+    const b = e.target.closest("button");
+    if (!b) return;
+    const v = b.dataset.v;
+    if (seg.id === "page") { showPage(v); return; }
+    setOpt(seg.id, seg.id === "rate" ? Number(v) : v);
+  });
+});
+document.getElementById("sync").addEventListener("change", (e) => { state.sync = e.target.checked; save(); });
+
+window.addEventListener("message", (e) => {
+  const d = e.data || {};
+  if (d.type === "lab:key") {
+    const i = frames().findIndex((f) => f.contentWindow === e.source);
+    if (i >= 0) state.active = i;
+    onKey(d.key);
+    return;
+  }
+  if (d.type !== "lab:scroll") return;
+  state.scroll = d.ratio;
+  if (!state.sync) return;
+  frames().forEach((f) => { if (f.contentWindow !== e.source) post(f, d); });
+});
+
+// Shortcuts also work while a frame has focus: the bridge script inside each variant forwards them.
+function onKey(key) {
+  if (key === "r") { showPage(state.page === "report" ? "compare" : "report"); return; }
+  if (state.page === "report") return;
+  const n = Number(key);
+  if (n >= 1 && n <= Math.min(9, VARIANTS.length)) {
+    const target = state.mode === "split" ? state.active : 0;
+    state.panes[target] = VARIANTS[n - 1].id;
+    render();
+  } else if (key === "s") setOpt("mode", state.mode === "split" ? "single" : "split");
+  else if (key === "m") setOpt("rate", state.rate === 1 ? 0.2 : 1);
+  else if (key === "d") setOpt("theme", state.theme === "dark" ? "light" : "dark");
+}
+window.addEventListener("keydown", (e) => {
+  if (e.metaKey || e.ctrlKey || e.altKey || /^(SELECT|INPUT|TEXTAREA)$/.test(e.target.tagName)) return;
+  onKey(e.key);
+});
+
+
+// ---------- Report view ----------
+const reportEl = document.getElementById("report");
+const reportInner = document.getElementById("report-inner");
+const AXES = [["visual","Visual"],["interaction","Interaction"],["accessibility","Access."],["fidelity","Fidelity"],["productFit","App fit"],["performanceCost","Perf. cost"]];
+const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const nameOf = (id) => byId(id).name;
+const linksOf = (id) => '<span class="links">' + (LINKS[id] || []).map(([l, u]) => '<a href="' + u + '" target="_blank" rel="noopener">' + esc(l) + '</a>').join("") + "</span>";
+const groupOf = (id) => (REVIEW.groups.find((g) => g.ids.includes(id)) || {}).label || "Control";
+const avgOf = (id) => { const sc = REVIEW.systems[id].scores; return AXES.reduce((a, [k]) => a + sc[k], 0) / AXES.length; };
+const cell = (n) => '<span class="score"><span class="sbar"><span style="width:' + Math.round((n / 5) * 100) + '%"></span></span>' + n.toFixed(1) + "</span>";
+
+function buildReport() {
+  if (reportInner.dataset.built) return;
+  reportInner.dataset.built = "1";
+  const order = REVIEW.ranking;
+  const base = METRICS.baseline;
+  const maxJs = Math.max(...Object.values(METRICS).map((m) => m.jsGz));
+  let h = "";
+  h += '<section><h1>Which UI system improves the page most?</h1></section>';
+  h += '<section class="panel" style="padding:18px 20px;display:grid;gap:12px"><p class="lede">' + esc(REVIEW.summary) + '</p><p class="sub">' + esc(REVIEW.method) + "</p></section>";
+
+  h += '<section><h2>Scores</h2><p class="sub" style="margin-bottom:10px">Mean of three blind judges, 1 to 5, where the baseline is 3 on every axis. Perf. cost comes from the benchmark: 5 means no measurable cost. Judges’ ranks show how each judge placed it, out of 11. Click a row to compare it with the baseline.</p><div class="panel tbl-wrap"><table><thead><tr><th class="rank">#</th><th>System</th>' + AXES.map(([, l]) => "<th>" + l + "</th>").join("") + '<th class="num">Avg</th><th class="num">Judges’ ranks</th><th>Best for</th></tr></thead><tbody>';
+  order.forEach((id, i) => {
+    const r = REVIEW.systems[id];
+    h += '<tr class="clickable" data-open="' + id + '" tabindex="0"><td class="rank">' + (i + 1) + '</td><td><span class="sys">' + esc(nameOf(id)) + "</span> " + linksOf(id) + '<br><span class="chip">' + esc(groupOf(id)) + "</span></td>" + AXES.map(([k]) => "<td>" + cell(r.scores[k]) + "</td>").join("") + '<td class="num avg">' + avgOf(id).toFixed(2) + '</td><td class="num">' + (r.judgeRanks || []).join(" · ") + "</td><td class=\"wrap\">" + esc(r.bestFor) + "</td></tr>";
+  });
+  h += "</tbody></table></div></section>";
+
+  h += '<section><h2>Kinds of system</h2><div class="groups">' + REVIEW.groups.map((g) => '<div class="panel group-card"><strong>' + esc(g.label) + '</strong><span class="sub">' + g.ids.map(nameOf).map(esc).join(", ") + "</span><p>" + esc(g.note) + "</p></div>").join("") + "</div></section>";
+
+  h += '<section><h2>Performance</h2><p class="sub" style="margin-bottom:10px">' + esc(PERF_NOTE) + '</p><div class="panel tbl-wrap"><table><thead><tr><th>System</th><th class="num">JS (gzip)</th><th class="num">Font files</th><th class="num">LCP</th><th class="num">Blocking time</th><th class="num">p95 frame</th><th class="num">Idle CPU</th><th>Added dependencies</th></tr></thead><tbody>';
+  ["baseline", ...order].forEach((id) => {
+    const m = METRICS[id];
+    const hot = (v, b, f) => (v > b * f ? ' class="num bad"' : ' class="num"');
+    const idleV = IDLE[id] != null ? IDLE[id] + "%" : "≈0%";
+    h += '<tr class="clickable' + (id === "baseline" ? " base" : "") + '" data-open="' + id + '" tabindex="0"><td class="sys">' + esc(nameOf(id)) + '</td><td class="num"><span class="bar-cell"><span class="mini' + (m.jsGz > base.jsGz * 1.25 ? " hot" : "") + '" style="width:' + Math.round((60 * m.jsGz) / maxJs) + 'px"></span>' + m.jsGz + ' KB</span></td><td class="num">' + (m.font ? m.font + " KB" : "–") + "</td><td" + hot(m.lcp || 99999, base.lcp, 1.3) + ">" + (m.lcp ? m.lcp.toLocaleString() + " ms" : "not reached") + "</td><td" + hot(m.tbt, base.tbt, 1.5) + ">" + m.tbt.toLocaleString() + " ms</td><td" + hot(m.p95, base.p95, 2) + ">" + m.p95 + " ms</td><td" + ((IDLE[id] || 0) > 5 ? ' class="num bad"' : ' class="num"') + ">" + idleV + "</td><td>" + esc(DEPS[id] || "none") + "</td></tr>";
+  });
+  h += "</tbody></table></div></section>";
+
+  h += '<section><h2>System notes</h2><div class="cards">' + order.map((id, i) => {
+    const r = REVIEW.systems[id];
+    return '<article class="panel card"><div class="card-head"><strong>' + (i + 1) + ". " + esc(nameOf(id)) + '</strong><span class="chip">' + avgOf(id).toFixed(2) + " avg</span></div>" + linksOf(id) + "<p>" + esc(r.verdict) + "</p>" +
+      (r.highlights && r.highlights.length ? '<div><div class="lbl2">Look for</div><ul>' + r.highlights.map((x) => "<li>" + esc(x) + "</li>").join("") + "</ul></div>" : "") +
+      (r.issues && r.issues.length ? '<div><div class="lbl2">Problems found</div><ul>' + r.issues.map((x) => "<li>" + esc(x) + "</li>").join("") + "</ul></div>" : "") +
+      '<p class="sub">Change size: ' + esc(r.effort) + '</p><button type="button" class="open" data-open="' + id + '">Compare with baseline</button></article>';
+  }).join("") + "</div></section>";
+
+  h += '<section><h2>Not included</h2><div class="panel tbl-wrap"><table><tbody>' + [
+    ["transitions.dev", "https://transitions.dev", "Its recipes are only on its website, which the build environment couldn’t reach."],
+    ["addyosmani/agent-skills", "https://github.com/addyosmani/agent-skills", "General engineering skills. Its one frontend guide overlaps with the dedicated systems."],
+    ["mattpocock/skills", "https://github.com/mattpocock/skills", "Engineering workflow skills (TDD, tickets, PRs), not UI."],
+  ].map(([n, u, why]) => '<tr><td><a class="ext" href="' + u + '" target="_blank" rel="noopener">' + esc(n) + '</a></td><td style="white-space:normal">' + esc(why) + "</td></tr>").join("") + "</tbody></table></div></section>";
+
+  h += '<section class="sub"><h2 style="color:var(--fg)">How this was made</h2>' + METHOD_HTML + "</section>";
+  reportInner.innerHTML = h;
+  reportInner.addEventListener("click", (e) => { if (e.target.closest("a")) return; const t = e.target.closest("[data-open]"); if (t) openCompare(t.dataset.open); });
+  reportInner.addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.target.closest("a")) { const t = e.target.closest("tr[data-open]"); if (t) openCompare(t.dataset.open); } });
+}
+
+// ---------- History (private notes only) ----------
+const HISTORY = {"r1": {"summary": "The rule-based skills gave the best results for the lowest cost. They change the app's code without adding a runtime, so all eight stayed within noise of baseline performance. The real differences between them come from what each rulebook covers. taste-skill is the only one that gives the page a new visual identity. kemiljk and Krehel's better-interface fixed real behavior and accessibility problems: dead buttons, an Undo that did nothing, weak focus rings, and errors that did not take focus. The motion skills (emil, feel-better, userinterface.wiki) make the page feel more tactile but look almost the same as baseline. The libraries scored worst. Fluid replaced most components and lost destructive styling, input borders and card structure, at about 2.6x the JS. Magic UI and libraries.dev added marketing-style effects that hide content, ignore reduced motion or keep the main thread busy. A sensible stack is taste-skill for look plus kemiljk or better-interface for behavior, with emil's timing rules for motion.", "ranking": ["kemiljk", "taste", "skills", "ui-craft", "emil", "feel-better", "uiwiki", "ibelick", "fluid", "magicui", "libraries"], "groups": [{"label": "Rule skills: visual direction", "ids": ["taste", "ui-craft"], "note": "Change tokens, type and surfaces. taste rebuilds the shell. ui-craft is a lighter brand and elevation pass."}, {"label": "Rule skills: behavior and accessibility", "ids": ["kemiljk", "skills", "ibelick"], "note": "Little visible change. They fix semantics, labels, focus, honest feedback and broken interactions. Near-zero performance cost."}, {"label": "Rule skills: motion and polish", "ids": ["emil", "feel-better", "uiwiki"], "note": "Easing, press states, exit timing and hit areas. The page looks like baseline and feels better when you use it."}, {"label": "Component library", "ids": ["fluid"], "note": "Swaps most shadcn parts for its own. You get its whole look and motion model, and the regressions that come with it, plus a large bundle."}, {"label": "Effect packs", "ids": ["magicui", "libraries"], "note": "Layer animated effects on top of shadcn. They fit landing pages better than a daily work tool. Both cost the most runtime of any variant."}], "systems": {"baseline": {"scores": {"visual": 3, "interaction": 3, "accessibility": 3, "fidelity": 3, "productFit": 3, "performanceCost": 5}, "verdict": "This is stock shadcn/ui: clean and neutral, with no product identity. Focus rings are a 50% grey (about 1.5:1). Several actions are fake: Undo, Rename and Discard do nothing, and New project only shows a toast.", "bestFor": "reference point", "highlights": ["Grey translucent focus ring on every control", "Solid black 'Done' badge is the loudest status on the page"], "issues": ["New project toast says the project was added, but the card count stays at 6 (verified)", "Archive's Undo is a no-op (verified)"], "effort": "none"}, "kemiljk": {"scores": {"visual": 4, "interaction": 5, "accessibility": 5, "fidelity": 5, "productFit": 5, "performanceCost": 5}, "verdict": "This variant made the most real improvement to the product, with almost no visual drama. It made fake interactions real: New project adds a card, and Archive removes one and Undo restores it (verified 6 to 5 to 6). It also remapped status colors so only overdue is loud and added a clear blue focus ring.", "bestFor": "making an existing app honest and accessible", "highlights": ["New project, Duplicate, Archive with working Undo, using View Transitions", "Status badges by urgency: amber At risk, soft green Done, red Overdue figure", "Blue 2px focus ring; focus moves to the name field on a dialog error", "Unread count visible on the bell, a '/' search hint, and tab counts"], "issues": ["Visual change is modest: still recognisably shadcn", "Content copy was edited (card descriptions, subtitle), so it is not a pure UI comparison"], "effort": "large (17 files, +569/-234), no new deps"}, "taste": {"scores": {"visual": 5, "interaction": 3, "accessibility": 4, "fidelity": 4, "productFit": 5, "performanceCost": 4}, "verdict": "This is the only variant with a real art direction: a tinted frame with a white sheet, a sidebar, IBM Plex, one teal data hue, pale status pills, a strip of KPI tiles and a two-column settings layout. Dark mode is equally coherent. The phone layout folds the nav into a working sheet. Motion was barely touched.", "bestFor": "giving a generic app a product identity", "highlights": ["Sidebar shell with a product mark and a framed sheet", "KPI strip with units as grey suffixes and the overdue note in red", "Underline tabs, people avatars tinted by hue, mono only for invoice IDs", "Phone: 2x2 KPI grid and a full-screen nav and search sheet"], "issues": ["Archived and Recent files cards leave large empty voids in the stretched row", "Ships about 580 KB of Plex font files (only the used subsets load)"], "effort": "large (30 files, +436/-218), adds @fontsource IBM Plex Sans and Mono"}, "skills": {"scores": {"visual": 3, "interaction": 4, "accessibility": 5, "fidelity": 4, "productFit": 5, "performanceCost": 5}, "verdict": "This was the most thorough accessibility pass. It uses a strong native-style focus outline, 3:1 input borders and fixed dark-mode destructive contrast. It adds a skip link, labels, live regions, and focus on the field after a failed submit (verified). The look is close to baseline, with slightly firmer borders and shadow-ring cards.", "bestFor": "an accessibility and copy hardening pass", "highlights": ["High-contrast black focus outline on every control", "Darker input, checkbox and switch borders", "Nav stays reachable on phone as a scrolling row", "Neutral 'Sign out', error toasts that stay, pluralised copy"], "issues": ["Billing email now validates only on submit, so the demo's inline error state is no longer visible on load"], "effort": "medium (28 files, +219/-125), no new deps"}, "ui-craft": {"scores": {"visual": 4, "interaction": 4, "accessibility": 4, "fidelity": 4, "productFit": 5, "performanceCost": 4}, "verdict": "A good all-round polish pass. Instrument Sans, a layered elevation scale and semantic status badges give it a slightly warmer, more finished look. Press feedback, faster exits and inline Saved feedback improve the feel. Its clay-colored 2px focus outline is clear (verified).", "bestFor": "a balanced visual and detail polish", "highlights": ["Clay brand focus outline that follows the radius", "Amber At risk and soft red Overdue badges", "Save button swaps to a check and 'Saved' instead of a toast", "Focus moves to the field on a dialog validation error"], "issues": ["The longest interaction long-task time and INP proxy of the rule skills (977 ms and 368 ms vs 568 ms and 240 ms). Possibly noise, but it was not fixed"], "effort": "medium (26 files, +300/-98), adds Instrument Sans variable font (~41 KB)"}, "emil": {"scores": {"visual": 3, "interaction": 5, "accessibility": 3, "fidelity": 4, "productFit": 4, "performanceCost": 5}, "verdict": "The best motion craft. Strong ease-out curves, origin-aware menus at 200 ms in and 150 ms out, a tooltip delay with instant follow-ups, and staggered loaded rows. It also deliberately leaves high-frequency surfaces alone. Visually it is identical to baseline.", "bestFor": "motion and feel tuning", "highlights": ["Hold-to-delete with a clip-path fill (verified with pointer and Space)", "Menus scale from their trigger with a custom ease-out curve", "Chat replies and loaded file rows enter softly", "Tooltip waits 400 ms the first time, then follow-up tooltips open instantly"], "issues": ["A quick click on Delete now does nothing, with no visible hint; only aria-description explains the hold", "Focus ring left at baseline's faint grey"], "effort": "medium (20 files, +208/-35), no new deps"}, "feel-better": {"scores": {"visual": 3, "interaction": 4, "accessibility": 3, "fidelity": 4, "productFit": 4, "performanceCost": 4}, "verdict": "Many small details: press scale, a Like icon cross-fade, an interruptible grid-rows accordion, blur-rise dialogs, concentric radii and expanded hit areas. The result feels softer, but on screen it is very hard to tell apart from baseline.", "bestFor": "micro-interaction polish", "highlights": ["Heart outline to filled cross-fade with blur", "Dialog rises and un-blurs over 300 ms, then exits faster", "Shadow-as-border cards and outline buttons"], "issues": ["Header stagger and blur effects add some cost (long tasks 950 ms vs 568 ms)", "Focus ring left at baseline's faint grey"], "effort": "medium (22 files, +119/-55), no new deps"}, "uiwiki": {"scores": {"visual": 3, "interaction": 4, "accessibility": 3, "fidelity": 4, "productFit": 4, "performanceCost": 5}, "verdict": "This variant applies rules on timing and touch targets, plus opt-in synthesized UI sounds. Menus now open instantly, which was verified, though some will see that as a regression. Buttons gain a layered shadow. It looks almost the same as baseline.", "bestFor": "timing rules and optional sound feedback", "highlights": ["'Interface sounds' switch, off by default (verified)", "Dropdown menus with no entrance animation and an ease-in exit", "Six-layer button shadow on primary and destructive", "Save button width animates between labels"], "issues": ["Focus ring left at baseline's faint grey"], "effort": "medium (25 files, +255/-53), no new deps"}, "ibelick": {"scores": {"visual": 3, "interaction": 3, "accessibility": 4, "fidelity": 4, "productFit": 4, "performanceCost": 5}, "verdict": "A hygiene pass that is solid but invisible. It adds semantics, labels, aria-describedby, tabular numbers and text wrapping. The project menu's Delete now opens a working AlertDialog, with focus on Cancel (verified). It gives no visual direction, and the accordion lost its height animation.", "bestFor": "a quick checklist clean-up of shadcn defaults", "highlights": ["Delete opens a confirm AlertDialog", "Real h2 card titles, list markup and a chat log region", "Subtitle copy corrected to '4 in progress'"], "issues": ["Focus ring left at baseline's faint grey despite the a11y pass", "Accordion now pops open with a fade instead of expanding"], "effort": "small (19 files, +156/-79), no new deps"}, "fluid": {"scores": {"visual": 3, "interaction": 4, "accessibility": 2, "fidelity": 2, "productFit": 3, "performanceCost": 2}, "verdict": "Replacing components gives smooth spring motion: gliding hover highlights, a sliding tab indicator and dot status badges. It also brings regressions. Card frames are gone, settings inputs have no border, and Delete is a grey button that no longer reads as destructive (verified). Gzipped JS is 2.6x baseline, and LCP and TBT roughly double.", "bestFor": "a fresh build that adopts Fluid's whole look", "highlights": ["Hover highlight glides between table rows, menu items and cards", "Dot-style status badges and a sliding tab pill", "Morphing thinking indicator in chat"], "issues": ["Delete button is transparent with dark text, so the destructive meaning is lost", "Settings inputs render with a 0px border and read as static text; switch labels are detached from their descriptions", "Tabs trigger and composer textarea show no visible keyboard focus"], "effort": "large (50 files, ~12k lines of library code), adds motion, @base-ui/react, Inter variable, 10 Radix packages, pdfjs-dist"}, "magicui": {"scores": {"visual": 3, "interaction": 2, "accessibility": 2, "fidelity": 2, "productFit": 2, "performanceCost": 3}, "verdict": "The agent showed restraint, but the pieces still fight a daily dashboard. KPI numbers count up from 0 on every load, lower sections stay invisible until scrolled into view, and project cards get a cursor spotlight. The extra JS is moderate, but layout CPU jumps about 9x.", "bestFor": "a sparing accent on marketing-adjacent screens", "highlights": ["Number ticker on KPI values", "Cursor-following spotlight on project cards", "Blur-fade section reveals and a shimmer 'Thinking…'"], "issues": ["Number ticker ignores prefers-reduced-motion: Outstanding reads $0 at 300 ms under reduce (verified)", "Sections below the fold stay at opacity 0 until scrolled, so full-page captures show blank space", "Layout CPU 767 ms vs 89 ms in the benchmark"], "effort": "medium (9 files, +473/-16), adds motion and next-themes"}, "libraries": {"scores": {"visual": 3, "interaction": 2, "accessibility": 3, "fidelity": 2, "productFit": 1, "performanceCost": 1}, "verdict": "Animated bot avatars, a thinking orb, a border beam, a voice glow, gooey tabs and WebGL loaders add novelty, not usability. To justify the effects, the agent doubled the assistant reply delay from 1.6 s to 3.2 s. At idle, 9 canvases keep the main thread about 55% busy. Under the throttled benchmark, TBT was 19 s and p95 frames were 800 ms.", "bestFor": "AI-product demos, not work tools", "highlights": ["Animated clover bot avatars in chat", "Border beam on the composer while waiting", "Gooey liquid tab indicator"], "issues": ["Reply delay doubled to 3.2 s to fit the effect rules", "First tab click took 17 s in unthrottled headless Chromium (no GPU)", "Bundle ~400 KB gzipped (2.8x), mostly three.js for 40 px loader tiles"], "effort": "small code change (7 files, +164/-17), adds seven effect packages and three.js"}}}, "r2": {"summary": "The rule-based skills still gave the best results for the lowest cost. Round 2 tested list motion, overlays and honest async feedback, and the behavior-focused skills did best there. kemiljk remains first: it again turned fake interactions into real ones and handled every list change with View Transitions and managed focus. Krehel's better-interface moves to second because it added list motion, restored focus everywhere a control disappears, and kept a black focus outline that survives a brand color. taste-skill is still the only variant with a distinct visual identity and carried it well into the new sections, but its focus handling is weaker. Most variants now animate list reorders, but Fluid, Magic UI and ui-craft use Motion layout animations that ignore reduced motion. The brand test showed a shared weakness: almost every variant draws focus from --ring, so a yellow brand turns focus into a 1.3:1 to 1.6:1 ring. The libraries still scored worst. A sensible stack is taste-skill for look plus kemiljk or better-interface for behavior, with emil's timing rules for motion.", "ranking": ["kemiljk", "skills", "taste", "ui-craft", "emil", "uiwiki", "ibelick", "feel-better", "magicui", "fluid", "libraries"], "groups": [{"label": "Rule skills: visual direction", "ids": ["taste", "ui-craft"], "note": "Change tokens, type and surfaces. taste rebuilds the shell. ui-craft is a lighter brand and elevation pass."}, {"label": "Rule skills: behavior and accessibility", "ids": ["kemiljk", "skills", "ibelick"], "note": "Little visible change. They fix semantics, labels, focus, honest feedback and broken interactions. Near-zero performance cost."}, {"label": "Rule skills: motion and polish", "ids": ["emil", "feel-better", "uiwiki"], "note": "Easing, press states, exit timing and hit areas. The page looks like baseline and feels better when you use it."}, {"label": "Component library", "ids": ["fluid"], "note": "Swaps most shadcn parts for its own. You get its whole look and motion model, and the regressions that come with it, plus a large bundle."}, {"label": "Effect packs", "ids": ["magicui", "libraries"], "note": "Layer animated effects on top of shadcn. They fit landing pages better than a daily work tool. Both cost the most runtime of any variant."}], "systems": {"baseline": {"scores": {"visual": 3, "interaction": 3, "accessibility": 3, "fidelity": 3, "productFit": 3, "performanceCost": 5}, "verdict": "This is stock shadcn/ui: clean and neutral, with no product identity. Focus rings are a 50% grey (about 1.5:1). Several actions are fake: Undo, Rename and Discard do nothing, and New project only shows a toast.", "bestFor": "reference point", "highlights": ["Grey translucent focus ring on every control", "Solid black 'Done' badge is the loudest status on the page"], "issues": ["New project toast says the project was added, but the card count stays at 6 (verified)", "Archive's Undo is a no-op (verified)", "Round 2: focus falls to the page body after a keyboard Remove and after Retry (verified)", "Reload has no aria-busy while the skeleton shows (verified)"], "effort": "none", "round2": "Tasks add, complete, move, sort and remove with a working Undo, but rows jump into place with no motion. Overlays are stock shadcn with stock 500 ms sheet timing. Save rolls back and Retry succeeds (verified 135, 145, 135, then 145), but focus drops to the body after Remove and Retry.", "brand": "Follows the override fully: primary buttons turn yellow with #111 text (11.5:1) and compact density shrinks buttons from 36 to 29 px, but the 3px focus ring becomes yellow at 50% alpha, about 1.3:1 on white."}, "kemiljk": {"scores": {"visual": 4, "interaction": 5, "accessibility": 5, "fidelity": 5, "productFit": 5, "performanceCost": 4}, "verdict": "This variant still made the most real improvement to the product, with almost no visual drama. Round 1 made fake interactions real. Round 2 did the same for the new sections: the filter now edits a draft that Apply commits, the side panel really renames the project, two command items go somewhere, and a false 'Applies to the project grid' line was removed. List changes run through View Transitions, focus is managed after every change, and reduced motion is respected (all verified).", "bestFor": "making an existing app honest and accessible", "highlights": ["New project, Duplicate, Archive with working Undo, using View Transitions", "Status badges by urgency: amber At risk, soft green Done, red Overdue figure", "Blue 2px focus ring; focus moves to the name field on a dialog error", "Unread count visible on the bell, a '/' search hint, and tab counts", "Round 2: every task change animates through View Transitions; none run under reduced motion (verified)", "Focus goes to the neighbouring row's checkbox after a keyboard Remove and to Raise after Retry (verified)", "Side panel edits a draft that Save commits and Cancel discards; empty name shows an inline error"], "issues": ["Visual change is modest: still recognisably shadcn", "Content copy was edited (card descriptions, subtitle), so it is not a pure UI comparison", "Project cards keep their round-1 view-transition names, so every task change also snapshots the project grid (verified); long tasks 2.1 s vs 1.2 s and p95 frame 33 ms vs 17 ms in the benchmark", "Its blue focus ring comes from --ring, so a brand color replaces it"], "effort": "large (r1: 17 files, +569/-234; r2 rewrote the three sections), no new deps", "round2": "The best round-2 behavior. Moves, sorts, adds and removes animate through View Transitions with focus kept on a sensible control, and moving while sorted now acts on the visible order. Overlays and async states were made honest: drafts commit or discard as labelled, the error names both the attempted and the current rate, and offline copy says changes are kept on the device.", "brand": "Follows the override (yellow buttons with dark text, buttons 36 to 29 px, card padding 20 to 16 px), but its round-1 blue ring is driven by --ring, so the 3px focus ring becomes yellow at 50% alpha, about 1.3:1 on white."}, "skills": {"scores": {"visual": 3, "interaction": 5, "accessibility": 5, "fidelity": 4, "productFit": 5, "performanceCost": 5}, "verdict": "The most thorough accessibility pass, and in round 2 the most careful about behavior too. It uses a strong native-style focus outline, 3:1 input borders and fixed dark-mode destructive contrast. Round 2 added a hand-written FLIP for reorders, enter and exit keyframes that collapse to a fade under reduced motion, focus restoration in every place a control disappears, and status copy that says what was rolled back (all verified). The look stays close to baseline.", "bestFor": "an accessibility and copy hardening pass", "highlights": ["High-contrast black focus outline on every control", "Darker input, checkbox and switch borders", "Nav stays reachable on phone as a scrolling row", "Neutral 'Sign out', error toasts that stay, pluralised copy", "Round 2: rows slide to their new place on sort and move (WAAPI FLIP, 150 ms); no movement under reduced motion (verified)", "Focus moves to the next row's Remove after a keyboard Remove and to Raise after Retry (verified)", "Highlighted cmdk options get a 3:1 inset ring, not only a 1.09:1 tint"], "issues": ["Billing email now validates only on submit, so the demo's inline error state is no longer visible on load"], "effort": "medium (r1: 28 files, +219/-125; r2 touched the three sections plus popover, sheet and command), no new deps", "round2": "Lists get a 150 ms FLIP on reorder plus short enter and exit animations, task meta moves to a second line so rows fit at 320 px, and moves act on the visible order. Overlays got visible focus on the command input, sheet close and highlighted options. Async states announce saving and loading, keep focus on Raise and Reload, and the error says '$145 not saved, so the rate is back to $135'.", "brand": "Holds up best of all: primary buttons go yellow with dark text, and its black browser-style focus outline does not depend on --ring, so focus stays clearly visible; buttons only shrink to 33 to 35 px under compact density."}, "taste": {"scores": {"visual": 5, "interaction": 4, "accessibility": 4, "fidelity": 4, "productFit": 5, "performanceCost": 4}, "verdict": "This is still the only variant with a real art direction: a tinted frame with a white sheet, a sidebar, IBM Plex, one teal data hue, pale status pills and a strip of KPI tiles. Round 2 carried the style into the new sections well: 48 px rule-split task rows with tinted initials, a side panel that floats as a second inset sheet, a KPI-style rate and one fixed frame for loading, error and loaded entries. It also added a working FLIP for reorders. Focus handling is weaker than in the behavior skills.", "bestFor": "giving a generic app a product identity", "highlights": ["Sidebar shell with a product mark and a framed sheet", "KPI strip with units as grey suffixes and the overdue note in red", "Underline tabs, people avatars tinted by hue, mono only for invoice IDs", "Phone: 2x2 KPI grid and a full-screen nav and search sheet", "Round 2: side panel is an inset sheet with a status and progress well", "Rows travel to their new place on sort and move (FLIP, 280 ms); no travel under reduced motion (verified)", "Time entries show a freshness stamp and keep one frame for every state"], "issues": ["Archived and Recent files cards leave large empty voids in the stretched row", "Ships about 580 KB of Plex font files (only the used subsets load)", "Focus falls to the page body after a keyboard Remove and after Retry (verified)"], "effort": "large (r1: 30 files, +436/-218; r2 restyled all three sections and the popover, sheet and command), adds @fontsource IBM Plex Sans and Mono", "round2": "The list gained a real reorder animation with a quicker exit, and the rows now match the rest of the art direction. Overlays are the most designed of any variant: an inset floating sheet, a 560 px command menu anchored near the top and status pills in the filter. Async copy is honest about rollbacks, but focus is not restored after Remove or Retry.", "brand": "Buttons follow the yellow with dark text and compact density shrinks them from 32 to 26 px, while the teal KPI and progress bars keep their own token; the 3px focus ring becomes yellow at 50% alpha, about 1.3:1 on white."}, "ui-craft": {"scores": {"visual": 4, "interaction": 4, "accessibility": 4, "fidelity": 4, "productFit": 5, "performanceCost": 3}, "verdict": "A good all-round polish pass, and round 2 added careful behavior. The side panel now keeps a draft through Escape, the filter's Apply became Done because filters apply live, saves report inline, and focus is restored after Remove and Retry (verified). To get list motion it added the Motion library, which raised gzipped JS by about a third, and its reorder animation ignores reduced motion.", "bestFor": "a balanced visual and detail polish", "highlights": ["Clay brand focus outline that follows the radius", "Amber At risk and soft red Overdue badges", "Save button swaps to a check and 'Saved' instead of a toast", "Focus moves to the field on a dialog validation error", "Round 2: rows enter, exit and slide on a no-bounce spring", "Inline 'Saving…', 'Saved' and 'Queued' line under the rate instead of toasts", "Command menu opens instantly near the top; Escape clears the query before closing"], "issues": ["The longest interaction long-task time and INP proxy of the rule skills (977 ms and 368 ms vs 568 ms and 240 ms). Possibly noise, but it was not fixed", "Reorder still slides rows 80 px under prefers-reduced-motion despite MotionConfig reducedMotion='user' (verified)", "Added motion: gzipped JS 196 KB vs 148 KB, long tasks 2.0 s vs 1.2 s and INP proxy 360 ms vs 216 ms"], "effort": "medium (r1: 26 files, +300/-98; r2 rewrote the three sections), adds Instrument Sans (~41 KB) and motion", "round2": "The list has the most complete motion set (enter, exit and spring reorder) and the best keyboard extras, such as Cmd+Backspace and focus moving to the next Remove, but the reorder ignores reduced motion. Overlays preserve drafts and the command menu opens instantly. Async states are honest and inline, with focus returned to Retry or Raise.", "brand": "Follows the override fully, but its clay focus outline is drawn from --ring, so it becomes a solid 2 px yellow outline at about 1.6:1 on white."}, "emil": {"scores": {"visual": 3, "interaction": 5, "accessibility": 3, "fidelity": 4, "productFit": 4, "performanceCost": 5}, "verdict": "The best motion craft. Strong ease-out curves, origin-aware menus, a tooltip delay with instant follow-ups and staggered loaded rows. Round 2 added a WAAPI FLIP that slides rows on sort, move, remove and undo, a command menu that opens with no animation, and focus restoration after reorders and removals (verified). Visually it is still identical to baseline.", "bestFor": "motion and feel tuning", "highlights": ["Hold-to-delete with a clip-path fill (verified with pointer and Space)", "Menus scale from their trigger with a custom ease-out curve", "Chat replies and loaded file rows enter softly", "Tooltip waits 400 ms the first time, then follow-up tooltips open instantly", "Round 2: rows slide on sort and move (250 ms) and exit as a fading clone; reduced motion keeps only the fade (verified)", "Focus returns to the next Remove after a keyboard Remove (verified)", "Command menu opens and closes instantly"], "issues": ["A quick click on Delete now does nothing, with no visible hint; only aria-description explains the hold", "Focus ring left at baseline's faint grey", "Focus falls to the page body after Retry (verified)", "Sheet slide-in kept at 500 ms"], "effort": "medium (r1: 20 files, +208/-35; r2 added a 100-line FLIP hook), no new deps", "round2": "The list motion is the most considered: interruptible FLIP moves, faster exits and no animation for keyboard-submitted tasks. Popovers grow from their trigger and the command menu is instant. Async states fade in and the error explains the rollback, but Retry leaves focus on the body.", "brand": "Follows the override fully with dark text on yellow buttons, and the 3px focus ring becomes yellow at 50% alpha, about 1.3:1 on white since emil never strengthened the ring."}, "uiwiki": {"scores": {"visual": 3, "interaction": 4, "accessibility": 3, "fidelity": 4, "productFit": 4, "performanceCost": 4}, "verdict": "This variant applies rules on timing and touch targets, plus opt-in synthesized UI sounds. Round 2 drives every list change through native View Transitions (verified) with a quicker ease-in exit, opens the command menu instantly and adds sounds to save results. It looks almost the same as baseline, and focus is not restored when controls disappear.", "bestFor": "timing rules and optional sound feedback", "highlights": ["'Interface sounds' switch, off by default (verified)", "Dropdown menus with no entrance animation and an ease-in exit", "Six-layer button shadow on primary and destructive", "Save button width animates between labels", "Round 2: View Transitions for add, remove, move and sort; skipped under reduced motion (verified)", "Sheet cut to 250 ms in and 200 ms out"], "issues": ["Focus ring left at baseline's faint grey", "Focus falls to the page body after a keyboard Remove and after Retry (verified)", "Long tasks 2.6 s vs 1.2 s and style recalculation 3.5 s vs 2.0 s in the round-2 benchmark"], "effort": "medium (r1: 25 files, +255/-53; r2 added a view-transition helper), no new deps", "round2": "List reorder, entry and exit run through View Transitions with names cleaned up afterwards, which is a cheap way to get real list motion. Overlays got correct ease-in exits and an instant command menu. Async states fade in and play optional sounds, but there is no aria-busy on reload and focus drops after Remove and Retry.", "brand": "Follows the override fully with dark text on yellow buttons; the 3px focus ring becomes yellow at 50% alpha, about 1.3:1 on white."}, "ibelick": {"scores": {"visual": 3, "interaction": 3, "accessibility": 4, "fidelity": 4, "productFit": 4, "performanceCost": 5}, "verdict": "A hygiene pass that is solid but invisible. Round 2 continued it: per-row button names, a live region for list changes, focus kept on a sensible control after Move and Remove (verified), fieldsets in the filter and aria-busy on reload. It added no list motion on purpose, and Retry still drops focus.", "bestFor": "a quick checklist clean-up of shadcn defaults", "highlights": ["Delete opens a confirm AlertDialog", "Real h2 card titles, list markup and a chat log region", "Subtitle copy corrected to '4 in progress'", "Round 2: focus moves to the next row's Remove after a keyboard Remove (verified)", "Sr-only status announces added, removed, restored and moved tasks"], "issues": ["Focus ring left at baseline's faint grey despite the a11y pass", "Accordion now pops open with a fade instead of expanding", "No motion at all in the task list, so rows jump on sort and move (verified)", "Focus falls to the page body after Retry (verified)"], "effort": "small (r1: 19 files, +156/-79; r2 mostly attributes and classes), no new deps", "round2": "The list has no motion by design, but its keyboard and screen-reader behavior is good. Overlays got labels, fieldsets and reduced-motion opt-outs. Async states set aria-busy and link the error to the button, but focus is not returned after Retry.", "brand": "Follows the override fully with dark text on yellow buttons; the 3px focus ring becomes yellow at 50% alpha, about 1.3:1 on white."}, "feel-better": {"scores": {"visual": 3, "interaction": 4, "accessibility": 3, "fidelity": 4, "productFit": 4, "performanceCost": 4}, "verdict": "Many small details: press scale, a Like icon cross-fade, an interruptible grid-rows accordion, blur-rise dialogs, concentric radii and expanded hit areas. Round 2 added blur-rise entries and quick exits for task rows and an interruptible offline banner, but left reorders instant on purpose and did nothing for focus. On screen it is still very hard to tell apart from baseline.", "bestFor": "micro-interaction polish", "highlights": ["Heart outline to filled cross-fade with blur", "Dialog rises and un-blurs over 300 ms, then exits faster", "Shadow-as-border cards and outline buttons", "Round 2: added rows rise and un-blur, removed rows fade out in 150 ms (verified)", "Offline banner collapses with an interruptible grid-rows transition"], "issues": ["Header stagger and blur effects add some cost (long tasks 950 ms vs 568 ms)", "Focus ring left at baseline's faint grey", "No reorder motion, so rows jump on sort and move (verified, deliberate)", "Focus falls to the page body after a keyboard Remove and after Retry (verified)"], "effort": "medium (r1: 22 files, +119/-55; r2 mostly classes and one keyframe), no new deps", "round2": "Rows enter and leave nicely but jump on sort and move, which is the main thing the list tests. Overlays got concentric radii, ring borders and shorter sheet timing. Async states are unchanged apart from a staggered reload; copy and focus handling stay at baseline.", "brand": "Follows the override fully with dark text on yellow buttons; the 3px focus ring becomes yellow at 50% alpha, about 1.3:1 on white."}, "magicui": {"scores": {"visual": 3, "interaction": 2, "accessibility": 3, "fidelity": 3, "productFit": 2, "performanceCost": 2}, "verdict": "The agent showed restraint and fixed both round-1 bugs: the number ticker now respects reduced motion and lower sections no longer stay invisible (both verified). Round 2 added a spring list with layout reorder, a shine border on the command menu and a ticking rate. But the list reorder ignores reduced motion, and the page now runs a requestAnimationFrame loop every frame at idle.", "bestFor": "a sparing accent on marketing-adjacent screens", "highlights": ["Number ticker on KPI values", "Cursor-following spotlight on project cards", "Blur-fade section reveals and a shimmer 'Thinking…'", "Round 2: rows spring in, scale out and slide neighbours on reorder", "Rate ticks back to $135 after a failed save, so the rollback is visible"], "issues": ["Number ticker counts KPIs up from 0 on every load (reduced motion now skips it, verified)", "Layout CPU 1,404 ms vs 198 ms in the round-2 benchmark", "Reorder still slides rows 100 px under prefers-reduced-motion (verified)", "A requestAnimationFrame loop runs 60 times per second at idle (verified), about 14% main thread", "Task list became role='list' divs to fit the motion wrapper"], "effort": "medium (r1: 9 files, +473/-16; r2 installed animated-list and shine-border), adds motion and next-themes", "round2": "The list has real enter, exit and reorder motion from AnimatedListItem, but the reorder runs under reduced motion too. Overlays are stock shadcn apart from a shine border on the command menu. Async states use the ticker to show the optimistic raise and the rollback, which is a fair use, though the rate passes through in-between values like $138 for about a second.", "brand": "Follows the override fully with dark text on yellow buttons; the 3px focus ring becomes yellow at 50% alpha, about 1.3:1 on white."}, "fluid": {"scores": {"visual": 3, "interaction": 4, "accessibility": 2, "fidelity": 2, "productFit": 3, "performanceCost": 2}, "verdict": "Replacing components gives smooth spring motion: gliding hover highlights, a sliding tab indicator, dot status badges, and in round 2 a real command menu, combobox and status banners. It also brings regressions. Card frames and input borders are gone, Delete no longer reads as destructive, task titles have their descenders clipped, and the reorder animation ignores reduced motion (verified). Gzipped JS is 2.6x baseline, and LCP and TBT roughly double.", "bestFor": "a fresh build that adopts Fluid's whole look", "highlights": ["Hover highlight glides between table rows, menu items and cards", "Dot-style status badges and a sliding tab pill", "Morphing thinking indicator in chat", "Round 2: Fluid CommandMenu with groups and platform shortcut caps", "Banner for offline and error states with a Retry action", "Loading button that holds its width while saving"], "issues": ["Delete button is transparent with dark text, so the destructive meaning is lost", "Settings inputs render with a 0px border and read as static text; switch labels are detached from their descriptions", "Tabs trigger and composer textarea show no visible keyboard focus", "Task titles are clipped: the title span is 9 px tall with overflow hidden around 20 px of text, so g and p lose their descenders (verified)", "Reorder slides rows 72 px under prefers-reduced-motion although the notes say it drops the slide (verified)", "Primary buttons ignore --primary and stay black under a brand color (verified)", "Focus falls to the page body after a keyboard Remove (verified)"], "effort": "large (r1: 50 files, ~12k lines of library code; r2 installed command-menu, combobox and banner), adds motion, @base-ui/react, Inter variable, 11 Radix packages, pdfjs-dist", "round2": "The list has layout reorder and enter and exit motion, but titles are clipped and the motion ignores reduced motion. Overlays are its strongest part: a proper command menu and combobox, though sheet inputs are again borderless. Async states use banners with Retry and a width-stable loading button, which reads clearly.", "brand": "Follows only partly: progress bars, toggles and the 1 px focus ring turn yellow, but primary buttons keep Fluid's black, and the 1 px yellow ring is about 1.6:1 on white, so focus is nearly invisible."}, "libraries": {"scores": {"visual": 3, "interaction": 2, "accessibility": 3, "fidelity": 2, "productFit": 1, "performanceCost": 1}, "verdict": "Animated bot avatars, a thinking orb, a border beam, a voice glow, gooey tabs and WebGL loaders add novelty, not usability. Round 2 correctly found no fit for any effect and added only aria-busy, so the new sections behave like baseline. The round-1 cost remains: idle main thread about 68% busy, TBT 19 s and p95 frames 67 ms under the throttled benchmark.", "bestFor": "AI-product demos, not work tools", "highlights": ["Animated clover bot avatars in chat", "Border beam on the composer while waiting", "Gooey liquid tab indicator", "Round 2: declined to force effects onto the new sections, with reasons per package"], "issues": ["Reply delay doubled to 3.2 s to fit the effect rules", "First tab click took 17 s in unthrottled headless Chromium (no GPU)", "Bundle ~400 KB gzipped (2.8x), mostly three.js for 40 px loader tiles", "New sections have baseline behavior: no list motion, focus to body after Remove and Retry (verified)"], "effort": "small code change (r1: 7 files, +164/-17; r2 one attribute), adds seven effect packages and three.js", "round2": "The list, overlays and async states are stock baseline apart from aria-busy on reload, because no effect matched the skill's rules. That restraint is correct, but it leaves the variant with all of round 1's runtime cost and none of the round-2 gains.", "brand": "Follows the override fully with dark text on yellow buttons; the 3px focus ring becomes yellow at 50% alpha, about 1.3:1 on white."}}, "changes": "Round 2 rewarded behavior over looks: better-interface moved from third to second because it verified best on reorder motion, focus restoration and the brand test, and taste dropped to third because focus falls to the page body after Remove and Retry. userinterface.wiki and ibelick each rose one place for View Transition reorders and focus handling, while feel-better fell two because rows still jump on sort and focus is not managed. Magic UI moved above Fluid after fixing both round-1 bugs, while Fluid gained clipped task titles, a reduced-motion leak and primary buttons that ignore the brand color. ui-craft kept fourth but paid for Motion with a third more JS and its own reduced-motion leak."}};
+function buildHistory() {
+  const el = document.getElementById("history-inner");
+  if (el.dataset.built) return; el.dataset.built = "1";
+  const rounds = [["Round 1: original page", HISTORY.r1], ["Round 2: task list, overlays, sync", HISTORY.r2]];
+  let h = '<section><h1>History</h1><p class="sub">Private notes. Earlier reviews by a single informed reviewer, kept for reference. The public Report shows only the final blind-panel results. For the real-device benchmark, open this page with #bench.</p></section>';
+  rounds.forEach(([title, r]) => {
+    h += '<section class="panel" style="padding:18px 20px;display:grid;gap:10px"><h2>' + esc(title) + '</h2><p>' + esc(r.summary) + '</p>' + (r.changes ? '<p class="sub">' + esc(r.changes) + '</p>' : '') +
+      '<p class="sub">Ranking: ' + r.ranking.map((id, i) => (i + 1) + '. ' + esc(nameOf(id))).join(', ') + '</p>' +
+      r.ranking.map((id) => { const x = r.systems[id]; return '<details><summary><strong>' + esc(nameOf(id)) + '</strong></summary><div style="display:grid;gap:6px;padding:8px 0 4px 16px"><p>' + esc(x.verdict) + '</p>' + (x.round2 ? '<p><span class="lbl2">Round 2</span> ' + esc(x.round2) + '</p>' : '') + (x.brand ? '<p><span class="lbl2">Brand test</span> ' + esc(x.brand) + '</p>' : '') + (x.issues && x.issues.length ? '<ul>' + x.issues.map((i) => '<li>' + esc(i) + '</li>').join('') + '</ul>' : '') + '</div></details>'; }).join('') + '</section>';
+  });
+  el.innerHTML = h;
+}
+
+function openCompare(id) {
+  state.mode = id === "baseline" ? "single" : "split";
+  state.panes = id === "baseline" ? ["baseline", state.panes[1]] : ["baseline", id];
+  showPage("compare");
+}
+
+function showPage(pg) {
+  state.page = pg;
+  const isReport = pg === "report", isHist = pg === "history";
+  reportEl.hidden = !isReport;
+  document.getElementById("history").hidden = !isHist;
+  stage.hidden = isReport || isHist;
+  document.querySelectorAll(".compare-only").forEach((el) => { el.hidden = isReport || isHist; });
+  document.querySelectorAll("#page button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.v === pg)));
+  if (isReport) { buildReport(); if (location.hash !== "#report") history.replaceState(null, "", "#report"); }
+  else if (isHist) { buildHistory(); if (location.hash !== "#history") history.replaceState(null, "", "#history"); }
+  else { if (location.hash) history.replaceState(null, "", location.pathname + location.search); render(); }
+  save();
+}
+window.addEventListener("hashchange", () => showPage(location.hash === "#report" ? "report" : location.hash === "#history" ? "history" : "compare"));
+
+// ---------- Brand stress test + synced actions ----------
+if (!state.brand) state.brand = { primary: "", font: "", density: "" };
+const statusEl = document.getElementById("status");
+function sendBrand() { frames().forEach((f) => post(f, { type: "lab:brand", brand: state.brand })); syncBrandUI(); save(); }
+function syncBrandUI() {
+  document.querySelectorAll("#swatches .sw").forEach((b) => b.setAttribute("aria-pressed", String((b.dataset.c || "") === (state.brand.primary || "") )));
+  document.getElementById("font").value = state.brand.font || "";
+  document.querySelectorAll("#density button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.v === (state.brand.density || ""))));
+}
+document.getElementById("swatches").addEventListener("click", (e) => {
+  const b = e.target.closest(".sw"); if (!b) return;
+  state.brand.primary = b.dataset.c || ""; sendBrand();
+});
+document.getElementById("primary-custom").addEventListener("input", (e) => { state.brand.primary = e.target.value; sendBrand(); });
+document.getElementById("font").addEventListener("change", (e) => { state.brand.font = e.target.value; sendBrand(); });
+document.getElementById("density").addEventListener("click", (e) => {
+  const b = e.target.closest("button"); if (!b) return;
+  state.brand.density = b.dataset.v; sendBrand();
+});
+
+const pending = {};
+function play(name) {
+  const fs = frames();
+  pending[name] = { want: fs.length, got: [] };
+  fs.forEach((f) => post(f, { type: "lab:action", name }));
+  statusEl.textContent = "";
+}
+window.addEventListener("message", (e) => {
+  const d = e.data || {};
+  if (d.type !== "lab:action-result" || !pending[d.name]) return;
+  const i = frames().findIndex((f) => f.contentWindow === e.source);
+  pending[d.name].got.push({ i, ok: d.ok });
+  const p = pending[d.name];
+  if (p.got.length === p.want) {
+    const missing = p.got.filter((g) => !g.ok).map((g) => byId(state.panes[g.i]).name);
+    statusEl.textContent = missing.length ? "Not found in " + missing.join(" and ") : "";
+    delete pending[d.name];
+  }
+});
+document.getElementById("play").addEventListener("click", () => play(document.getElementById("action").value));
+document.getElementById("close-all").addEventListener("click", () => play("close"));
+let touring = false;
+document.getElementById("tour").addEventListener("click", async (ev) => {
+  const btn = ev.currentTarget;
+  if (touring) { touring = false; return; }
+  touring = true; btn.textContent = "Stop";
+  const steps = ["dialog", "close", "menu", "close", "sheet", "close", "command", "close", "task-add", "task-complete", "task-sort", "task-remove", "save-fail", "toast", "reload", "ledger-sort", "ledger-empty", "ledger-clear", "wizard-invalid", "wizard-fill", "wizard-next", "wizard-next", "wizard-cancel", "close"];
+  const pause = (ms) => new Promise((r) => setTimeout(r, ms / Math.max(state.rate, 0.2) ** 0.5));
+  for (const s of steps) {
+    if (!touring) break;
+    statusEl.textContent = "Tour: " + (document.querySelector('#action option[value="' + s + '"]')?.textContent || "close overlays");
+    play(s);
+    await pause(s === "close" ? 700 : 1500);
+  }
+  touring = false; btn.textContent = "Tour"; statusEl.textContent = "";
+});
+syncBrandUI();
+
+if (!window.__BENCH) showPage(location.hash === "#report" ? "report" : location.hash === "#history" ? "history" : (state.page || "compare"));
+</script>
+
+<script>
+// Real-device benchmark, run inside the artifact frame so variants are same-origin.
+// Open the page with #bench. Results render as a table and as JSON.
+(function () {
+  if (!window.__BENCH) return;
+  const IDS = ["baseline","fluid","skills","feel-better","libraries","ui-craft","taste","uiwiki","ibelick","emil","kemiljk","magicui"];
+  const ACTIONS = ["dialog","close","menu","close","tab","toast","task-add","task-complete","task-sort","task-remove","sheet","close","command","close","combobox","close","save-fail","offline","offline","reload","ledger-sort","ledger-next","ledger-filter","ledger-empty","ledger-clear","wizard-invalid","wizard-fill","wizard-next","wizard-next","wizard-cancel","close"];
+  const PASSES = 2;
+  const T0 = performance.now(); const phase = (t) => { const el = document.getElementById("bstat"); if (el) el.textContent = t + " @ " + Math.round((performance.now() - T0) / 1000) + "s"; };
+  const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+  document.body.innerHTML = '<div style="font:13px system-ui;padding:16px;display:grid;gap:12px"><div style="display:flex;gap:8px;align-items:center;position:sticky;top:0;background:#fff;padding:6px 0;z-index:9"><button id="brun" style="font:inherit;padding:6px 12px">Run benchmark (about 10 minutes)</button><button id="bcopy" hidden style="font:inherit;padding:6px 12px">Copy results</button><b id="bstat">Keep this window in front while it runs. Background tabs are throttled and give wrong numbers.</b></div><div id="bwrap" style="width:1280px;height:900px;border:1px solid #ccc;overflow:hidden"></div><pre id="bout" style="white-space:pre-wrap;font:12px ui-monospace,monospace"></pre></div>';
+  const stat = document.getElementById("bstat"), wrap = document.getElementById("bwrap"), out = document.getElementById("bout");
+  const med = (a) => { const s = [...a].sort((x, y) => x - y); return s.length ? s[Math.floor((s.length - 1) / 2)] : null; };
+  const pct = (a, p) => { const s = [...a].sort((x, y) => x - y); return s.length ? s[Math.min(s.length - 1, Math.floor(s.length * p))] : null; };
+
+  async function runOne(id) {
+    wrap.innerHTML = "";
+    const f = document.createElement("iframe");
+    f.style.cssText = "width:1280px;height:900px;border:0";
+    const t0 = performance.now();
+    const loaded = new Promise((r) => f.addEventListener("load", r, { once: true }));
+    f.src = "variants/" + id + "/index.html";
+    wrap.appendChild(f);
+    phase(id + " loading"); await loaded;
+    phase(id + " loaded");
+    const w = f.contentWindow;
+    const lab = { lcp: 0, cls: 0, long: [] };
+    try {
+      new w.PerformanceObserver((l) => l.getEntries().forEach((e) => (lab.lcp = e.startTime))).observe({ type: "largest-contentful-paint", buffered: true });
+      new w.PerformanceObserver((l) => l.getEntries().forEach((e) => { if (!e.hadRecentInput) lab.cls += e.value; })).observe({ type: "layout-shift", buffered: true });
+      new w.PerformanceObserver((l) => l.getEntries().forEach((e) => lab.long.push([e.startTime, e.duration]))).observe({ type: "longtask", buffered: true });
+    } catch (e) {}
+    await wait(2500);
+    const nav = w.performance.getEntriesByType("navigation")[0] || {};
+    const tbt = lab.long.reduce((a, [, d]) => a + Math.max(0, d - 50), 0);
+    phase(id + " idle");
+    // Idle: 4 s with nothing happening. Count parent frames and child long tasks.
+    lab.long = [];
+    let frames = [], last = performance.now(), stop = false;
+    const tick = (t) => { frames.push(t - last); last = t; if (!stop) requestAnimationFrame(tick); };
+    requestAnimationFrame(tick);
+    const idleStart = performance.now();
+    // Busy probe: how much of each 100 ms slice a setTimeout chain is delayed.
+    let lag = 0, probes = 0;
+    while (performance.now() - idleStart < 4000) { const s = performance.now(); await wait(20); lag += Math.max(0, performance.now() - s - 20); probes++; }
+    stop = true;
+    const idleLong = lab.long.reduce((a, [, d]) => a + d, 0);
+    const idleLagPct = (lag / 4000) * 100;
+    const idleAnims = w.document.getAnimations ? w.document.getAnimations().filter((a) => a.playState === "running").length : 0;
+    // Interactions: measure action → next painted frame, and frame times throughout.
+    lab.long = []; frames = []; last = performance.now(); stop = false;
+    requestAnimationFrame(tick);
+    const lat = [];
+    phase(id + " actions");
+    for (const a of ACTIONS) {
+      const s = performance.now();
+      w.postMessage({ type: "lab:action", name: a }, "*");
+      await Promise.race([new Promise((r) => w.requestAnimationFrame(() => w.requestAnimationFrame(r))), wait(1000)]);
+      lat.push(performance.now() - s);
+      await wait(a === "close" ? 300 : 500);
+    }
+    stop = true;
+    const fr = frames.slice(1);
+    return {
+      id, load: Math.round(performance.now() - t0 - 2500), dcl: Math.round(nav.domContentLoadedEventEnd || 0), lcp: Math.round(lab.lcp), cls: +lab.cls.toFixed(3), tbt: Math.round(tbt),
+      idleLongMs: Math.round(idleLong), idleLagPct: +idleLagPct.toFixed(1), idleAnims,
+      actP50: Math.round(med(lat)), actP95: Math.round(pct(lat, 0.95)), actMax: Math.round(Math.max(...lat)),
+      frameP95: +pct(fr, 0.95).toFixed(1), dropped: +((fr.filter((x) => x > 20).length / fr.length) * 100).toFixed(1),
+      longMs: Math.round(lab.long.reduce((a, [, d]) => a + d, 0)),
+    };
+  }
+
+  async function runAll() {
+    const all = {};
+    let throttled = 0;
+    for (let p = 0; p < PASSES; p++) {
+      for (const id of IDS) {
+        phase("Pass " + (p + 1) + "/" + PASSES + ": " + id + " (keep this window in front)");
+        const s = performance.now(); await wait(100); if (performance.now() - s > 400) throttled++;
+        try { (all[id] ||= []).push(await runOne(id)); } catch (e) { (all[id] ||= []).push({ id, error: String(e) }); }
+      }
+    }
+    const keys = ["load","dcl","lcp","cls","tbt","idleLongMs","idleLagPct","idleAnims","actP50","actP95","actMax","frameP95","dropped","longMs"];
+    const res = IDS.map((id) => { const r = { id }; keys.forEach((k) => (r[k] = med(all[id].map((x) => x[k]).filter((v) => v != null)))); return r; });
+    const bad = throttled > 0 || res.some((r) => r.idleLagPct > 50 || r.actMax > 5000);
+    wrap.innerHTML = "";
+    const env = { cores: navigator.hardwareConcurrency, mem: navigator.deviceMemory || null, ua: navigator.userAgent, gpu: (() => { try { const c = document.createElement("canvas").getContext("webgl"); const d = c.getExtension("WEBGL_debug_renderer_info"); return c.getParameter(d.UNMASKED_RENDERER_WEBGL); } catch (e) { return null; } })(), throttled: bad };
+    const payload = JSON.stringify({ env, results: res });
+    document.getElementById("bstat").textContent = bad ? "Finished, but the page was throttled (window in the background). Run again with this window in front." : "Finished. Click Copy results and paste them into the chat.";
+    out.textContent = "id | " + keys.join(" | ") + "\n" + res.map((r) => [r.id, ...keys.map((k) => r[k])].join(" | ")).join("\n") + "\n\n" + payload;
+    const btn = document.getElementById("bcopy"); btn.hidden = false;
+    btn.onclick = async () => { try { await navigator.clipboard.writeText(payload); btn.textContent = "Copied"; } catch (e) { const r = document.createRange(); r.selectNodeContents(out); getSelection().removeAllRanges(); getSelection().addRange(r); btn.textContent = "Select-all done, press ⌘C"; } };
+    document.title = "BENCH DONE";
+  }
+  document.getElementById("brun").onclick = (e) => { e.target.disabled = true; runAll(); };
+})();
+</script>

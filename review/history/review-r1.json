@@ -1,0 +1,109 @@
+{
+  "summary": "The rule-based skills gave the best results for the lowest cost. They change the app's code without adding a runtime, so all eight stayed within noise of baseline performance. The real differences between them come from what each rulebook covers. taste-skill is the only one that gives the page a new visual identity. kemiljk and Krehel's better-interface fixed real behavior and accessibility problems: dead buttons, an Undo that did nothing, weak focus rings, and errors that did not take focus. The motion skills (emil, feel-better, userinterface.wiki) make the page feel more tactile but look almost the same as baseline. The libraries scored worst. Fluid replaced most components and lost destructive styling, input borders and card structure, at about 2.6x the JS. Magic UI and libraries.dev added marketing-style effects that hide content, ignore reduced motion or keep the main thread busy. A sensible stack is taste-skill for look plus kemiljk or better-interface for behavior, with emil's timing rules for motion.",
+  "ranking": ["kemiljk", "taste", "skills", "ui-craft", "emil", "feel-better", "uiwiki", "ibelick", "fluid", "magicui", "libraries"],
+  "groups": [
+    {"label": "Rule skills: visual direction", "ids": ["taste", "ui-craft"], "note": "Change tokens, type and surfaces. taste rebuilds the shell. ui-craft is a lighter brand and elevation pass."},
+    {"label": "Rule skills: behavior and accessibility", "ids": ["kemiljk", "skills", "ibelick"], "note": "Little visible change. They fix semantics, labels, focus, honest feedback and broken interactions. Near-zero performance cost."},
+    {"label": "Rule skills: motion and polish", "ids": ["emil", "feel-better", "uiwiki"], "note": "Easing, press states, exit timing and hit areas. The page looks like baseline and feels better when you use it."},
+    {"label": "Component library", "ids": ["fluid"], "note": "Swaps most shadcn parts for its own. You get its whole look and motion model, and the regressions that come with it, plus a large bundle."},
+    {"label": "Effect packs", "ids": ["magicui", "libraries"], "note": "Layer animated effects on top of shadcn. They fit landing pages better than a daily work tool. Both cost the most runtime of any variant."}
+  ],
+  "systems": {
+    "baseline": {
+      "scores": {"visual": 3, "interaction": 3, "accessibility": 3, "fidelity": 3, "productFit": 3, "performanceCost": 5},
+      "verdict": "This is stock shadcn/ui: clean and neutral, with no product identity. Focus rings are a 50% grey (about 1.5:1). Several actions are fake: Undo, Rename and Discard do nothing, and New project only shows a toast.",
+      "bestFor": "reference point",
+      "highlights": ["Grey translucent focus ring on every control", "Solid black 'Done' badge is the loudest status on the page"],
+      "issues": ["New project toast says the project was added, but the card count stays at 6 (verified)", "Archive's Undo is a no-op (verified)"],
+      "effort": "none"
+    },
+    "kemiljk": {
+      "scores": {"visual": 4, "interaction": 5, "accessibility": 5, "fidelity": 5, "productFit": 5, "performanceCost": 5},
+      "verdict": "This variant made the most real improvement to the product, with almost no visual drama. It made fake interactions real: New project adds a card, and Archive removes one and Undo restores it (verified 6 to 5 to 6). It also remapped status colors so only overdue is loud and added a clear blue focus ring.",
+      "bestFor": "making an existing app honest and accessible",
+      "highlights": ["New project, Duplicate, Archive with working Undo, using View Transitions", "Status badges by urgency: amber At risk, soft green Done, red Overdue figure", "Blue 2px focus ring; focus moves to the name field on a dialog error", "Unread count visible on the bell, a '/' search hint, and tab counts"],
+      "issues": ["Visual change is modest: still recognisably shadcn", "Content copy was edited (card descriptions, subtitle), so it is not a pure UI comparison"],
+      "effort": "large (17 files, +569/-234), no new deps"
+    },
+    "taste": {
+      "scores": {"visual": 5, "interaction": 3, "accessibility": 4, "fidelity": 4, "productFit": 5, "performanceCost": 4},
+      "verdict": "This is the only variant with a real art direction: a tinted frame with a white sheet, a sidebar, IBM Plex, one teal data hue, pale status pills, a strip of KPI tiles and a two-column settings layout. Dark mode is equally coherent. The phone layout folds the nav into a working sheet. Motion was barely touched.",
+      "bestFor": "giving a generic app a product identity",
+      "highlights": ["Sidebar shell with a product mark and a framed sheet", "KPI strip with units as grey suffixes and the overdue note in red", "Underline tabs, people avatars tinted by hue, mono only for invoice IDs", "Phone: 2x2 KPI grid and a full-screen nav and search sheet"],
+      "issues": ["Archived and Recent files cards leave large empty voids in the stretched row", "Ships about 580 KB of Plex font files (only the used subsets load)"],
+      "effort": "large (30 files, +436/-218), adds @fontsource IBM Plex Sans and Mono"
+    },
+    "skills": {
+      "scores": {"visual": 3, "interaction": 4, "accessibility": 5, "fidelity": 4, "productFit": 5, "performanceCost": 5},
+      "verdict": "This was the most thorough accessibility pass. It uses a strong native-style focus outline, 3:1 input borders and fixed dark-mode destructive contrast. It adds a skip link, labels, live regions, and focus on the field after a failed submit (verified). The look is close to baseline, with slightly firmer borders and shadow-ring cards.",
+      "bestFor": "an accessibility and copy hardening pass",
+      "highlights": ["High-contrast black focus outline on every control", "Darker input, checkbox and switch borders", "Nav stays reachable on phone as a scrolling row", "Neutral 'Sign out', error toasts that stay, pluralised copy"],
+      "issues": ["Billing email now validates only on submit, so the demo's inline error state is no longer visible on load"],
+      "effort": "medium (28 files, +219/-125), no new deps"
+    },
+    "ui-craft": {
+      "scores": {"visual": 4, "interaction": 4, "accessibility": 4, "fidelity": 4, "productFit": 5, "performanceCost": 4},
+      "verdict": "A good all-round polish pass. Instrument Sans, a layered elevation scale and semantic status badges give it a slightly warmer, more finished look. Press feedback, faster exits and inline Saved feedback improve the feel. Its clay-colored 2px focus outline is clear (verified).",
+      "bestFor": "a balanced visual and detail polish",
+      "highlights": ["Clay brand focus outline that follows the radius", "Amber At risk and soft red Overdue badges", "Save button swaps to a check and 'Saved' instead of a toast", "Focus moves to the field on a dialog validation error"],
+      "issues": ["The longest interaction long-task time and INP proxy of the rule skills (977 ms and 368 ms vs 568 ms and 240 ms). Possibly noise, but it was not fixed"],
+      "effort": "medium (26 files, +300/-98), adds Instrument Sans variable font (~41 KB)"
+    },
+    "emil": {
+      "scores": {"visual": 3, "interaction": 5, "accessibility": 3, "fidelity": 4, "productFit": 4, "performanceCost": 5},
+      "verdict": "The best motion craft. Strong ease-out curves, origin-aware menus at 200 ms in and 150 ms out, a tooltip delay with instant follow-ups, and staggered loaded rows. It also deliberately leaves high-frequency surfaces alone. Visually it is identical to baseline.",
+      "bestFor": "motion and feel tuning",
+      "highlights": ["Hold-to-delete with a clip-path fill (verified with pointer and Space)", "Menus scale from their trigger with a custom ease-out curve", "Chat replies and loaded file rows enter softly", "Tooltip waits 400 ms the first time, then follow-up tooltips open instantly"],
+      "issues": ["A quick click on Delete now does nothing, with no visible hint; only aria-description explains the hold", "Focus ring left at baseline's faint grey"],
+      "effort": "medium (20 files, +208/-35), no new deps"
+    },
+    "feel-better": {
+      "scores": {"visual": 3, "interaction": 4, "accessibility": 3, "fidelity": 4, "productFit": 4, "performanceCost": 4},
+      "verdict": "Many small details: press scale, a Like icon cross-fade, an interruptible grid-rows accordion, blur-rise dialogs, concentric radii and expanded hit areas. The result feels softer, but on screen it is very hard to tell apart from baseline.",
+      "bestFor": "micro-interaction polish",
+      "highlights": ["Heart outline to filled cross-fade with blur", "Dialog rises and un-blurs over 300 ms, then exits faster", "Shadow-as-border cards and outline buttons"],
+      "issues": ["Header stagger and blur effects add some cost (long tasks 950 ms vs 568 ms)", "Focus ring left at baseline's faint grey"],
+      "effort": "medium (22 files, +119/-55), no new deps"
+    },
+    "uiwiki": {
+      "scores": {"visual": 3, "interaction": 4, "accessibility": 3, "fidelity": 4, "productFit": 4, "performanceCost": 5},
+      "verdict": "This variant applies rules on timing and touch targets, plus opt-in synthesized UI sounds. Menus now open instantly, which was verified, though some will see that as a regression. Buttons gain a layered shadow. It looks almost the same as baseline.",
+      "bestFor": "timing rules and optional sound feedback",
+      "highlights": ["'Interface sounds' switch, off by default (verified)", "Dropdown menus with no entrance animation and an ease-in exit", "Six-layer button shadow on primary and destructive", "Save button width animates between labels"],
+      "issues": ["Focus ring left at baseline's faint grey"],
+      "effort": "medium (25 files, +255/-53), no new deps"
+    },
+    "ibelick": {
+      "scores": {"visual": 3, "interaction": 3, "accessibility": 4, "fidelity": 4, "productFit": 4, "performanceCost": 5},
+      "verdict": "A hygiene pass that is solid but invisible. It adds semantics, labels, aria-describedby, tabular numbers and text wrapping. The project menu's Delete now opens a working AlertDialog, with focus on Cancel (verified). It gives no visual direction, and the accordion lost its height animation.",
+      "bestFor": "a quick checklist clean-up of shadcn defaults",
+      "highlights": ["Delete opens a confirm AlertDialog", "Real h2 card titles, list markup and a chat log region", "Subtitle copy corrected to '4 in progress'"],
+      "issues": ["Focus ring left at baseline's faint grey despite the a11y pass", "Accordion now pops open with a fade instead of expanding"],
+      "effort": "small (19 files, +156/-79), no new deps"
+    },
+    "fluid": {
+      "scores": {"visual": 3, "interaction": 4, "accessibility": 2, "fidelity": 2, "productFit": 3, "performanceCost": 2},
+      "verdict": "Replacing components gives smooth spring motion: gliding hover highlights, a sliding tab indicator and dot status badges. It also brings regressions. Card frames are gone, settings inputs have no border, and Delete is a grey button that no longer reads as destructive (verified). Gzipped JS is 2.6x baseline, and LCP and TBT roughly double.",
+      "bestFor": "a fresh build that adopts Fluid's whole look",
+      "highlights": ["Hover highlight glides between table rows, menu items and cards", "Dot-style status badges and a sliding tab pill", "Morphing thinking indicator in chat"],
+      "issues": ["Delete button is transparent with dark text, so the destructive meaning is lost", "Settings inputs render with a 0px border and read as static text; switch labels are detached from their descriptions", "Tabs trigger and composer textarea show no visible keyboard focus"],
+      "effort": "large (50 files, ~12k lines of library code), adds motion, @base-ui/react, Inter variable, 10 Radix packages, pdfjs-dist"
+    },
+    "magicui": {
+      "scores": {"visual": 3, "interaction": 2, "accessibility": 2, "fidelity": 2, "productFit": 2, "performanceCost": 3},
+      "verdict": "The agent showed restraint, but the pieces still fight a daily dashboard. KPI numbers count up from 0 on every load, lower sections stay invisible until scrolled into view, and project cards get a cursor spotlight. The extra JS is moderate, but layout CPU jumps about 9x.",
+      "bestFor": "a sparing accent on marketing-adjacent screens",
+      "highlights": ["Number ticker on KPI values", "Cursor-following spotlight on project cards", "Blur-fade section reveals and a shimmer 'Thinking…'"],
+      "issues": ["Number ticker ignores prefers-reduced-motion: Outstanding reads $0 at 300 ms under reduce (verified)", "Sections below the fold stay at opacity 0 until scrolled, so full-page captures show blank space", "Layout CPU 767 ms vs 89 ms in the benchmark"],
+      "effort": "medium (9 files, +473/-16), adds motion and next-themes"
+    },
+    "libraries": {
+      "scores": {"visual": 3, "interaction": 2, "accessibility": 3, "fidelity": 2, "productFit": 1, "performanceCost": 1},
+      "verdict": "Animated bot avatars, a thinking orb, a border beam, a voice glow, gooey tabs and WebGL loaders add novelty, not usability. To justify the effects, the agent doubled the assistant reply delay from 1.6 s to 3.2 s. At idle, 9 canvases keep the main thread about 55% busy. Under the throttled benchmark, TBT was 19 s and p95 frames were 800 ms.",
+      "bestFor": "AI-product demos, not work tools",
+      "highlights": ["Animated clover bot avatars in chat", "Border beam on the composer while waiting", "Gooey liquid tab indicator"],
+      "issues": ["Reply delay doubled to 3.2 s to fit the effect rules", "First tab click took 17 s in unthrottled headless Chromium (no GPU)", "Bundle ~400 KB gzipped (2.8x), mostly three.js for 40 px loader tiles"],
+      "effort": "small code change (7 files, +164/-17), adds seven effect packages and three.js"
+    }
+  }
+}

@@ -1,0 +1,404 @@
+{
+  "summary": "The rule-based skills still gave the best results for the lowest cost. Round 2 tested list motion, overlays and honest async feedback, and the behavior-focused skills did best there. kemiljk remains first: it again turned fake interactions into real ones and handled every list change with View Transitions and managed focus. Krehel's better-interface moves to second because it added list motion, restored focus everywhere a control disappears, and kept a black focus outline that survives a brand color. taste-skill is still the only variant with a distinct visual identity and carried it well into the new sections, but its focus handling is weaker. Most variants now animate list reorders, but Fluid, Magic UI and ui-craft use Motion layout animations that ignore reduced motion. The brand test showed a shared weakness: almost every variant draws focus from --ring, so a yellow brand turns focus into a 1.3:1 to 1.6:1 ring. The libraries still scored worst. A sensible stack is taste-skill for look plus kemiljk or better-interface for behavior, with emil's timing rules for motion.",
+  "ranking": [
+    "kemiljk",
+    "skills",
+    "taste",
+    "ui-craft",
+    "emil",
+    "uiwiki",
+    "ibelick",
+    "feel-better",
+    "magicui",
+    "fluid",
+    "libraries"
+  ],
+  "groups": [
+    {
+      "label": "Rule skills: visual direction",
+      "ids": [
+        "taste",
+        "ui-craft"
+      ],
+      "note": "Change tokens, type and surfaces. taste rebuilds the shell. ui-craft is a lighter brand and elevation pass."
+    },
+    {
+      "label": "Rule skills: behavior and accessibility",
+      "ids": [
+        "kemiljk",
+        "skills",
+        "ibelick"
+      ],
+      "note": "Little visible change. They fix semantics, labels, focus, honest feedback and broken interactions. Near-zero performance cost."
+    },
+    {
+      "label": "Rule skills: motion and polish",
+      "ids": [
+        "emil",
+        "feel-better",
+        "uiwiki"
+      ],
+      "note": "Easing, press states, exit timing and hit areas. The page looks like baseline and feels better when you use it."
+    },
+    {
+      "label": "Component library",
+      "ids": [
+        "fluid"
+      ],
+      "note": "Swaps most shadcn parts for its own. You get its whole look and motion model, and the regressions that come with it, plus a large bundle."
+    },
+    {
+      "label": "Effect packs",
+      "ids": [
+        "magicui",
+        "libraries"
+      ],
+      "note": "Layer animated effects on top of shadcn. They fit landing pages better than a daily work tool. Both cost the most runtime of any variant."
+    }
+  ],
+  "systems": {
+    "baseline": {
+      "scores": {
+        "visual": 3,
+        "interaction": 3,
+        "accessibility": 3,
+        "fidelity": 3,
+        "productFit": 3,
+        "performanceCost": 5
+      },
+      "verdict": "This is stock shadcn/ui: clean and neutral, with no product identity. Focus rings are a 50% grey (about 1.5:1). Several actions are fake: Undo, Rename and Discard do nothing, and New project only shows a toast.",
+      "bestFor": "reference point",
+      "highlights": [
+        "Grey translucent focus ring on every control",
+        "Solid black 'Done' badge is the loudest status on the page"
+      ],
+      "issues": [
+        "New project toast says the project was added, but the card count stays at 6 (verified)",
+        "Archive's Undo is a no-op (verified)",
+        "Round 2: focus falls to the page body after a keyboard Remove and after Retry (verified)",
+        "Reload has no aria-busy while the skeleton shows (verified)"
+      ],
+      "effort": "none",
+      "round2": "Tasks add, complete, move, sort and remove with a working Undo, but rows jump into place with no motion. Overlays are stock shadcn with stock 500 ms sheet timing. Save rolls back and Retry succeeds (verified 135, 145, 135, then 145), but focus drops to the body after Remove and Retry.",
+      "brand": "Follows the override fully: primary buttons turn yellow with #111 text (11.5:1) and compact density shrinks buttons from 36 to 29 px, but the 3px focus ring becomes yellow at 50% alpha, about 1.3:1 on white."
+    },
+    "kemiljk": {
+      "scores": {
+        "visual": 4,
+        "interaction": 5,
+        "accessibility": 5,
+        "fidelity": 5,
+        "productFit": 5,
+        "performanceCost": 4
+      },
+      "verdict": "This variant still made the most real improvement to the product, with almost no visual drama. Round 1 made fake interactions real. Round 2 did the same for the new sections: the filter now edits a draft that Apply commits, the side panel really renames the project, two command items go somewhere, and a false 'Applies to the project grid' line was removed. List changes run through View Transitions, focus is managed after every change, and reduced motion is respected (all verified).",
+      "bestFor": "making an existing app honest and accessible",
+      "highlights": [
+        "New project, Duplicate, Archive with working Undo, using View Transitions",
+        "Status badges by urgency: amber At risk, soft green Done, red Overdue figure",
+        "Blue 2px focus ring; focus moves to the name field on a dialog error",
+        "Unread count visible on the bell, a '/' search hint, and tab counts",
+        "Round 2: every task change animates through View Transitions; none run under reduced motion (verified)",
+        "Focus goes to the neighbouring row's checkbox after a keyboard Remove and to Raise after Retry (verified)",
+        "Side panel edits a draft that Save commits and Cancel discards; empty name shows an inline error"
+      ],
+      "issues": [
+        "Visual change is modest: still recognisably shadcn",
+        "Content copy was edited (card descriptions, subtitle), so it is not a pure UI comparison",
+        "Project cards keep their round-1 view-transition names, so every task change also snapshots the project grid (verified); long tasks 2.1 s vs 1.2 s and p95 frame 33 ms vs 17 ms in the benchmark",
+        "Its blue focus ring comes from --ring, so a brand color replaces it"
+      ],
+      "effort": "large (r1: 17 files, +569/-234; r2 rewrote the three sections), no new deps",
+      "round2": "The best round-2 behavior. Moves, sorts, adds and removes animate through View Transitions with focus kept on a sensible control, and moving while sorted now acts on the visible order. Overlays and async states were made honest: drafts commit or discard as labelled, the error names both the attempted and the current rate, and offline copy says changes are kept on the device.",
+      "brand": "Follows the override (yellow buttons with dark text, buttons 36 to 29 px, card padding 20 to 16 px), but its round-1 blue ring is driven by --ring, so the 3px focus ring becomes yellow at 50% alpha, about 1.3:1 on white."
+    },
+    "skills": {
+      "scores": {
+        "visual": 3,
+        "interaction": 5,
+        "accessibility": 5,
+        "fidelity": 4,
+        "productFit": 5,
+        "performanceCost": 5
+      },
+      "verdict": "The most thorough accessibility pass, and in round 2 the most careful about behavior too. It uses a strong native-style focus outline, 3:1 input borders and fixed dark-mode destructive contrast. Round 2 added a hand-written FLIP for reorders, enter and exit keyframes that collapse to a fade under reduced motion, focus restoration in every place a control disappears, and status copy that says what was rolled back (all verified). The look stays close to baseline.",
+      "bestFor": "an accessibility and copy hardening pass",
+      "highlights": [
+        "High-contrast black focus outline on every control",
+        "Darker input, checkbox and switch borders",
+        "Nav stays reachable on phone as a scrolling row",
+        "Neutral 'Sign out', error toasts that stay, pluralised copy",
+        "Round 2: rows slide to their new place on sort and move (WAAPI FLIP, 150 ms); no movement under reduced motion (verified)",
+        "Focus moves to the next row's Remove after a keyboard Remove and to Raise after Retry (verified)",
+        "Highlighted cmdk options get a 3:1 inset ring, not only a 1.09:1 tint"
+      ],
+      "issues": [
+        "Billing email now validates only on submit, so the demo's inline error state is no longer visible on load"
+      ],
+      "effort": "medium (r1: 28 files, +219/-125; r2 touched the three sections plus popover, sheet and command), no new deps",
+      "round2": "Lists get a 150 ms FLIP on reorder plus short enter and exit animations, task meta moves to a second line so rows fit at 320 px, and moves act on the visible order. Overlays got visible focus on the command input, sheet close and highlighted options. Async states announce saving and loading, keep focus on Raise and Reload, and the error says '$145 not saved, so the rate is back to $135'.",
+      "brand": "Holds up best of all: primary buttons go yellow with dark text, and its black browser-style focus outline does not depend on --ring, so focus stays clearly visible; buttons only shrink to 33 to 35 px under compact density."
+    },
+    "taste": {
+      "scores": {
+        "visual": 5,
+        "interaction": 4,
+        "accessibility": 4,
+        "fidelity": 4,
+        "productFit": 5,
+        "performanceCost": 4
+      },
+      "verdict": "This is still the only variant with a real art direction: a tinted frame with a white sheet, a sidebar, IBM Plex, one teal data hue, pale status pills and a strip of KPI tiles. Round 2 carried the style into the new sections well: 48 px rule-split task rows with tinted initials, a side panel that floats as a second inset sheet, a KPI-style rate and one fixed frame for loading, error and loaded entries. It also added a working FLIP for reorders. Focus handling is weaker than in the behavior skills.",
+      "bestFor": "giving a generic app a product identity",
+      "highlights": [
+        "Sidebar shell with a product mark and a framed sheet",
+        "KPI strip with units as grey suffixes and the overdue note in red",
+        "Underline tabs, people avatars tinted by hue, mono only for invoice IDs",
+        "Phone: 2x2 KPI grid and a full-screen nav and search sheet",
+        "Round 2: side panel is an inset sheet with a status and progress well",
+        "Rows travel to their new place on sort and move (FLIP, 280 ms); no travel under reduced motion (verified)",
+        "Time entries show a freshness stamp and keep one frame for every state"
+      ],
+      "issues": [
+        "Archived and Recent files cards leave large empty voids in the stretched row",
+        "Ships about 580 KB of Plex font files (only the used subsets load)",
+        "Focus falls to the page body after a keyboard Remove and after Retry (verified)"
+      ],
+      "effort": "large (r1: 30 files, +436/-218; r2 restyled all three sections and the popover, sheet and command), adds @fontsource IBM Plex Sans and Mono",
+      "round2": "The list gained a real reorder animation with a quicker exit, and the rows now match the rest of the art direction. Overlays are the most designed of any variant: an inset floating sheet, a 560 px command menu anchored near the top and status pills in the filter. Async copy is honest about rollbacks, but focus is not restored after Remove or Retry.",
+      "brand": "Buttons follow the yellow with dark text and compact density shrinks them from 32 to 26 px, while the teal KPI and progress bars keep their own token; the 3px focus ring becomes yellow at 50% alpha, about 1.3:1 on white."
+    },
+    "ui-craft": {
+      "scores": {
+        "visual": 4,
+        "interaction": 4,
+        "accessibility": 4,
+        "fidelity": 4,
+        "productFit": 5,
+        "performanceCost": 3
+      },
+      "verdict": "A good all-round polish pass, and round 2 added careful behavior. The side panel now keeps a draft through Escape, the filter's Apply became Done because filters apply live, saves report inline, and focus is restored after Remove and Retry (verified). To get list motion it added the Motion library, which raised gzipped JS by about a third, and its reorder animation ignores reduced motion.",
+      "bestFor": "a balanced visual and detail polish",
+      "highlights": [
+        "Clay brand focus outline that follows the radius",
+        "Amber At risk and soft red Overdue badges",
+        "Save button swaps to a check and 'Saved' instead of a toast",
+        "Focus moves to the field on a dialog validation error",
+        "Round 2: rows enter, exit and slide on a no-bounce spring",
+        "Inline 'Saving…', 'Saved' and 'Queued' line under the rate instead of toasts",
+        "Command menu opens instantly near the top; Escape clears the query before closing"
+      ],
+      "issues": [
+        "The longest interaction long-task time and INP proxy of the rule skills (977 ms and 368 ms vs 568 ms and 240 ms). Possibly noise, but it was not fixed",
+        "Reorder still slides rows 80 px under prefers-reduced-motion despite MotionConfig reducedMotion='user' (verified)",
+        "Added motion: gzipped JS 196 KB vs 148 KB, long tasks 2.0 s vs 1.2 s and INP proxy 360 ms vs 216 ms"
+      ],
+      "effort": "medium (r1: 26 files, +300/-98; r2 rewrote the three sections), adds Instrument Sans (~41 KB) and motion",
+      "round2": "The list has the most complete motion set (enter, exit and spring reorder) and the best keyboard extras, such as Cmd+Backspace and focus moving to the next Remove, but the reorder ignores reduced motion. Overlays preserve drafts and the command menu opens instantly. Async states are honest and inline, with focus returned to Retry or Raise.",
+      "brand": "Follows the override fully, but its clay focus outline is drawn from --ring, so it becomes a solid 2 px yellow outline at about 1.6:1 on white."
+    },
+    "emil": {
+      "scores": {
+        "visual": 3,
+        "interaction": 5,
+        "accessibility": 3,
+        "fidelity": 4,
+        "productFit": 4,
+        "performanceCost": 5
+      },
+      "verdict": "The best motion craft. Strong ease-out curves, origin-aware menus, a tooltip delay with instant follow-ups and staggered loaded rows. Round 2 added a WAAPI FLIP that slides rows on sort, move, remove and undo, a command menu that opens with no animation, and focus restoration after reorders and removals (verified). Visually it is still identical to baseline.",
+      "bestFor": "motion and feel tuning",
+      "highlights": [
+        "Hold-to-delete with a clip-path fill (verified with pointer and Space)",
+        "Menus scale from their trigger with a custom ease-out curve",
+        "Chat replies and loaded file rows enter softly",
+        "Tooltip waits 400 ms the first time, then follow-up tooltips open instantly",
+        "Round 2: rows slide on sort and move (250 ms) and exit as a fading clone; reduced motion keeps only the fade (verified)",
+        "Focus returns to the next Remove after a keyboard Remove (verified)",
+        "Command menu opens and closes instantly"
+      ],
+      "issues": [
+        "A quick click on Delete now does nothing, with no visible hint; only aria-description explains the hold",
+        "Focus ring left at baseline's faint grey",
+        "Focus falls to the page body after Retry (verified)",
+        "Sheet slide-in kept at 500 ms"
+      ],
+      "effort": "medium (r1: 20 files, +208/-35; r2 added a 100-line FLIP hook), no new deps",
+      "round2": "The list motion is the most considered: interruptible FLIP moves, faster exits and no animation for keyboard-submitted tasks. Popovers grow from their trigger and the command menu is instant. Async states fade in and the error explains the rollback, but Retry leaves focus on the body.",
+      "brand": "Follows the override fully with dark text on yellow buttons, and the 3px focus ring becomes yellow at 50% alpha, about 1.3:1 on white since emil never strengthened the ring."
+    },
+    "uiwiki": {
+      "scores": {
+        "visual": 3,
+        "interaction": 4,
+        "accessibility": 3,
+        "fidelity": 4,
+        "productFit": 4,
+        "performanceCost": 4
+      },
+      "verdict": "This variant applies rules on timing and touch targets, plus opt-in synthesized UI sounds. Round 2 drives every list change through native View Transitions (verified) with a quicker ease-in exit, opens the command menu instantly and adds sounds to save results. It looks almost the same as baseline, and focus is not restored when controls disappear.",
+      "bestFor": "timing rules and optional sound feedback",
+      "highlights": [
+        "'Interface sounds' switch, off by default (verified)",
+        "Dropdown menus with no entrance animation and an ease-in exit",
+        "Six-layer button shadow on primary and destructive",
+        "Save button width animates between labels",
+        "Round 2: View Transitions for add, remove, move and sort; skipped under reduced motion (verified)",
+        "Sheet cut to 250 ms in and 200 ms out"
+      ],
+      "issues": [
+        "Focus ring left at baseline's faint grey",
+        "Focus falls to the page body after a keyboard Remove and after Retry (verified)",
+        "Long tasks 2.6 s vs 1.2 s and style recalculation 3.5 s vs 2.0 s in the round-2 benchmark"
+      ],
+      "effort": "medium (r1: 25 files, +255/-53; r2 added a view-transition helper), no new deps",
+      "round2": "List reorder, entry and exit run through View Transitions with names cleaned up afterwards, which is a cheap way to get real list motion. Overlays got correct ease-in exits and an instant command menu. Async states fade in and play optional sounds, but there is no aria-busy on reload and focus drops after Remove and Retry.",
+      "brand": "Follows the override fully with dark text on yellow buttons; the 3px focus ring becomes yellow at 50% alpha, about 1.3:1 on white."
+    },
+    "ibelick": {
+      "scores": {
+        "visual": 3,
+        "interaction": 3,
+        "accessibility": 4,
+        "fidelity": 4,
+        "productFit": 4,
+        "performanceCost": 5
+      },
+      "verdict": "A hygiene pass that is solid but invisible. Round 2 continued it: per-row button names, a live region for list changes, focus kept on a sensible control after Move and Remove (verified), fieldsets in the filter and aria-busy on reload. It added no list motion on purpose, and Retry still drops focus.",
+      "bestFor": "a quick checklist clean-up of shadcn defaults",
+      "highlights": [
+        "Delete opens a confirm AlertDialog",
+        "Real h2 card titles, list markup and a chat log region",
+        "Subtitle copy corrected to '4 in progress'",
+        "Round 2: focus moves to the next row's Remove after a keyboard Remove (verified)",
+        "Sr-only status announces added, removed, restored and moved tasks"
+      ],
+      "issues": [
+        "Focus ring left at baseline's faint grey despite the a11y pass",
+        "Accordion now pops open with a fade instead of expanding",
+        "No motion at all in the task list, so rows jump on sort and move (verified)",
+        "Focus falls to the page body after Retry (verified)"
+      ],
+      "effort": "small (r1: 19 files, +156/-79; r2 mostly attributes and classes), no new deps",
+      "round2": "The list has no motion by design, but its keyboard and screen-reader behavior is good. Overlays got labels, fieldsets and reduced-motion opt-outs. Async states set aria-busy and link the error to the button, but focus is not returned after Retry.",
+      "brand": "Follows the override fully with dark text on yellow buttons; the 3px focus ring becomes yellow at 50% alpha, about 1.3:1 on white."
+    },
+    "feel-better": {
+      "scores": {
+        "visual": 3,
+        "interaction": 4,
+        "accessibility": 3,
+        "fidelity": 4,
+        "productFit": 4,
+        "performanceCost": 4
+      },
+      "verdict": "Many small details: press scale, a Like icon cross-fade, an interruptible grid-rows accordion, blur-rise dialogs, concentric radii and expanded hit areas. Round 2 added blur-rise entries and quick exits for task rows and an interruptible offline banner, but left reorders instant on purpose and did nothing for focus. On screen it is still very hard to tell apart from baseline.",
+      "bestFor": "micro-interaction polish",
+      "highlights": [
+        "Heart outline to filled cross-fade with blur",
+        "Dialog rises and un-blurs over 300 ms, then exits faster",
+        "Shadow-as-border cards and outline buttons",
+        "Round 2: added rows rise and un-blur, removed rows fade out in 150 ms (verified)",
+        "Offline banner collapses with an interruptible grid-rows transition"
+      ],
+      "issues": [
+        "Header stagger and blur effects add some cost (long tasks 950 ms vs 568 ms)",
+        "Focus ring left at baseline's faint grey",
+        "No reorder motion, so rows jump on sort and move (verified, deliberate)",
+        "Focus falls to the page body after a keyboard Remove and after Retry (verified)"
+      ],
+      "effort": "medium (r1: 22 files, +119/-55; r2 mostly classes and one keyframe), no new deps",
+      "round2": "Rows enter and leave nicely but jump on sort and move, which is the main thing the list tests. Overlays got concentric radii, ring borders and shorter sheet timing. Async states are unchanged apart from a staggered reload; copy and focus handling stay at baseline.",
+      "brand": "Follows the override fully with dark text on yellow buttons; the 3px focus ring becomes yellow at 50% alpha, about 1.3:1 on white."
+    },
+    "magicui": {
+      "scores": {
+        "visual": 3,
+        "interaction": 2,
+        "accessibility": 3,
+        "fidelity": 3,
+        "productFit": 2,
+        "performanceCost": 2
+      },
+      "verdict": "The agent showed restraint and fixed both round-1 bugs: the number ticker now respects reduced motion and lower sections no longer stay invisible (both verified). Round 2 added a spring list with layout reorder, a shine border on the command menu and a ticking rate. But the list reorder ignores reduced motion, and the page now runs a requestAnimationFrame loop every frame at idle.",
+      "bestFor": "a sparing accent on marketing-adjacent screens",
+      "highlights": [
+        "Number ticker on KPI values",
+        "Cursor-following spotlight on project cards",
+        "Blur-fade section reveals and a shimmer 'Thinking…'",
+        "Round 2: rows spring in, scale out and slide neighbours on reorder",
+        "Rate ticks back to $135 after a failed save, so the rollback is visible"
+      ],
+      "issues": [
+        "Number ticker counts KPIs up from 0 on every load (reduced motion now skips it, verified)",
+        "Layout CPU 1,404 ms vs 198 ms in the round-2 benchmark",
+        "Reorder still slides rows 100 px under prefers-reduced-motion (verified)",
+        "A requestAnimationFrame loop runs 60 times per second at idle (verified), about 14% main thread",
+        "Task list became role='list' divs to fit the motion wrapper"
+      ],
+      "effort": "medium (r1: 9 files, +473/-16; r2 installed animated-list and shine-border), adds motion and next-themes",
+      "round2": "The list has real enter, exit and reorder motion from AnimatedListItem, but the reorder runs under reduced motion too. Overlays are stock shadcn apart from a shine border on the command menu. Async states use the ticker to show the optimistic raise and the rollback, which is a fair use, though the rate passes through in-between values like $138 for about a second.",
+      "brand": "Follows the override fully with dark text on yellow buttons; the 3px focus ring becomes yellow at 50% alpha, about 1.3:1 on white."
+    },
+    "fluid": {
+      "scores": {
+        "visual": 3,
+        "interaction": 4,
+        "accessibility": 2,
+        "fidelity": 2,
+        "productFit": 3,
+        "performanceCost": 2
+      },
+      "verdict": "Replacing components gives smooth spring motion: gliding hover highlights, a sliding tab indicator, dot status badges, and in round 2 a real command menu, combobox and status banners. It also brings regressions. Card frames and input borders are gone, Delete no longer reads as destructive, task titles have their descenders clipped, and the reorder animation ignores reduced motion (verified). Gzipped JS is 2.6x baseline, and LCP and TBT roughly double.",
+      "bestFor": "a fresh build that adopts Fluid's whole look",
+      "highlights": [
+        "Hover highlight glides between table rows, menu items and cards",
+        "Dot-style status badges and a sliding tab pill",
+        "Morphing thinking indicator in chat",
+        "Round 2: Fluid CommandMenu with groups and platform shortcut caps",
+        "Banner for offline and error states with a Retry action",
+        "Loading button that holds its width while saving"
+      ],
+      "issues": [
+        "Delete button is transparent with dark text, so the destructive meaning is lost",
+        "Settings inputs render with a 0px border and read as static text; switch labels are detached from their descriptions",
+        "Tabs trigger and composer textarea show no visible keyboard focus",
+        "Task titles are clipped: the title span is 9 px tall with overflow hidden around 20 px of text, so g and p lose their descenders (verified)",
+        "Reorder slides rows 72 px under prefers-reduced-motion although the notes say it drops the slide (verified)",
+        "Primary buttons ignore --primary and stay black under a brand color (verified)",
+        "Focus falls to the page body after a keyboard Remove (verified)"
+      ],
+      "effort": "large (r1: 50 files, ~12k lines of library code; r2 installed command-menu, combobox and banner), adds motion, @base-ui/react, Inter variable, 11 Radix packages, pdfjs-dist",
+      "round2": "The list has layout reorder and enter and exit motion, but titles are clipped and the motion ignores reduced motion. Overlays are its strongest part: a proper command menu and combobox, though sheet inputs are again borderless. Async states use banners with Retry and a width-stable loading button, which reads clearly.",
+      "brand": "Follows only partly: progress bars, toggles and the 1 px focus ring turn yellow, but primary buttons keep Fluid's black, and the 1 px yellow ring is about 1.6:1 on white, so focus is nearly invisible."
+    },
+    "libraries": {
+      "scores": {
+        "visual": 3,
+        "interaction": 2,
+        "accessibility": 3,
+        "fidelity": 2,
+        "productFit": 1,
+        "performanceCost": 1
+      },
+      "verdict": "Animated bot avatars, a thinking orb, a border beam, a voice glow, gooey tabs and WebGL loaders add novelty, not usability. Round 2 correctly found no fit for any effect and added only aria-busy, so the new sections behave like baseline. The round-1 cost remains: idle main thread about 68% busy, TBT 19 s and p95 frames 67 ms under the throttled benchmark.",
+      "bestFor": "AI-product demos, not work tools",
+      "highlights": [
+        "Animated clover bot avatars in chat",
+        "Border beam on the composer while waiting",
+        "Gooey liquid tab indicator",
+        "Round 2: declined to force effects onto the new sections, with reasons per package"
+      ],
+      "issues": [
+        "Reply delay doubled to 3.2 s to fit the effect rules",
+        "First tab click took 17 s in unthrottled headless Chromium (no GPU)",
+        "Bundle ~400 KB gzipped (2.8x), mostly three.js for 40 px loader tiles",
+        "New sections have baseline behavior: no list motion, focus to body after Remove and Retry (verified)"
+      ],
+      "effort": "small code change (r1: 7 files, +164/-17; r2 one attribute), adds seven effect packages and three.js",
+      "round2": "The list, overlays and async states are stock baseline apart from aria-busy on reload, because no effect matched the skill's rules. That restraint is correct, but it leaves the variant with all of round 1's runtime cost and none of the round-2 gains.",
+      "brand": "Follows the override fully with dark text on yellow buttons; the 3px focus ring becomes yellow at 50% alpha, about 1.3:1 on white."
+    }
+  },
+  "changes": "Round 2 rewarded behavior over looks: better-interface moved from third to second because it verified best on reorder motion, focus restoration and the brand test, and taste dropped to third because focus falls to the page body after Remove and Retry. userinterface.wiki and ibelick each rose one place for View Transition reorders and focus handling, while feel-better fell two because rows still jump on sort and focus is not managed. Magic UI moved above Fluid after fixing both round-1 bugs, while Fluid gained clipped task titles, a reduced-motion leak and primary buttons that ignore the brand color. ui-craft kept fourth but paid for Motion with a third more JS and its own reduced-motion leak."
+}

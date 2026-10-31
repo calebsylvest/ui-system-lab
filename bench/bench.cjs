@@ -77,6 +77,8 @@ async function run(browser, collectShots) {
   await tryStep(log, 'r2-tasks', async () => { for (const n of ['task-add', 'task-add', 'task-complete', 'task-sort', 'task-move', 'task-remove', 'task-sort']) { await lab(n); await page.waitForTimeout(600); } });
   await tryStep(log, 'r2-overlays', async () => { for (const n of ['sheet', 'close', 'command', 'close', 'popover', 'close', 'combobox', 'close']) { await lab(n); await page.waitForTimeout(n === 'close' ? 500 : 800); } });
   await tryStep(log, 'r2-sync', async () => { for (const n of ['save-fail', 'offline', 'save-fail', 'offline', 'reload']) { await lab(n); await page.waitForTimeout(1300); } });
+  await tryStep(log, 'r3-ledger', async () => { for (const n of ['ledger-sort', 'ledger-next', 'ledger-filter', 'ledger-empty', 'ledger-clear']) { await lab(n); await page.waitForTimeout(600); } });
+  await tryStep(log, 'r3-form', async () => { for (const n of ['wizard-invalid', 'wizard-fill', 'wizard-next', 'wizard-next', 'wizard-back', 'wizard-cancel', 'close']) { await lab(n); await page.waitForTimeout(600); } });
   const inter = await page.evaluate(() => {
     window.__lab.stop = true;
     const f = window.__lab.frames.slice(1).sort((a, b) => a - b);

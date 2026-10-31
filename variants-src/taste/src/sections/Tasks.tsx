@@ -64,15 +64,28 @@ export function Tasks() {
     setDraft("")
   }
 
-  function remove(id: string) {
+  // Keyboard stays in reading order (SKILL 9): when the focused control leaves or is disabled, focus
+  // moves to its nearest neighbour instead of falling to the page body.
+  const listRef = useRef<HTMLUListElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
+  type Act = "remove" | "up" | "down"
+  const focusRow = (id: string | undefined, ...actions: Act[]) => {
+    const el = id ? actions.map((a) => listRef.current?.querySelector<HTMLButtonElement>(`[data-row="${id}"] [data-act="${a}"]:not(:disabled)`)).find(Boolean) : null
+    ;(el ?? inputRef.current)?.focus()
+  }
+
+  function remove(id: string, fromButton = false) {
     if (leaving.has(id)) return
     const index = tasks.findIndex((t) => t.id === id)
     const task = tasks[index]
     if (!task) return
+    const at = visible.findIndex((t) => t.id === id)
+    const neighbour = (visible.slice(at + 1).find((t) => !leaving.has(t.id)) ?? visible.slice(0, at).reverse().find((t) => !leaving.has(t.id)))?.id
     setLeaving((s) => new Set(s).add(id))
     window.setTimeout(() => {
       setTasks((ts) => ts.filter((t) => t.id !== id))
       setLeaving((s) => { const n = new Set(s); n.delete(id); return n })
+      if (fromButton) requestAnimationFrame(() => focusRow(neighbour, "remove"))
     }, 160)
     toast("Task removed", {
       description: task.title,
@@ -81,13 +94,17 @@ export function Tasks() {
         onClick: () => {
           arriving.current.add(task.id)
           setTasks((ts) => (ts.some((t) => t.id === task.id) ? ts : [...ts.slice(0, index), task, ...ts.slice(index)]))
+          // The toast closes on Undo; focus goes to the row that came back, not the page body.
+          if (fromButton) requestAnimationFrame(() => focusRow(task.id, "remove"))
         },
       },
     })
   }
 
-  function move(id: string, dir: -1 | 1) {
+  function move(id: string, dir: -1 | 1, fromButton = false) {
     setSorted(false)
+    // At the top or bottom the pressed arrow disables itself; hand focus to the other arrow.
+    if (fromButton) requestAnimationFrame(() => focusRow(id, dir < 0 ? "up" : "down", dir < 0 ? "down" : "up"))
     setTasks((ts) => {
       const i = ts.findIndex((t) => t.id === id)
       const j = i + dir
@@ -123,7 +140,7 @@ export function Tasks() {
       </CardHeader>
       <CardContent className="grid gap-3">
         <form className="flex gap-2" onSubmit={(e) => { e.preventDefault(); if (draft.trim()) add(draft) }}>
-          <Input id="task-new" value={draft} onChange={(e) => setDraft(e.target.value)} placeholder="Add a task and press Enter" aria-label="New task" />
+          <Input ref={inputRef} id="task-new" value={draft} onChange={(e) => setDraft(e.target.value)} placeholder="Add a task and press Enter" aria-label="New task" />
           {/* One control height per row (8.3): the Add button matches the 38px field. */}
           <Button type="button" variant="secondary" data-lab="task-add" className="h-[38px]" onClick={() => add(draft || undefined)}><Plus /> Add</Button>
         </form>
@@ -136,12 +153,13 @@ export function Tasks() {
             No tasks this week. Add one above.
           </p>
         ) : (
-          <ul className="relative" aria-label="Tasks">
+          <ul ref={listRef} className="relative" aria-label="Tasks">
             {visible.map((t, i) => {
               const isNew = arriving.current.has(t.id)
               return (
                 <li
                   key={t.id}
+                  data-row={t.id}
                   ref={(el) => { if (el) rows.current.set(t.id, el); else rows.current.delete(t.id) }}
                   onAnimationEnd={() => arriving.current.delete(t.id)}
                   className={cn(
@@ -158,9 +176,9 @@ export function Tasks() {
                   </div>
                   <PersonAvatar initials={t.who} className="size-6" />
                   <div className="text-muted-foreground flex">
-                    <Button variant="ghost" size="icon" className="size-7 hover:text-foreground" aria-label="Move up" disabled={i === 0} onClick={() => move(t.id, -1)}><ArrowUp /></Button>
-                    <Button variant="ghost" size="icon" className="size-7 hover:text-foreground" aria-label="Move down" disabled={i === visible.length - 1} onClick={() => move(t.id, 1)}><ArrowDown /></Button>
-                    <Button variant="ghost" size="icon" className="size-7 hover:text-foreground" aria-label={`Remove “${t.title}”`} onClick={() => remove(t.id)}><X /></Button>
+                    <Button variant="ghost" size="icon" className="size-7 hover:text-foreground" data-act="up" aria-label="Move up" disabled={i === 0} onClick={() => move(t.id, -1, true)}><ArrowUp /></Button>
+                    <Button variant="ghost" size="icon" className="size-7 hover:text-foreground" data-act="down" aria-label="Move down" disabled={i === visible.length - 1} onClick={() => move(t.id, 1, true)}><ArrowDown /></Button>
+                    <Button variant="ghost" size="icon" className="size-7 hover:text-foreground" data-act="remove" aria-label={`Remove “${t.title}”`} onClick={() => remove(t.id, true)}><X /></Button>
                   </div>
                 </li>
               )

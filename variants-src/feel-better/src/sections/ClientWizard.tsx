@@ -64,13 +64,15 @@ export function ClientWizard() {
       <span hidden data-lab="wizard-cancel" onClick={cancel} />
 
       {done ? (
+        // Success-state entrance (split and stagger): icon, message, action at 100ms steps.
+        // Only mounts after "Add client", never on first render; skipped under reduced motion.
         <CardContent className="flex flex-col items-center gap-3 py-8 text-center">
-          <Check className="size-6" />
-          <div>
+          <Check className="stagger-item size-6 [--stagger:0]" aria-hidden />
+          <div className="stagger-item [--stagger:1]">
             <p className="font-medium">{form.name.trim()} is set up</p>
             <p className="text-muted-foreground text-sm">Invoices go to {form.email.trim()} on {termsOptions.find((t) => t.value === form.terms)?.label} terms.</p>
           </div>
-          <Button variant="outline" onClick={reset}>Add another client</Button>
+          <Button variant="outline" className="stagger-item [--stagger:2]" onClick={reset}>Add another client</Button>
         </CardContent>
       ) : (
         <>
@@ -87,8 +89,8 @@ export function ClientWizard() {
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="grid gap-2">
                   <Label htmlFor="wiz-name">Client name</Label>
-                  <Input id="wiz-name" value={form.name} onChange={(e) => set("name")(e.target.value)} onBlur={blur("name")} aria-invalid={!!show("name")} />
-                  {show("name") && <p className="text-destructive text-sm">{show("name")}</p>}
+                  <Input id="wiz-name" value={form.name} onChange={(e) => set("name")(e.target.value)} onBlur={blur("name")} aria-invalid={!!show("name")} aria-describedby={show("name") ? "wiz-name-error" : undefined} />
+                  {show("name") && <p id="wiz-name-error" className="text-destructive text-sm">{show("name")}</p>}
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="wiz-contact">Contact person (optional)</Label>
@@ -96,8 +98,8 @@ export function ClientWizard() {
                 </div>
                 <div className="grid gap-2 sm:col-span-2">
                   <Label htmlFor="wiz-email">Billing email</Label>
-                  <Input id="wiz-email" type="email" value={form.email} onChange={(e) => set("email")(e.target.value)} onBlur={blur("email")} aria-invalid={!!show("email")} />
-                  {show("email") && <p className="text-destructive text-sm">{show("email")}</p>}
+                  <Input id="wiz-email" type="email" value={form.email} onChange={(e) => set("email")(e.target.value)} onBlur={blur("email")} aria-invalid={!!show("email")} aria-describedby={show("email") ? "wiz-email-error" : undefined} />
+                  {show("email") && <p id="wiz-email-error" className="text-destructive text-sm">{show("email")}</p>}
                 </div>
               </div>
             )}
@@ -106,8 +108,8 @@ export function ClientWizard() {
               <div className="grid gap-4 sm:grid-cols-3">
                 <div className="grid gap-2">
                   <Label htmlFor="wiz-rate">Hourly rate</Label>
-                  <Input id="wiz-rate" inputMode="decimal" value={form.rate} onChange={(e) => set("rate")(e.target.value)} onBlur={blur("rate")} aria-invalid={!!show("rate")} />
-                  {show("rate") && <p className="text-destructive text-sm">{show("rate")}</p>}
+                  <Input id="wiz-rate" inputMode="decimal" className="tabular-nums" value={form.rate} onChange={(e) => set("rate")(e.target.value)} onBlur={blur("rate")} aria-invalid={!!show("rate")} aria-describedby={show("rate") ? "wiz-rate-error" : undefined} />
+                  {show("rate") && <p id="wiz-rate-error" className="text-destructive text-sm">{show("rate")}</p>}
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="wiz-currency">Currency</Label>
@@ -135,9 +137,9 @@ export function ClientWizard() {
                 <dt className="text-muted-foreground">Client</dt><dd>{form.name || "—"}</dd>
                 <dt className="text-muted-foreground">Contact</dt><dd>{form.contact || "—"}</dd>
                 <dt className="text-muted-foreground">Billing email</dt><dd className="break-all">{form.email || "—"}</dd>
-                <dt className="text-muted-foreground">Rate</dt><dd>{form.rate ? `${form.rate} ${form.currency} / hour` : "—"}</dd>
+                <dt className="text-muted-foreground">Rate</dt><dd className="tabular-nums">{form.rate ? `${form.rate} ${form.currency} / hour` : "—"}</dd>
                 <dt className="text-muted-foreground">Terms</dt><dd>{termsOptions.find((t) => t.value === form.terms)?.label}</dd>
-                <dt className="text-muted-foreground">Notes</dt><dd>{form.notes || "—"}</dd>
+                <dt className="text-muted-foreground">Notes</dt><dd className="text-pretty">{form.notes || "—"}</dd>
               </dl>
             )}
           </CardContent>

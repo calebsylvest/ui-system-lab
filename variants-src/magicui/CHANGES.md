@@ -42,3 +42,25 @@ Not done:
 - **Sheet, popovers, people picker**: left as stock shadcn. Magic UI has no overlay, form or combobox components, and adding an effect there would just be decoration.
 - **Offline banner / save error**: no effect. These are alerts; Magic UI's border-beam/shine would compete with `role="alert"` content and loop while the state persists.
 - **"Saving" label**: kept the spinner. AnimatedShinyText is already the page's "pending" cue in Assistant, but inside a primary button its muted shimmer had poor contrast.
+
+## Round 3
+
+No new registry installs and no new npm dependencies. Magic UI has no table, form, stepper or validation components, so the new sections stay stock shadcn and get the two pieces already on the page, used the same way as in rounds 1 and 2: **number-ticker** for a value that changes because of a user action, **blur-fade** (0.25 s, 4 px, the round-2 "reloaded rows" setting) for content that swaps in. Nothing loops; both respect reduced motion.
+
+- **Ledger totals** (`sections/Ledger.tsx`): the total is a `NumberTicker` (2 decimals) that starts at the first total, so no count-up on load. It only moves when search or the status filter changes the sum. An `sr-only` span carries the formatted value, as in Stats and the hourly rate. Rule: "keep motion intentional" / round-2 rate precedent.
+- **Ledger empty state** (`sections/Ledger.tsx`): "No invoices match" fades in with `BlurFade`; the heading is `role="status"` so the empty result is announced. Rule: skill's accessibility check (meaningful text).
+- **Ledger numbers and missing values** (`sections/Ledger.tsx`): `tabular-nums` on Hours, Amount, Due and the total (the ticker's own convention), credits use a typographic minus (−$450.00) in a muted color, and missing project/hours/due show a muted dash with an `sr-only` label ("No project", "No hours", "No due date") instead of a bare "—". Long names and the email-as-name keep the baseline truncate + `title`. Rule: accessibility / readability checks in the skill.
+- **Wizard steps** (`sections/ClientWizard.tsx`): each step's fields sit in a `BlurFade` keyed on the step, so Next/Back swap with the page's entrance language. The success state fades in the same way. Rule: 1 core component, reused.
+- **Wizard errors** (`sections/ClientWizard.tsx`): inline errors get ids and are linked with `aria-describedby` on the invalid field; the step list has `aria-label="Steps"`; the success check icon is `aria-hidden`. Step grids use `items-start` so an error under one field no longer shifts the label of its neighbour. Copy unchanged. Rule: skill's accessibility check.
+- **Mount** (`App.tsx`): the round-3 wrapper came in with `<BlurFade inView>`, the same bug fixed in round 2 (content stays invisible until scrolled). Changed to `delay={0.28}` like the other sections.
+
+### Round-2 review fixes
+- **Idle requestAnimationFrame loop** (`components/ui/number-ticker.tsx`): cause was the ticker's shipped `useSpring({ damping: 60, stiffness: 100 })`. It is about 3x overdamped, so for $15,400 the spring's tail kept animating (and rewriting `textContent`, forcing layout) for roughly 8 s after load, long after the digits looked settled. Measured with headless Chromium: 60 rAF/s from 2 s to 7 s after load before; 0 rAF/s at every sample after. Replaced the spring with a finite `animate()` tween (1.1 s, ease-out `[0.16, 1, 0.3, 1]`) and only write to the DOM when the formatted text changes. Side fixes in the same file: the first paint is formatted (was the raw number), a ticker that is off-screen when its value changes now jumps instead of staying stale (`useInView({ once })` never fired for the below-fold totals), and the change listener subscribes before the jump effect so reduced motion shows the final value on mount.
+- **Reorder slides under reduced motion** (`components/ui/animated-list.tsx`): `MotionConfig reducedMotion="user"` drops transform keyframes but not `layout` projection. `AnimatedListItem` now reads `useReducedMotion()` and, when set, drops `layout` and the scale and uses a 0.12 s opacity fade. Verified: 0 transformed frames during a move under `reducedMotion: 'reduce'`, still 40 without it.
+
+Not done:
+- **Row motion on sort/page** in the ledger: rows are `<tr>`, and blur-fade/animated-list wrap in a `<div>`. Animating rows would need custom `motion.tr` code that isn't Magic UI, and a re-sort that slides 6 rows is slower to read than an instant one.
+- **Confetti** on "client added": decoration on a routine admin action, and it adds `canvas-confetti`.
+- **Shimmer/shiny button** for "Add client", **border-beam/shine-border** on the wizard card: same reason as round 1 (CTA glow belongs on marketing pages), and shine/beam loop while visible.
+- **Animated error text**: errors appear instantly; delaying them with a fade would slow feedback.
+- Bundle note: importing `animate` adds about 6 KB gzip to the JS.

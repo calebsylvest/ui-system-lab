@@ -130,3 +130,52 @@ Applied the same rules and tokens to the new sections (`Tasks`, `QuickActions`, 
 | Copy ("Saving", "Try again", "No results found.") | The skill has no copy rules, so it's kept identical for comparison |
 | Card padding vs. inner rows/inputs | Card padding is 24px, the skill's "separate surfaces" threshold, the same as round 1 |
 | `will-change` on the task enter/exit | No first-frame stutter was observed |
+
+## Round 3
+
+Applied the same rules and tokens to the new `Ledger` and `ClientWizard` sections. **No new dependencies**, and no new CSS. The round-1 `.stagger-item` keyframe is reused. Data, copy, behavior and every `data-lab` hook (visible and hidden) are unchanged.
+
+### Typography
+| Change | File(s) | Principle |
+| --- | --- | --- |
+| `tabular-nums` on every numeric table column: ID, Hours, Amount, Due, the totals-row amount, the "N entries" count, and "Page X of Y". Sorting, filtering and paging change these values in place, so the digits now stay aligned and nothing shifts | `Ledger.tsx` | 9. Tabular numbers (table columns, counters) |
+| `tabular-nums` on the Hourly rate input and the Review step's Rate value, the same as the round-1/2 rate inputs | `ClientWizard.tsx` | 9 |
+| `text-pretty` on the Review step's Notes `dd`, which can wrap and which the base `p, li` rule doesn't reach. The error messages, the empty-state text and the success text are `p`s, so they already get `pretty` from the base layer | `ClientWizard.tsx` | 10. Text wrapping |
+
+### Surfaces
+| Change | File(s) | Principle |
+| --- | --- | --- |
+| Sort header buttons are optically aligned to their column. Left-aligned headers (Client, Due) keep `-ml-3`, so the label lines up with the cell text. Right-aligned numeric headers (Hours, Amount) now use `-mr-2.5`, which cancels the button's 10px icon-side padding so the sort arrow's edge sits on the digits' right edge. Before, the baseline's `-ml-3` pushed those headers 12px right of the numbers | `Ledger.tsx` | 2. Optical alignment |
+| Hit areas: sort buttons (32px tall) get the Button `::after` up to 40px, which fits the 40px header cell. Previous and Next are wider than 40px and sit 4px apart, so their hit areas only extend vertically and don't overlap | `Ledger.tsx` (inherited from `button.tsx`) | 16. Hit area (collision rule) |
+
+### Animations
+| Change | File(s) | Principle |
+| --- | --- | --- |
+| Success state: the check icon, the "is set up" message and "Add another client" stagger in at 100ms steps (opacity, 12px rise, 4px blur, 400ms ease-out). This is the skill's named success-state case. It only mounts after "Add client", so nothing animates on load, and it's skipped under reduced motion | `ClientWizard.tsx` | 5. Split and stagger (success state); 13 |
+| "No invoices match" empty state gets the same single fade-in-up as the round-2 empty and error states. It mounts once when results first hit zero, not on every keystroke | `Ledger.tsx` | 5 (empty state) |
+
+### Icons
+| Change | File(s) | Principle |
+| --- | --- | --- |
+| Ledger search icon: `strokeWidth={1.5}` beside 400-weight placeholder text, the same as the header search | `Ledger.tsx` | 17. Match stroke to text weight |
+| Sort arrows and pagination chevrons stay at 2px, because they sit beside the buttons' 500-weight labels. The inactive sort icon stays the same SVG dimmed with `opacity-40` | (no change) | 17; 18. One SVG, states via CSS |
+| Decorative icons (search, sort arrows, success check) are `aria-hidden`. `aria-sort` and the text carry the meaning | `Ledger.tsx`, `ClientWizard.tsx` | 19. Motion and icons are never the only cue |
+
+### Accessibility fix
+| Change | File(s) | Why |
+| --- | --- | --- |
+| Each inline error has an `id` and is tied to its input with `aria-describedby` while it shows (name, email, rate). Before, `aria-invalid` flagged the field, but screen readers never read the message | `ClientWizard.tsx` | Honest feedback, the same kind of a11y fix as round 2's CommandDialog naming. The brief allows it |
+
+### Deliberately left alone (round 3)
+| Item | Why |
+| --- | --- |
+| Row reordering on sort, page changes, filter results: no animation | High-frequency, repeatable actions. Restraint calls for instant feedback. The arrow icon, `aria-sort` and the page label are the static cues |
+| Wizard step changes (Details → Billing → Review): no transition | Each Next/Back is a routine interaction, and the step list's `aria-current` and font weight are the static cue. Animating each step would charge the attention cost every time |
+| Inline errors appearing on blur | Validation feedback should be instant. The red text, the input's destructive border and the message are the cues. Timing (on blur, Next disabled) is behavior, so it's unchanged |
+| Number formatting (thousands separators on hours like `9512`, the hyphen-minus in `-$450.00`, mixed decimal places) | The skill has no number-formatting rules, only `tabular-nums`. The data and format stay as the baseline has them |
+| Truncation of long client/project names (`max-w-* truncate` + `title`) | The skill has no truncation guidance. The baseline's handling stays |
+| Dashed border on the empty state, outline Badge borders, table row dividers, Input/Textarea/Select borders | Structural and form-control borders, which the skill says to keep (same as rounds 1–2) |
+| Discard dialog | It already uses the polished round-1 `Dialog` (ring, 300/150 enter/exit) |
+| Card padding vs. the inner table, inputs and empty-state box | 24px padding, the "separate surfaces" threshold, the same as rounds 1–2 |
+| Copy ("No invoices match", error messages, button labels) | The skill has no copy rules |
+| `will-change` | No first-frame stutter was observed |

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react"
-import { AnimatePresence, motion, type Transition } from "motion/react"
+import { AnimatePresence, motion, useReducedMotion, type Transition } from "motion/react"
 import { ArrowDown, ArrowUp, Check, ListOrdered, Plus, X } from "lucide-react"
 import { toast } from "sonner"
 import { initialTasks, extraTasks, people, type Task } from "@/data-extra"
@@ -17,6 +17,9 @@ import { modKey } from "@/lib/platform"
 const enterT: Transition = { duration: 0.2, ease: [0, 0, 0.2, 1] }
 const exitT: Transition = { duration: 0.14, ease: [0.4, 0, 1, 1] }
 const layoutT: Transition = { type: "spring", bounce: 0, duration: 0.3 }
+// Reduced motion: state changes become instant (surface-motion › Reduced Motion). MotionConfig
+// reducedMotion="user" alone did not stop `layout` reorder slides, so this is explicit.
+const instant: Transition = { duration: 0 }
 
 const byDue = (ts: Task[]) => [...ts].sort((a, b) => Number(a.done) - Number(b.done) || a.dueOrder - b.dueOrder)
 const nameOf = (id: string) => people.find((p) => p.id === id)?.name ?? id
@@ -34,6 +37,7 @@ export function Tasks() {
   const listRef = useRef<HTMLUListElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const pendingFocus = useRef<FocusIntent | null>(null)
+  const reduce = useReducedMotion() ?? false
 
   const visible = sorted ? byDue(tasks) : tasks
   const open = tasks.filter((t) => !t.done).length
@@ -131,16 +135,16 @@ export function Tasks() {
 
         {/* Rows touch (padding, not gap) so there is no dead zone between them (surface-details). */}
         <ul ref={listRef} className="relative -mx-2" aria-label="Tasks">
-          <AnimatePresence initial={false} mode="popLayout">
+          <AnimatePresence initial={false} mode={reduce ? "sync" : "popLayout"}>
             {visible.map((t, i) => (
               <motion.li
                 key={t.id}
                 data-task-id={t.id}
-                layout
-                initial={{ opacity: 0, y: -4 }}
-                animate={{ opacity: 1, y: 0, transition: enterT }}
-                exit={{ opacity: 0, y: 4, transition: exitT }}
-                transition={{ layout: layoutT }}
+                layout={!reduce}
+                initial={reduce ? false : { opacity: 0, y: -4 }}
+                animate={{ opacity: 1, y: 0, transition: reduce ? instant : enterT }}
+                exit={reduce ? { opacity: 0, transition: instant } : { opacity: 0, y: 4, transition: exitT }}
+                transition={{ layout: reduce ? instant : layoutT }}
                 onKeyDown={(e) => {
                   // ⌘/Ctrl+Backspace removes the focused row (surface-details › Accessibility micro-details).
                   if ((e.metaKey || e.ctrlKey) && e.key === "Backspace") { e.preventDefault(); remove(t.id) }

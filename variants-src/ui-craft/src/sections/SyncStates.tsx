@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react"
-import { AnimatePresence, motion, type Transition } from "motion/react"
+import { AnimatePresence, motion, useReducedMotion, type Transition } from "motion/react"
 import { AlertCircle, Check, CloudOff, Loader2, RefreshCw, WifiOff } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
@@ -25,6 +25,7 @@ const exitT: Transition = { duration: 0.14, ease: [0.4, 0, 1, 1] }
 // an offline mode that queues changes, and a reload that can fail.
 export function SyncStates() {
   const [rate, setRate] = useState(135)
+  const reduce = useReducedMotion() ?? false
   const [saving, setSaving] = useState(false)
   const [saveState, setSaveState] = useState<SaveState>("idle")
   const [saveError, setSaveError] = useState<string | null>(null)
@@ -128,8 +129,8 @@ export function SyncStates() {
             <motion.div
               key="offline"
               initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto", transition: enterT }}
-              exit={{ opacity: 0, height: 0, transition: exitT }}
+              animate={{ opacity: 1, height: "auto", transition: reduce ? { duration: 0 } : enterT }}
+              exit={{ opacity: 0, height: 0, transition: reduce ? { duration: 0 } : exitT }}
               className="-mb-5 overflow-hidden"
             >
               <div role="status" className="bg-warning-surface text-warning mb-5 flex items-start gap-2 rounded-lg px-3 py-2 text-sm">

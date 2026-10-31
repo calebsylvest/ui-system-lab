@@ -1,7 +1,9 @@
-import { useMemo, useState } from "react"
+import { useMemo, useRef, useState } from "react"
 import { ArrowDown, ArrowUp, ArrowUpDown, ChevronLeft, ChevronRight, Search } from "lucide-react"
 import { ledger, type LedgerRow } from "@/data-r3"
 import { Badge } from "@/components/ui/badge"
+import { BlurFade } from "@/components/ui/blur-fade"
+import { NumberTicker } from "@/components/ui/number-ticker"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -12,8 +14,14 @@ type SortKey = "client" | "hours" | "amount" | "due"
 type Sort = { key: SortKey; dir: "asc" | "desc" } | null
 
 const PAGE = 6
-const money = (n: number) => n.toLocaleString("en-US", { style: "currency", currency: "USD" })
+// Typographic minus (U+2212) for credits, so "−$450.00" lines up with the digits instead of a short hyphen.
+const money = (n: number) => n.toLocaleString("en-US", { style: "currency", currency: "USD" }).replace("-", "\u2212")
 const statusVariant = { Paid: "secondary", Sent: "outline", Overdue: "destructive", Draft: "outline", Credit: "secondary" } as const
+
+// Missing values: a muted dash for sighted users, words for screen readers.
+const Missing = ({ label }: { label: string }) => (
+  <><span aria-hidden="true" className="text-muted-foreground">—</span><span className="sr-only">{label}</span></>
+)
 
 // Round-3 section: a data table with messy content. Search, status filter, sortable
 // columns, pagination, a no-results state and a totals row.
@@ -44,6 +52,9 @@ export function Ledger() {
   const current = Math.min(page, pages - 1)
   const visible = rows.slice(current * PAGE, current * PAGE + PAGE)
   const total = rows.reduce((a, r) => a + r.amount, 0)
+  // The totals cell is a number-ticker that starts at the first total (no count-up on load) and
+  // moves only when a search or filter changes the sum, same use as the hourly rate in round 2.
+  const firstTotal = useRef(Math.abs(total)).current
 
   function toggleSort(key: SortKey) {
     setPage(0)
@@ -89,11 +100,11 @@ export function Ledger() {
         </div>
 
         {rows.length === 0 ? (
-          <div className="flex flex-col items-center gap-2 rounded-md border border-dashed py-10 text-center">
-            <p className="font-medium">No invoices match</p>
+          <BlurFade duration={0.25} offset={4} blur="4px" className="flex flex-col items-center gap-2 rounded-md border border-dashed py-10 text-center">
+            <p className="font-medium" role="status">No invoices match</p>
             <p className="text-muted-foreground text-sm">Nothing matches “{query}”{status !== "all" ? ` with status ${status}` : ""}.</p>
             <Button variant="outline" size="sm" onClick={clear}>Clear filters</Button>
-          </div>
+          </BlurFade>
         ) : (
           <>
             <Table>
@@ -113,16 +124,19 @@ export function Ledger() {
                   <TableRow key={r.id}>
                     <TableCell className="font-medium">{r.id}</TableCell>
                     <TableCell className="max-w-56 truncate" title={r.client}>{r.client}</TableCell>
-                    <TableCell className="max-w-48 truncate" title={r.project ?? undefined}>{r.project ?? "—"}</TableCell>
-                    <TableCell className="text-right">{r.hours ?? "—"}</TableCell>
-                    <TableCell className="text-right">{money(r.amount)}</TableCell>
+                    <TableCell className="max-w-48 truncate" title={r.project ?? undefined}>{r.project ?? <Missing label="No project" />}</TableCell>
+                    <TableCell className="text-right tabular-nums">{r.hours ?? <Missing label="No hours" />}</TableCell>
+                    <TableCell className={"text-right tabular-nums" + (r.amount < 0 ? " text-muted-foreground" : "")}>{money(r.amount)}</TableCell>
                     <TableCell><Badge variant={statusVariant[r.status]}>{r.status}</Badge></TableCell>
-                    <TableCell>{r.due ?? "—"}</TableCell>
+                    <TableCell className="tabular-nums">{r.due ?? <Missing label="No due date" />}</TableCell>
                   </TableRow>
                 ))}
                 <TableRow className="hover:bg-transparent">
                   <TableCell colSpan={4} className="text-muted-foreground">{rows.length} {rows.length === 1 ? "entry" : "entries"}</TableCell>
-                  <TableCell className="text-right font-medium">{money(total)}</TableCell>
+                  <TableCell className="text-right font-medium tabular-nums">
+                    <span className="sr-only">{money(total)}</span>
+                    <span aria-hidden="true">{total < 0 ? "\u2212" : ""}$<NumberTicker value={Math.abs(total)} startValue={firstTotal} decimalPlaces={2} className="tracking-normal text-card-foreground dark:text-card-foreground" /></span>
+                  </TableCell>
                   <TableCell colSpan={2} />
                 </TableRow>
               </TableBody>

@@ -73,3 +73,31 @@ Same tokens as round 1 (`--ease-out`, `--ease-in-out`, `--ease-drawer`), the sam
 - **Drag to reorder / dnd kit.** That's a feature change, not motion polish; the buttons stay.
 - **Sonner restyle or `richColors`.** The Undo toast uses Sonner's `action`, which is exactly what ask-sonner prescribes. Round 1 already fixed the theme.
 - **Feel-check owed.** The 250ms ease-in-out on a clicked reorder starts slowly by design, and the overlap of the exit clone (150ms) with the rows sliding up (250ms) is the "opacity + height, no formula" case. Both should be checked at 2–5× in the lab's slow motion.
+
+## Round 3
+
+Same tokens (`--ease-out`, `--ease-in-out`), the same `pressable` buttons, the same `enter-fade` / `enter-rise` @starting-style utilities, and the same reduced-motion policy. No new dependency. These skills are a motion system, so on a table and a form they mostly said "don't". The Ledger gets no motion at all, and the wizard gets three small transitions.
+
+| File(s) | Change | Skill · rule |
+| --- | --- | --- |
+| `Ledger.tsx` | `tabular-nums` on Hours, Amount, the totals row, the entry count and "Page N of M". Columns and the total no longer jitter as search, filter and sort change the numbers. | ui-cheatsheet · "Numbers jitter when they change" |
+| `Ledger.tsx` | "1 entries" ternary → the round-1 `plural()` (`Intl.PluralRules`). | ui-cheatsheet · "Count reads '1 members'" |
+| `Ledger.tsx` | The no-results sentence is capped at `max-w-[65ch]`, since it echoes the query and can run long. | ui-cheatsheet · 65ch line length |
+| `ClientWizard.tsx`, `index.css` | Step change: the entering step gets the new `.enter-step` (opacity plus `translateX(8px)`, 200ms strong ease-out, via `@starting-style` on a `key={step}` wrapper). It comes in from the right on Next and from the left on Back (`data-dir`). First paint and reset have no `data-dir`, so they don't move. | find-animation-opportunities gate · Occasional + Spatial consistency / Teleporting state; easing tree "entering → ease-out"; budget < 300ms; never scale(0) |
+| `ClientWizard.tsx` | Success state: the check sits in a filled circle that enters with the new `.enter-pop` (`scale(0.9)` plus opacity, 300ms ease-out). The text and the "Add another client" button follow with `enter-rise` at 50/100ms stagger. The long billing email now wraps (`break-words`, 65ch). | find-animation-opportunities · "delight budget" (rare success moment); stagger 30–80ms; never scale(0) |
+| `ClientWizard.tsx` | Inline errors fade in (150ms `enter-fade`, opacity only, same as the round-2 save error) and are wired to their inputs with `aria-describedby`. | Preventing a jarring change; a11y. No transform, so a Tab-triggered blur isn't delayed by travel |
+| `ClientWizard.tsx` | Focus restore, as in round 2. Back unmounts itself on step 2, "Add client" unmounts on success, "Add another client" unmounts on reset, and Next turns disabled on a fresh Billing step. Each of those dropped keyboard focus to `<body>`. Focus now goes to the enabled primary action, otherwise to the new step's first field. This only happens when focus was already in the wizard, so mouse users (and the lab's hidden hooks) see no focus ring. | emil-design-eng · "Unseen details compound" / handle edge cases invisibly |
+| `ClientWizard.tsx` | `tabular-nums` on the rate input and on the Rate line in Review. | ui-cheatsheet · numbers |
+| `index.css` | Reduced motion: `.enter-step` and `.enter-pop` keep their fade and drop translate/scale. | "Fewer and gentler, not zero" |
+| `Controls.tsx` | **Round-2 reviewer note, fixed.** A quick click on the hold-to-delete button only got the fill to ~5% before the 200ms snap-back, so it was effectively silent. Releasing early (pointer up or Space/Enter up, but not pointer-leave or blur) now opens a "Hold to delete" tooltip anchored to the button for 1.6s. It uses the round-1 tooltip motion (125ms ease-out, `scale(0.97)` from the trigger, opacity). The hold itself is unchanged (2s linear, 200ms ease-out release). | find-animation-opportunities · Feedback ("confirming the interface heard the user"); RECIPES · Tooltip. The skills don't name this case. They give the hold pattern but say nothing about the early release, so this is my reading of the Feedback purpose rather than a quoted rule |
+
+### Not done, and why
+
+- **Any motion in the Ledger.** Row FLIP on sort, cross-fade on page change, entering rows on filter, sort-icon rotation, an animated empty state. All of it fails the gate. It's tens-per-day use on functional data the user is reading (Function: "data the user is trying to read should not move for style"), and search results follow keystrokes ("never animate keyboard-initiated actions"). Round 2's task-list FLIP was about tracking one item you moved. A sort reorders every row at once, so there's nothing to follow.
+- **Number ticker on the totals.** It's the same "functional data" rejection, and it would need a dependency.
+- **Card height animation between wizard steps, or when errors appear.** Height is tolerated only for accordions. The card edge still snaps.
+- **Exit animation on the outgoing step.** The step is a conditional render, and animating it out would need delayed unmounts or a library. Keeping a short enter only is enough to bridge the change.
+- **Shake on an invalid field, or on clicking the disabled Next.** Shake is only a vocabulary entry. It has no recipe, and its purpose here is already met by the inline message. Same call as rounds 1 and 2.
+- **Skipping the step animation when Next is pressed from the keyboard.** The "keyboard-initiated" rule targets shortcuts repeated hundreds of times a day. A three-step wizard is occasional, and Enter/Space on a focused button is a button press.
+- **Truncation, negative-amount formatting, the em-dash for missing values, status badge colours.** The skills say nothing about data formatting or colour, so these stay baseline.
+- **Feel-check owed.** Check the 8px step nudge and the 300ms success pop at 2–5× in the lab's slow motion.

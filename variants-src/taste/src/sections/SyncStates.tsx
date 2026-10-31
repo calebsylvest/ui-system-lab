@@ -38,6 +38,11 @@ export function SyncStates() {
   const [feed, setFeed] = useState<Feed>("loaded")
   const [failNext, setFailNext] = useState(true)
   const [updated, setUpdated] = useState(clock)
+  // Keyboard stays in reading order (SKILL 9). Raise and Reload stay focusable while busy
+  // (aria-disabled, the handlers already ignore repeat presses), so pressing them, or Retry / Try again
+  // (which leave with the error), never drops focus to the page body.
+  const raiseRef = useRef<HTMLButtonElement>(null)
+  const reloadRef = useRef<HTMLButtonElement>(null)
 
   function raiseRate() {
     if (saving) return
@@ -69,6 +74,7 @@ export function SyncStates() {
   }
 
   function reload() {
+    if (feed === "loading") return
     setFeed("loading")
     setTimeout(() => {
       const fails = failNext
@@ -103,7 +109,7 @@ export function SyncStates() {
               </p>
             </div>
             {/* The label stays "Raise by $10" while saving; the stamp beside the value carries the state. */}
-            <Button data-lab="save-fail" onClick={raiseRate} disabled={saving} aria-busy={saving}>
+            <Button ref={raiseRef} data-lab="save-fail" onClick={raiseRate} aria-disabled={saving} aria-busy={saving} className="aria-disabled:opacity-60 aria-disabled:cursor-not-allowed">
               {saving && <RefreshCw className="animate-spin" />}
               Raise by $10
             </Button>
@@ -112,7 +118,7 @@ export function SyncStates() {
             <div role="alert" className="flex items-start gap-2 text-sm">
               <AlertCircle className="text-negative mt-0.5 size-4 shrink-0" />
               <span className="flex-1">{saveError}</span>
-              <Button variant="ghost" size="sm" data-lab="retry" className="-my-1 underline-offset-4 hover:underline" onClick={raiseRate}>Retry</Button>
+              <Button variant="ghost" size="sm" data-lab="retry" className="-my-1 underline-offset-4 hover:underline" onClick={() => { raiseRef.current?.focus(); raiseRate() }}>Retry</Button>
             </div>
           )}
         </div>
@@ -137,7 +143,7 @@ export function SyncStates() {
               <p className="text-sm font-medium">Time entries</p>
               <p className="text-muted-foreground text-xs">{feed === "loading" ? "Updating…" : `Updated ${updated}`}</p>
             </div>
-            <Button variant="ghost" size="sm" data-lab="reload" onClick={reload} disabled={feed === "loading"}>
+            <Button ref={reloadRef} variant="ghost" size="sm" data-lab="reload" onClick={reload} aria-disabled={feed === "loading"} className="aria-disabled:opacity-60 aria-disabled:cursor-not-allowed">
               <RefreshCw className={cn(feed === "loading" && "animate-spin")} /> Reload
             </Button>
           </div>
@@ -155,7 +161,7 @@ export function SyncStates() {
               <li className="flex min-h-36 items-center gap-2 text-sm">
                 <AlertCircle className="text-negative size-4 shrink-0" />
                 <span className="flex-1">Couldn’t load time entries. Last updated {updated}.</span>
-                <Button variant="ghost" size="sm" className="underline-offset-4 hover:underline" onClick={reload}>Try again</Button>
+                <Button variant="ghost" size="sm" className="underline-offset-4 hover:underline" onClick={() => { reloadRef.current?.focus(); reload() }}>Try again</Button>
               </li>
             )}
             {feed === "loaded" &&

@@ -114,3 +114,49 @@ Same skill order as round 1 (`baseline-ui`, then `fixing-accessibility`, then `f
 - **Dialog's close button `focus:` ring vs Button's `focus-visible:`**: kept stock so it matches round-1's untouched Dialog close.
 - **The `useEffect` ⌘K listener** is a real subscription, not derivable render state, so the "no useEffect for render logic" rule doesn't apply.
 - **CommandShortcut "⌘N"** is a stock hint with no handler. The skill has no rule on it.
+
+## Round 3
+
+Same order as rounds 1 and 2: `baseline-ui`, then `fixing-accessibility`, then `fixing-motion-performance`, with improve-ui's contradiction check. I reused the earlier conventions: CardTitle `as="h2"`, `text-balance`/`text-pretty`, `tabular-nums` on data, `cn()` for conditional classes, decorative icons `aria-hidden`, `motion-reduce:animate-none`, sr-only `role="status"` announcements, and rAF focus restoration (the same approach as Tasks in round 2). No new dependencies. I only edited `Ledger.tsx` and `ClientWizard.tsx`. All `data-lab` hooks and hidden spans are unchanged.
+
+### baseline-ui
+| Change | File | Rule |
+| --- | --- | --- |
+| `tabular-nums` on invoice IDs, hours, amounts, due dates, the total, "Page X of Y", step numbers, the rate input and the review rate | Ledger, ClientWizard | Typography: "MUST use `tabular-nums` for data" |
+| Hours use a fixed two decimals with thousands separators (`9,512.00`, `62.50`), so the right-aligned column lines up the way the currency column does. The data is unchanged; only the display changed | Ledger | Typography: tabular data (alignment is what `tabular-nums` is for) |
+| Hours and Amount sort buttons are right-aligned with their numbers (`text-right` th, `-mr-3`). Before, the header was left-aligned over a right-aligned column | Ledger | Deslop "fix… hierarchy… small layout issues" |
+| Long names and projects still `truncate` with `title`. On the review and success screens, user-entered text gets `break-words` (and `whitespace-pre-line` for notes); the dl's value column is `minmax(0,1fr)` so a long unbroken name can't push the grid wider | Ledger, ClientWizard | Typography: "SHOULD use truncate… for dense UI" |
+| `text-balance` on the empty-state title and the success line; `text-pretty` on the empty-state copy, errors, the Next hint, notes and success copy | Ledger, ClientWizard | Typography |
+| The discard-changes confirm is now an `AlertDialog` (round-1 `ui/alert-dialog.tsx`) with Cancel ("Keep editing") as the safe default focus, replacing a plain `Dialog` | ClientWizard | Interaction: "MUST use an AlertDialog for destructive or irreversible actions" |
+| Empty-state copy no longer reads `Nothing matches “”` when only the status filter is set: it says "No invoices have the status X." instead. Its one action stays "Clear filters" | Ledger | Design: "MUST give empty states one clear next action"; improve-ui §3 contradiction in user-facing copy |
+| Conditional classes (sort icon opacity, header alignment, step state) go through `cn()` | Ledger, ClientWizard | Stack: "MUST use cn utility" |
+
+### fixing-accessibility
+| Change | File | Rule |
+| --- | --- | --- |
+| **Sort headers were a component declared inside render**, so every click remounted the button and dropped keyboard focus to `<body>`. They're now a render helper, so focus stays on the sort button. `aria-sort` is unchanged | Ledger | 2/3: keyboard access, focus |
+| Paging to the first or last page disables the button just pressed, so focus moves to Previous/Next. "Clear filters" unmounts the empty state, so focus moves to the search field | Ledger | 3: restore focus |
+| sr-only `role="status"` announces "N entries, page X of Y" or "No invoices match" when search, filter, sort or page changes | Ledger | 6: announcements / status text |
+| sr-only `<caption>` names the table and its current sort and page; pagination is `<nav aria-label="Ledger pages">` | Ledger | 4: semantics |
+| The totals row is in a `<tfoot>`, and its label is a `th scope="row"` reading "Total for N entries" (was "N entries"). It's the total of every filtered row, not just the visible page, and the old label didn't say so | Ledger | 4: tables use th; improve-ui §3 (the total next to a 6-row page looked like a page sum) |
+| Missing values (project, hours, due) still show "—", but it's `aria-hidden` with sr-only "No project" / "No hours" / "No due date". Empty review values read "Not provided" | Ledger, ClientWizard | 1: meaningful names; decorative visuals hidden |
+| Search is `type="search"`; search, sort-arrow, chevron and check icons are `aria-hidden` | Ledger, ClientWizard | 1: decorative icons aria-hidden; 4 native semantics |
+| Name, email and rate are `aria-required`; their errors have ids linked through `aria-describedby` and are `role="alert"` (the same pattern as round-1 New project) | ClientWizard | 5: errors linked, required announced; 6: critical errors via live region |
+| **Disabled Next now explains why**: "To continue, enter a client name and a billing email." lists only what's still missing on this step, says "a valid…" once the field has content, and is linked to Next via `aria-describedby` | ClientWizard | 5: "disabled submit actions must explain why"; 7: disabled not by opacity alone |
+| Step list labelled "Steps"; past steps get sr-only "(done)"; sr-only `role="status"` announces "Step 2 of 3: Billing" on each change | ClientWizard | 4/6 |
+| Focus: Back from step 2 to step 1 removes the Back button, so focus moves to Next. Finishing moves focus to the success line (`tabIndex=-1`). "Add another client" moves it to the name field. The success panel repeats the toast's message, so the toast isn't the only feedback | ClientWizard | 3: restore focus; 6: "toasts must not be the only way…" |
+
+### fixing-motion-performance
+| Change | File | Rule |
+| --- | --- | --- |
+| `motion-reduce:animate-none` on the status/currency/terms `SelectContent` and on the discard `AlertDialogContent` (zoom + fade). I added it at the call sites so the shared primitives used by rounds 1 and 2 stay untouched | Ledger, ClientWizard | baseline "SHOULD respect prefers-reduced-motion"; a11y §8 |
+| No new animation: no row/sort/page transitions, no step slide | — | baseline "NEVER add animation unless explicitly requested" |
+
+### Found but not implemented
+- **Next stays natively `disabled`** (not focusable), as the brief specifies. The hint is visible text in reading order, so screen-reader users reach it without focusing the button.
+- **Truncated client/project names show in full only via `title`** (hover-only). Screen readers get the full text, but keyboard-only sighted users don't. A focusable Tooltip on every cell would add a tab stop per row, so I skipped it.
+- **The table's horizontal scroll container isn't focusable**: at narrow widths, tabbing to the sort and pagination buttons scrolls it, and making it focusable would mean changing the shared `ui/table.tsx`.
+- **Negative and zero amounts** show as `-$450.00` / `$0.00` (Intl defaults). The Credit badge already says what the negative is, and the skill has no rule on sign or accounting format.
+- **Rate on the review step** stays `140 USD / hour` (raw input plus code) instead of Intl currency, to keep the baseline's copy. The skill has no formatting rule beyond `tabular-nums`.
+- **`autoComplete` attributes and inline validation timing (blur)**: no rule in these skills calls for changing them.
+- **AlertDialog overlay fade** has no reduced-motion opt-out because the overlay is rendered inside the shared primitive. Opacity-only fades are the "downgraded" form the motion skill prefers anyway.

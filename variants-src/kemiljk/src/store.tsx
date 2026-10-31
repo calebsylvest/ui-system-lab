@@ -21,7 +21,7 @@ export function ProjectsProvider({ children }: { children: ReactNode }) {
 
   const store: Store = {
     projects,
-    add: (p) => withTransition(() => setProjects((ps) => [{ ...p, id: `p${nextId++}` }, ...ps])),
+    add: (p) => withTransition(() => setProjects((ps) => [{ ...p, id: `p${nextId++}` }, ...ps]), "projects"),
     rename: (id, name) => setProjects((ps) => ps.map((p) => (p.id === id ? { ...p, name } : p))),
     duplicate: (id) =>
       withTransition(() =>
@@ -31,16 +31,16 @@ export function ProjectsProvider({ children }: { children: ReactNode }) {
           const copy = { ...ps[i], id: `p${nextId++}`, name: `${ps[i].name} (copy)` }
           return [...ps.slice(0, i + 1), copy, ...ps.slice(i + 1)]
         }),
-      ),
+      "projects"),
     remove: (id) => {
       const i = projects.findIndex((p) => p.id === id)
       const removed = projects[i]
-      withTransition(() => setProjects((ps) => ps.filter((p) => p.id !== id)))
+      withTransition(() => setProjects((ps) => ps.filter((p) => p.id !== id)), "projects")
       return () => {
         if (!removed) return
         withTransition(() =>
           setProjects((ps) => (ps.some((p) => p.id === id) ? ps : [...ps.slice(0, i), removed, ...ps.slice(i)])),
-        )
+        "projects")
       }
     },
   }

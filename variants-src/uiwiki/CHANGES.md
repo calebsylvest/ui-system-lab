@@ -166,3 +166,59 @@ The three new sections (`Tasks`, `QuickActions`, `SyncStates`) and the new primi
 - **No exit animation for the offline banner and the error alert.** They disappear instantly. CSS can't animate an unmount without either a presence library (the round-1 "no Motion" decision) or delayed-unmount state written for each element.
 - **No reorder animation in the people picker or command list.** cmdk filtering happens on every keystroke. Rule: `none-high-frequency`.
 - **Sheet slide under reduced motion.** Left as is, the same as the round-1 dialog. The app does not disable tw-animate entrances globally.
+
+## Round 3
+
+The two new sections (`Ledger`, `ClientWizard`) now use the same conventions as rounds 1 and 2: tabular numbers for data, 150–200ms ease-out entrances with nothing under reduced motion, `AnimatedWidth` for a label that changes, messy input accepted and then cleaned, and the off-by-default sound module. There are no new npm dependencies. `RoundThree.tsx` and `data-r3.ts` are unchanged, and so is every `data-lab` hook.
+
+### Ledger (`src/sections/Ledger.tsx`)
+- **Tabular numbers.** Applied to hours, amounts, the totals row, due dates, the entry count and "Page X of Y". IDs also get `slashed-zero`, as the round-1 invoice numbers did. The huge (1,284,500.00), zero and negative amounts now line up digit for digit. Rules: `type-tabular-nums-for-data`, `type-slashed-zero`.
+- **Search accepts messy input.** The query and the cell values are both folded before they are compared: accents are stripped (NFD) and curly quotes become straight ones. "zoe angstrom" now finds "Zoë Ångström Design Büro", and "O'Connor" typed with a straight apostrophe finds "O’Connor-Vasquez". The data itself is unchanged. Rule: `ux-postels-accept-messy-input`.
+- **Sort headers.**
+  - The Hours and Amount buttons are now flush right (`-mr-3`) so they sit over their right-aligned numbers. Before, they kept the left-column `-ml-3`.
+  - The sort icon's opacity changes over 150ms with ease-out.
+  - Hit targets stay at 32px (`h-8`).
+  - `aria-sort` is unchanged.
+  - Rules: `ux-similarity-consistency`, `duration-small-state`, `ux-fitts-target-size`.
+- **Empty state.**
+  - It fades in over 150ms with ease-out and is announced as `role="status"`.
+  - It uses `rounded-lg`, matching the other bounded regions.
+  - The copy is now honest when only the status filter is set. It used to read "Nothing matches “”", and now reads "No invoices have status X".
+  - The echoed query is trimmed and wraps (`break-words`), so a long query can't overflow.
+  - Rules: `easing-for-state-change`, `easing-entrance-ease-out`, `ux-common-region-boundaries`.
+- **Missing values.** The "—" placeholders for project, hours and due date are muted, so real data stands out from gaps. Rule: `ux-von-restorff-emphasis`.
+- **Totals row.** It gets a top border so it reads as separate from the data rows. Rule: `ux-common-region-boundaries`.
+- **Small fixes.**
+  - The search icon has `pointer-events-none`, so clicking it focuses the input.
+  - The decorative icons are `aria-hidden`.
+  - The page counter is `aria-live="polite"`.
+
+### New client wizard (`src/sections/ClientWizard.tsx`)
+- **Progress you can see.**
+  - "Step X of 3" sits beside the step list.
+  - A 4px `Progress` bar runs underneath, with the round-1 linear transform, the one place linear easing is allowed.
+  - Completed steps show a filled check. Screen readers hear "Completed: Step 1: Details".
+  - Rules: `ux-goal-gradient-progress`, `ux-zeigarnik-show-incomplete`, `easing-linear-only-progress`.
+- **The rate accepts messy input.** "$140", "1,200", "140/hr" and "140 per hour" are all accepted. Text that still isn't a number gets "Enter the rate as a number, like 140." Before, it got the misleading "Rate must be more than 0". Rule: `ux-postels-accept-messy-input`.
+- **Cleaned data is saved.** When you finish, name, contact, email, rate and notes are trimmed, and the rate is stored as a plain number. The review step already shows the trimmed values, with the rate formatted (`1,200 USD / hour`). Rule: `ux-postels-accept-messy-input`, the same as the round-1 billing email.
+- **Inline errors.**
+  - Each error is tied to its input with `aria-describedby`.
+  - Errors fade in over 150ms with ease-out.
+  - The timing is unchanged: errors appear on blur, and Next stays disabled until the step is valid.
+  - Rules: `easing-for-state-change`, `easing-entrance-ease-out`.
+- **Step changes.** Each step's panel fades in over 150ms with ease-out, with nothing under reduced motion. There is no slide and no stagger. Rules: `duration-small-state`, `physics-no-excessive-stagger`.
+- **Next / Add client button.** The label sits inside `AnimatedWidth`, so the button resizes smoothly when "Next" becomes "Add client". Rule: `container-no-excessive-use`, since a label change is a sanctioned use.
+- **Success state.**
+  - The check sits in a filled 40px circle with the elevation-1 shadow.
+  - The block fades and scales in from 95% over 200ms with ease-out, and is announced as `role="status"`.
+  - Long emails wrap.
+  - Rules: `ux-peak-end-finish-strong`, `easing-entrance-ease-out`, `physics-subtle-deformation`.
+- **Sound.** When a client is added, the success sound plays alongside the toast. It is still off by default and silent under reduced motion. Rules: `appropriate-confirmations-only`, `a11y-visual-equivalent`.
+- **Discard dialog copy.** The description now reads "What you’ve entered will be cleared. This can’t be undone." The rule's own example is "Delete this item? / This can't be undone." The title, "Keep editing" and the destructive "Discard" are unchanged. Rules: `ux-cognitive-load-reduce`, `ux-von-restorff-emphasis`.
+
+### Not done in round 3
+- **No error sound for inline validation.** Blur errors happen often and while the user is still typing. Sounding them would punish ordinary mistakes, and the red text is enough. Rules: `appropriate-no-high-frequency`, `appropriate-no-punishing`.
+- **No sound or motion for sorting, filtering or paging.** These are high-frequency actions. The rows swap instantly with no View Transition, unlike the Tasks list. Rules: `none-high-frequency`, `appropriate-no-high-frequency`.
+- **Messy client names left as they are.** Long names, the email used as a name and the unbroken domain are truncated with a `title` tooltip, as in the baseline. The data is unchanged, as the brief requires.
+- **No exit animation for errors, the empty state or step panels.** This follows the round-2 decision: CSS can't animate an unmount without a presence library.
+- **Disabled Next left as is.** The rules don't cover disabled versus enabled-with-errors submit buttons, so the baseline behaviour stays.

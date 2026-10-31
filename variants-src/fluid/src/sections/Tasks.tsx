@@ -1,5 +1,5 @@
 import { forwardRef, useRef, useState } from "react"
-import { AnimatePresence, motion } from "motion/react"
+import { AnimatePresence, motion, useReducedMotion } from "motion/react"
 import { ArrowDown, ArrowUp, ListOrdered, Plus, X } from "lucide-react"
 import { toast } from "sonner"
 import { initialTasks, extraTasks, type Task } from "@/data-extra"
@@ -144,6 +144,7 @@ const TaskRow = forwardRef<HTMLLIElement, RowProps>(function TaskRow(
   useRegisterFluidHoverItem(registerItem, index, ref)
   const size = useSize()
   const shape = useShape()
+  const reduceMotion = useReducedMotion()
 
   return (
     <motion.li
@@ -152,7 +153,7 @@ const TaskRow = forwardRef<HTMLLIElement, RowProps>(function TaskRow(
         if (typeof forwarded === "function") forwarded(node)
         else if (forwarded) forwarded.current = node
       }}
-      layout="position"
+      layout={reduceMotion ? false : "position"}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0, transition: spring.moderate.exit }}
@@ -203,7 +204,7 @@ const TaskRow = forwardRef<HTMLLIElement, RowProps>(function TaskRow(
         </span>
         <span
           className={cn(
-            "min-w-0 flex-1 truncate transition-[color] duration-80 [text-box:trim-both_cap_alphabetic]",
+            "min-w-0 flex-1 truncate transition-[color] duration-80 [text-box:trim-both_cap_alphabetic] py-1 -my-1",
             size.text,
             t.done ? "text-muted-foreground line-through" : "text-foreground"
           )}

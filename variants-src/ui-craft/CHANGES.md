@@ -240,3 +240,120 @@ The router classifies the new sections as composite workflows (a mutable list, o
 - **Staggered entrance for reloaded rows:** skipped. surface-interaction's frequency rule beats surface-motion's stagger suggestion for a feed that is reloaded often.
 - **Deep-linking the sheet, filters or command state in the URL:** system-patterns recommends it, but the page has no router, so it would be a feature change.
 - **Visual check:** as in round 1, verification was the build, oxlint (0 errors) and a diff confirming all 13 `data-lab` hooks match the baseline. No screenshots.
+
+## Round 3
+
+The router puts a data table and a multi-step form under **system-patterns** (lead: Tables, Forms, Multi-step forms, Search, Modal dismiss), then **surface-copy** (errors, empty states, confirmation body), **surface-details** (+ interface-polish: forms, text overflow, layout shift, focus return, disabled-button explanations), **surface-typography** (numeric figures) and **surface-colour** (status mapping). The round-1/2 tokens are reused as-is: semantic status badges, the outline focus ring, `hit-area`, `animate-enter`, `tabular-nums`, the danger/success surfaces and the hairline table rows. There are no new dependencies and no primitive changes.
+
+### Ledger (`src/sections/Ledger.tsx`)
+- **Numbers:**
+  - `tabular-nums` on ID, hours, amount, due and total.
+  - Negative amounts use a true minus sign (U+2212), so the credit reads "−$450.00", not "-$450.00". Zero amounts are muted.
+  - Hours use `Intl.NumberFormat`, so the huge value shows as "9,512".
+  - Number headers are right-aligned with the sort arrow on the inside, so each label lines up with its column's digits.
+  - *surface-typography › Numeric figures; system-patterns › Tables "right-align numbers"; surface-details › Optical alignment.*
+- **Missing values:** a muted "—" is `aria-hidden`, with an sr-only "No project", "No hours" or "No due date", because a bare dash is read as "dash". *accessibility.md / surface-details › Decorative HTML hidden.*
+- **Truncation:**
+  - Long, non-ASCII and email-as-name clients, and long projects, truncate to one line with a `title` holding the full text, so one row can't grow the table. The full text stays in the DOM for screen readers.
+  - Project text is muted so the client column leads.
+  - *interface-polish › Text overflow.*
+- **Status colour:** Paid = success and Overdue = danger, the same as the round-1 mapping. Draft is a muted outline. The text label always stays. *surface-colour › Status, colour never alone.*
+- **Sorting:**
+  - Behaviour change: a new column now sorts ascending, the same column toggles to descending, and a third click returns to the original order. Before, Hours, Amount and Due started descending.
+  - The active column shows a solid arrow and full-contrast label. Inactive columns show a faint ↕ only on hover or focus. `aria-sort` is kept.
+  - *system-patterns › Tables "Clicking a different column sorts by it in ascending order", "visible indicator on the active column".*
+- **Sort focus bug fixed:** `SortHead` was a component declared inside render, so every sort remounted the header button and keyboard focus fell to `<body>`. It is now a render function (oxlint's static-components warning). *surface-details › focus return.*
+- **Search:**
+  - It sits in a `<form role="search">` with `type="search"`, a real `<label>` and the icon `pointer-events-none`/`aria-hidden`.
+  - An × "Clear search" button with a hit area appears while there is text, and Escape clears the query first.
+  - `autocomplete="off"` and `enterkeyhint="search"`.
+  - *system-patterns › Search "visible x… Escape clears the input first"; surface-details › Inputs live inside a form, Input decorations.*
+- **Result count + clear-all above the table:**
+  - The line reads "3 of 14 entries" and is polite-live, with a "Clear filters" button when filters are active.
+  - It has a fixed height so it never shifts the table.
+  - *system-patterns › Filtering "Show the result count", "A clear all option".*
+- **Empty state:**
+  - It now covers what, why and what next: "Nothing matches “zzzz”. Check the spelling or clear the filters to see all 14 entries."
+  - There is a separate sentence for a status-only miss, and long queries `break-all`.
+  - It sits on a muted tint, matching round 1's borderless approach, instead of a dashed border.
+  - *surface-copy › Empty States; system-patterns › Search "suggestions… rather than a blank area".*
+- **Totals:**
+  - The totals row moved into a real `<tfoot>`.
+  - It is labelled with what it sums: "Total · all 14 entries" or "Total · 3 matching entries". The sum covers every matching row, not only the visible page, and the old "14 entries" label didn't say so.
+  - *surface-copy › honest feedback.*
+- **Pagination:**
+  - It shows "7–12 of 14 · Page 2 of 3" in tabular figures, inside `<nav aria-label="Ledger pages">`.
+  - Reaching the first or last page disables the button that was pressed, so focus moves to the other button instead of falling to `<body>`.
+  - *system-patterns › Pagination "current page indicator, total count"; surface-details › focus return.*
+- **Layout stability:**
+  - Rows are a fixed 40px, and the table area has `min-h-80` (header + 6 rows + total), so the last page (2 rows) and the empty state don't pull the pagination out from under the pointer.
+  - The empty state fills the same height.
+  - *surface-details › Layout shift.*
+- **Responsive:**
+  - The ID column is sticky (`left-0`, opaque card background, with a colour-mixed hover tint so it matches the row hover) for when the table scrolls sideways.
+  - *system-patterns › Tables Responsive "horizontal scroll with sticky first column".*
+
+### New client (`src/sections/ClientWizard.tsx`)
+- **Real form:** `<form noValidate>`, so Enter advances a step. `required` is set on required fields, and the designed inline errors are kept, as in round 1's PageHeader. *surface-details › Inputs live inside a form, Use required.*
+- **Validation timing:** unchanged (on blur, then live once touched, so errors clear as soon as the input is fixed). It now matches the suite's "onTouched" learning. If the replay hook calls Next on an invalid step, every field on that step is marked touched and focus goes to the first invalid one. *system-patterns › Validation timing, Error display.*
+- **Error display:**
+  - Each field has an always-mounted message slot. Its `min-h` stops errors from pushing the layout, and it is polite-live, so an error that appears on blur is announced after focus has moved.
+  - The slot is linked by `aria-describedby`, and each error has a `CircleAlert` icon next to its text.
+  - Helper text sits in the same slot when there's no error: "Where invoices and receipts are sent." and "Per hour, before tax."
+  - *system-patterns › Error display "error icon"; surface-copy › Helper Text.*
+- **Error copy:**
+  - Email errors now name the actual problem. A value without "@" gets "Add an @ and a domain, like billing@studio.com.", which is the wording of round 1's Settings field. A value without a domain gets "Add a full domain after the @, like studio.com.", and a value with spaces gets "Remove the spaces from the email."
+  - Rate: non-numbers used to get the misleading "must be more than 0" and now get "Enter the rate as a number, like 140." The other messages are "Enter a rate above 0." and "That’s over 2,000 an hour. Check for an extra zero."
+  - *surface-copy › Errors "Be specific when the system knows the cause".*
+- **Disabled Next explains itself:** inline text "Add the client’s name and a valid billing email to continue." sits next to the button and is linked with `aria-describedby`. The button stays disabled, as the brief requires. *surface-details › "Disabled buttons have inline explanation, not tooltip".*
+- **Step indicator:**
+  - `<nav aria-label="Progress">` with numbered markers, connector hairlines and names.
+  - Completed steps show a check on a success surface, plus sr-only "(done)". The current step uses inverted foreground and `aria-current="step"`.
+  - An sr-only line reads "Step 2 of 3: Billing".
+  - Each step's fields are a `fieldset` with a legend.
+  - *system-patterns › Multi-step forms "Show progress"; surface-colour › colour never alone.*
+- **Focus between steps:**
+  - Changing steps unmounts the focused control (for example Back on step 1), so focus moves to the new step's first field, the Review heading or the success heading. It uses `preventScroll` so the lab's replay doesn't scroll the page.
+  - "Add another client" returns focus to Client name.
+  - *surface-details › focus return.*
+- **Autocomplete off** on client name, contact and email. These describe someone else, which is the exact exception the suite allows ("a field labelled email that asks for someone else's email"). *surface-details › Forms.*
+- **Rate field:**
+  - The currency code is shown inside the input, `aria-hidden` and `pointer-events-none`, and it follows the currency picker.
+  - The field is `tabular-nums`. Notes keep spellcheck on because they're prose.
+  - *surface-details › Input decorations.*
+- **Review step:**
+  - It has a focusable heading, "Check the details before adding this client".
+  - The rate is formatted in the chosen currency ("$140.00 per hour (USD)").
+  - Empty optional fields read "Not added" instead of a dash.
+  - Long names and emails wrap (`break-words`/`break-all` with a `minmax(0,1fr)` column), and notes keep their line breaks.
+  - *system-patterns › "final step shows a summary"; surface-copy.*
+- **Success inline, toast removed:**
+  - The success panel (check on a success surface, `role="status"`, `animate-enter`) already confirmed the outcome, so the extra `toast.success` was dropped. This is the same call as Settings in round 1.
+  - *system-patterns › "Important outcomes are inline", "Never only a toast"; surface-details › Feedback near its trigger.*
+- **Discard dialog body:**
+  - It names the object and the consequence: "The details you’ve entered for Juniper & Vale Ceramics haven’t been saved. Discarding clears the form and can’t be undone."
+  - The labels "Keep editing" and "Discard" are kept. Radix focuses "Keep editing" first and returns focus to Cancel when the dialog closes.
+  - *surface-copy › Confirmation Dialogues.*
+- **"(optional)"** is set in muted weight inside the label.
+- **The form is capped at `max-w-2xl`** inside the card. *system-patterns › Layout "Forms: 480–640px".*
+
+### Round-2 fix: reduced motion in Tasks (`src/sections/Tasks.tsx`, `src/sections/SyncStates.tsx`)
+- The round-2 reviewer was right: `MotionConfig reducedMotion="user"` did **not** stop the task rows sliding on reorder under `prefers-reduced-motion`. The round-2 note claiming it did was wrong. `layout` animations (and `popLayout` positioning) still ran.
+- Tasks now reads `useReducedMotion()` and, when it is set:
+  - turns `layout` off;
+  - skips the initial y-offset;
+  - uses `{ duration: 0 }` for enter, exit and layout;
+  - switches AnimatePresence to `mode="sync"`.
+- State changes happen instantly, but rows still appear and disappear. This is surface-motion's recipe ("reduce them to instant state changes"). The offline banner in SyncStates also collapses its height animation to instant.
+- MotionConfig stays as a belt-and-braces default for any other Motion use.
+- *surface-motion › Reduced Motion.*
+
+### Not done, and why
+- **Page-size control (10/25/50):** system-patterns lists it, but with 14 rows it would be a feature addition. Same for URL-synced filters, sort and page: there is no router (same call as round 2).
+- **Removable filter chips:** the query and status are already visible in their own controls. The result line plus "Clear filters" covers clear-all, and chips would duplicate the controls in a two-filter toolbar.
+- **Wrapping or line-clamping long client names:** truncation with `title` keeps the dense table at one line per row. interface-polish reserves line-clamp for cards and descriptions.
+- **Colouring credits green or overdue dates red:** the status badge already carries that meaning, and more colour in a dense table would be noise.
+- **Edit links per section on Review:** Back already preserves data, and per-row jump links would add navigation paths.
+- **Loading state on "Add client":** nothing is async, and a fake delay would be dishonest.
+- **The wizard is a card, not a page:** system-patterns prefers a page/route for flows over 2–3 steps, but this is a page section and the brief keeps the structure.
+- **Visual check:** as in rounds 1 and 2, verification was `npm run build` (passes), oxlint (0 errors, 1 pre-existing warning outside these files) and a diff confirming every `data-lab` hook in Ledger and ClientWizard matches the baseline. No screenshots.

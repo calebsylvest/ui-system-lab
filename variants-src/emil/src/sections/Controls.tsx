@@ -7,11 +7,19 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 
 // Hold-to-confirm for the destructive action (emil-design-eng "Hold-to-delete pattern";
 // animate/RECIPES "Hold to confirm"): 2s linear fill while pressed, 200ms ease-out snap back.
+// Round 3: a quick click left the fill at ~5% before it snapped back, so the press gave no
+// readable feedback. Releasing early now opens a "Hold to delete" tooltip on the button
+// (find-animation-opportunities: Feedback, "confirming the interface heard the user"),
+// using the round-1 tooltip motion (125ms ease-out, scale 0.97 from the trigger).
 function HoldToDelete() {
   const [holding, setHolding] = useState(false)
+  const [hint, setHint] = useState(false)
   const timer = useRef<number | undefined>(undefined)
+  const hintTimer = useRef<number | undefined>(undefined)
   const start = () => {
     if (timer.current) return
+    window.clearTimeout(hintTimer.current)
+    setHint(false)
     setHolding(true)
     timer.current = window.setTimeout(() => {
       timer.current = undefined
@@ -19,22 +27,36 @@ function HoldToDelete() {
       toast("Deleted")
     }, 2000)
   }
-  const cancel = () => {
+  // `explain`: released on purpose before the fill completed (not pointer-leave or blur).
+  const cancel = (explain = false) => {
+    const wasHolding = timer.current !== undefined
     window.clearTimeout(timer.current)
     timer.current = undefined
     setHolding(false)
+    if (explain && wasHolding) {
+      // After this tick, so the trigger's own click-to-close runs first.
+      window.setTimeout(() => setHint(true), 0)
+      window.clearTimeout(hintTimer.current)
+      hintTimer.current = window.setTimeout(() => setHint(false), 1600)
+    }
   }
   const isKey = (k: string) => k === " " || k === "Enter"
   return (
-    <Button variant="destructive" data-holding={holding || undefined} className="relative overflow-hidden"
-      aria-description="Press and hold to delete"
-      onPointerDown={start} onPointerUp={cancel} onPointerLeave={cancel} onPointerCancel={cancel}
-      onKeyDown={(e) => { if (isKey(e.key)) { e.preventDefault(); if (!e.repeat) start() } }}
-      onKeyUp={(e) => { if (isKey(e.key)) cancel() }}
-      onBlur={cancel}>
-      <span aria-hidden className="hold-overlay absolute inset-0 bg-black/25" />
-      <span className="relative">Delete</span>
-    </Button>
+    <Tooltip open={hint} onOpenChange={(o) => { if (!o) setHint(false) }}>
+      <TooltipTrigger asChild>
+        <Button variant="destructive" data-holding={holding || undefined} className="relative overflow-hidden"
+          aria-description="Press and hold to delete"
+          onPointerDown={start} onPointerUp={() => cancel(true)} onPointerLeave={() => cancel()} onPointerCancel={() => cancel()}
+          onKeyDown={(e) => { if (isKey(e.key)) { e.preventDefault(); if (!e.repeat) start() } }}
+          onKeyUp={(e) => { if (isKey(e.key)) cancel(true) }}
+          onBlur={() => cancel()}>
+          <span aria-hidden className="hold-overlay absolute inset-0 bg-black/25" />
+          <span className="relative">Delete</span>
+        </Button>
+      </TooltipTrigger>
+      {/* Opened programmatically, so Radix marks it instant-open; animate that state here. */}
+      <TooltipContent className="data-[state=instant-open]:animate-in data-[state=instant-open]:fade-in-0 data-[state=instant-open]:zoom-in-97">Hold to delete</TooltipContent>
+    </Tooltip>
   )
 }
 

@@ -58,3 +58,23 @@ I checked the three new sections against the skill's decision rules and each pac
 ### Build
 
 `npm run build` passes. JS 1,434.17 kB (411.86 kB gzip). Same dependencies as round 1; the growth comes from the round-2 sections and `cmdk`, which were already copied in.
+
+## Round 3
+
+I checked the Ledger and the New client wizard against the skill's decision rules (wait table, "By element" list) and each package's "Where it goes", "When not to use" and "Detecting a fit" tables. No spot meets an author rule. The skill says "No clear match → … Do not force an effect", so round 3 adds **no effects, no code changes and no new dependencies**. `Ledger.tsx`, `ClientWizard.tsx`, `RoundThree.tsx` and `data-r3.ts` are left exactly as copied. All `data-lab` hooks are untouched. Idle cost is the same as round 1: no new canvas, WebGL context, SVG filter or rAF loop.
+
+### Not done, and why
+
+- **Border beam `line` on the Ledger search.** The rule is "An input that loads after the user submits text … active from submit until results arrive". The ledger filters an in-memory array in a `useMemo` on every keystroke, so there's no wait. Wait table: "Under 2 s → Nothing. No orb, no beam". This is the same call as the round-2 ⌘K search.
+- **Thinking orbs anywhere.** Nothing in either section waits. Sorting, paging and filtering are synchronous, and "Add client" sets `done` straight away. The orb is for "an agent is busy", and "A flash of an orb reads as a glitch."
+- **Liquid metal on the status badges (Paid / Overdue / Credit).** The badge rule names promotional pills ("New", "Pro"; fit signal `<Badge>New</Badge>`), not status labels. "When not to use: Dense lists, table rows or repeated cards." Also: "Destructive or low-priority actions" (Overdue is a destructive-variant badge). Up to six metal badges in one table would also break "keep metal elements apart".
+- **Liquid metal on the totals amount or the "Ledger" / "New client" titles.** These are card titles and a table cell, not "a hero `h1` or key headline". This matches rounds 1-2, where the `text-2xl` page title was skipped too.
+- **Border beam / bot-avatars / metal on table rows.** All three docs list per-row use under "When not to use" ("every row of a list or table", "Dense tables", "table rows").
+- **Border beam `pulse-inner` on "Next" / "Add client".** The pulse type is for "Highlighting a component … a CTA button". But a pulse breathes all the time, the brief rules out always-on animation, and "Static emphasis that never changes state" is listed under "When not to use". The primary button already carries the emphasis. Also, "Add client" is not a CTA "that sells something", so it gets no metal button either.
+- **Liquid-gooey `move` indicator on the wizard's step list.** The recipe is for "segmented-control or tab indicator that should trail and stretch as it moves". The step list is a plain `<ol>` with `aria-current="step"` and no indicator or clickable segments. Adding a sliding pill would be a new UI element that no rule asks for. It would also be a second gooey group on the page next to the Workspace tabs.
+- **Bot-avatars on the success state ("… is set up").** Empty-state mascots are for agent pages ("No runs yet", "Your agent is ready"). A client record isn't a bot or agent, so the `Check` icon stays.
+- **Error copy, validation timing, number formatting, truncation, aria-sort, `aria-describedby` on field errors.** This system ships effects only. It has no rules on tables, typography, forms or error copy, so I left these as baseline. The same goes for round 1, where stock primitives were left alone. The skill's only accessibility rule ("Keep accessibility intact") applies to the effects it adds, and none were added.
+
+### Build
+
+`npm run build` passes. Same dependencies as rounds 1-2.

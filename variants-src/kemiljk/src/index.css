@@ -85,7 +85,11 @@
   .faq details[open]::details-content { block-size: auto; }
 }
 
-/* Shared-element continuity for project cards (View Transitions). */
+/* Shared-element continuity for project cards and task rows (View Transitions).
+   Names are scoped: withTransition() sets data-vt on <html> for the list that is changing, so a
+   task change no longer snapshots and animates every project card (round 3 fix). */
+:root[data-vt="projects"] .vt-project { view-transition-name: var(--vt); }
+:root[data-vt="tasks"] .vt-task { view-transition-name: var(--vt); view-transition-class: task; }
 ::view-transition-group(*) { animation-duration: 260ms; animation-timing-function: cubic-bezier(0.2, 0, 0, 1); }
 
 /* Task rows (round 2): the moved row leads, neighbours yield via the group above; rows enter and leave

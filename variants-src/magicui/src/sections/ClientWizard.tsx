@@ -2,6 +2,7 @@ import { useState } from "react"
 import { Check } from "lucide-react"
 import { toast } from "sonner"
 import { currencies, termsOptions } from "@/data-r3"
+import { BlurFade } from "@/components/ui/blur-fade"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -64,18 +65,21 @@ export function ClientWizard() {
       <span hidden data-lab="wizard-cancel" onClick={cancel} />
 
       {done ? (
-        <CardContent className="flex flex-col items-center gap-3 py-8 text-center">
-          <Check className="size-6" />
+        <CardContent>
+          {/* Same blur-fade entrance as the reloaded time entries in round 2: the success state settles in. */}
+          <BlurFade duration={0.3} offset={4} blur="4px" className="flex flex-col items-center gap-3 py-8 text-center">
+          <Check className="size-6" aria-hidden="true" />
           <div>
             <p className="font-medium">{form.name.trim()} is set up</p>
             <p className="text-muted-foreground text-sm">Invoices go to {form.email.trim()} on {termsOptions.find((t) => t.value === form.terms)?.label} terms.</p>
           </div>
           <Button variant="outline" onClick={reset}>Add another client</Button>
+          </BlurFade>
         </CardContent>
       ) : (
         <>
           <CardContent className="grid gap-5">
-            <ol className="flex gap-4 text-sm">
+            <ol className="flex gap-4 text-sm" aria-label="Steps">
               {steps.map((s, i) => (
                 <li key={s} className={i === step ? "font-medium" : "text-muted-foreground"} aria-current={i === step ? "step" : undefined}>
                   {i + 1}. {s}
@@ -83,12 +87,14 @@ export function ClientWizard() {
               ))}
             </ol>
 
+            {/* Keyed blur-fade: each step's fields settle in briefly (0.25 s, 4 px) when Next/Back swaps them. */}
+            <BlurFade key={step} duration={0.25} offset={4} blur="4px">
             {step === 0 && (
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid items-start gap-4 sm:grid-cols-2">
                 <div className="grid gap-2">
                   <Label htmlFor="wiz-name">Client name</Label>
-                  <Input id="wiz-name" value={form.name} onChange={(e) => set("name")(e.target.value)} onBlur={blur("name")} aria-invalid={!!show("name")} />
-                  {show("name") && <p className="text-destructive text-sm">{show("name")}</p>}
+                  <Input id="wiz-name" value={form.name} onChange={(e) => set("name")(e.target.value)} onBlur={blur("name")} aria-invalid={!!show("name")} aria-describedby={show("name") ? "wiz-name-error" : undefined} />
+                  {show("name") && <p id="wiz-name-error" className="text-destructive text-sm">{show("name")}</p>}
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="wiz-contact">Contact person (optional)</Label>
@@ -96,18 +102,18 @@ export function ClientWizard() {
                 </div>
                 <div className="grid gap-2 sm:col-span-2">
                   <Label htmlFor="wiz-email">Billing email</Label>
-                  <Input id="wiz-email" type="email" value={form.email} onChange={(e) => set("email")(e.target.value)} onBlur={blur("email")} aria-invalid={!!show("email")} />
-                  {show("email") && <p className="text-destructive text-sm">{show("email")}</p>}
+                  <Input id="wiz-email" type="email" value={form.email} onChange={(e) => set("email")(e.target.value)} onBlur={blur("email")} aria-invalid={!!show("email")} aria-describedby={show("email") ? "wiz-email-error" : undefined} />
+                  {show("email") && <p id="wiz-email-error" className="text-destructive text-sm">{show("email")}</p>}
                 </div>
               </div>
             )}
 
             {step === 1 && (
-              <div className="grid gap-4 sm:grid-cols-3">
+              <div className="grid items-start gap-4 sm:grid-cols-3">
                 <div className="grid gap-2">
                   <Label htmlFor="wiz-rate">Hourly rate</Label>
-                  <Input id="wiz-rate" inputMode="decimal" value={form.rate} onChange={(e) => set("rate")(e.target.value)} onBlur={blur("rate")} aria-invalid={!!show("rate")} />
-                  {show("rate") && <p className="text-destructive text-sm">{show("rate")}</p>}
+                  <Input id="wiz-rate" inputMode="decimal" value={form.rate} onChange={(e) => set("rate")(e.target.value)} onBlur={blur("rate")} aria-invalid={!!show("rate")} aria-describedby={show("rate") ? "wiz-rate-error" : undefined} />
+                  {show("rate") && <p id="wiz-rate-error" className="text-destructive text-sm">{show("rate")}</p>}
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="wiz-currency">Currency</Label>
@@ -140,6 +146,7 @@ export function ClientWizard() {
                 <dt className="text-muted-foreground">Notes</dt><dd>{form.notes || "—"}</dd>
               </dl>
             )}
+            </BlurFade>
           </CardContent>
           <CardFooter className="justify-between gap-2">
             <Button variant="ghost" data-lab="wizard-cancel-btn" onClick={cancel}>Cancel</Button>

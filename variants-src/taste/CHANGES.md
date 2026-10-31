@@ -118,3 +118,60 @@ No new dependencies.
 - **Command scrim**: kept the round-1 dialog's `bg-black/50` for the sheet and the menu rather than adding a
   second scrim colour.
 - **Hover-revealed row actions**: not done; they would vanish on touch screens.
+
+## Round 3
+
+Same run (app-screens.md, framed-sheet, IBM Plex, one teal data hue, pale pills). `lint.mjs --app` ran on
+every section: 0 FAIL; the only WARN is round 1's invoice-ID mono in `Workspace.tsx` (the Ledger's ID cell
+carries `taste-skill-ignore`, since §7.4 and §13 allow mono for IDs). `inspect.mjs` still can't run (no Chrome),
+so nothing was screenshotted or measured, and the focus fixes below were checked by reading the code, not in a browser.
+
+| Change | Files | Rule |
+| --- | --- | --- |
+| Header: the subline carries the finding computed from the rows in view ("14 entries · 3 overdue, $10,361.25", with "match" when filtered); red only on the overdue fact | `sections/Ledger.tsx` | §2.2 one finding; §11 counts follow the view; red is a signal |
+| Toolbar: one 32px search (14px icon 13px in, max 320px) and a 32px status select, one height | `Ledger.tsx` | §7.8 toolbar 30–36px; §8.1 one control height per context |
+| Sort headers: plain 12px grey text buttons (not ghost buttons pulled -12px), the active column in ink, the glyph on the active column only; numeric headers right-aligned with the glyph on the left so the word sits flush with the figures. `aria-sort` and `ledger-sort-*` hooks kept | `Ledger.tsx` | §7.2 header, sort glyph on the active column only, numeric headers flush |
+| Fixed-layout table: ID 84px in Plex Mono 13px; Client is the identity column and takes the remaining width (ink, 500, one line, ellipsis, full name in `title`). Long and non-ASCII names, and the email-as-name, truncate and never break inside a word | `Ledger.tsx` | §7.4 identity column widest, never cut mid-word; IDs in mono |
+| Figures: hours and money right-aligned with 2 fixed decimals and thousands separators ("9,512.00", "$1,284,500.00"); negative credit as "-$450.00" in ink, no red; real zeros printed ("0.00", "$0.00"); missing values a grey dash. Amount is the key number in ink; hours, project and due are grey | `Ledger.tsx` | §7.4 fixed decimals, sign in the text; §7.5 ink on identity and key number, grey dash, zero printed |
+| Status: pale pairs, Paid positive, Overdue negative, Sent/Credit neutral, Draft outline; one mark per row | `Ledger.tsx` | §7.6 |
+| Due right-aligned in the last column, on the card's right edge | `Ledger.tsx` | §7.4 dates right-aligned where rows are compared; one right edge |
+| Totals row: the table's strongest rule above it, "Total, 14 entries on all pages" in grey, sum in 600 on the amount's edge | `Ledger.tsx` | §7.2 strongest line; §2.1 totals from rows |
+| Phone/tablet: project below md and due below sm move to a grey second line under the client instead of disappearing; hours hide below sm; the table scrolls inside its frame below 460px | `Ledger.tsx` | §12 fields move to a subline |
+| Empty view keeps the table frame and header; one sentence in a 38px dashed box spans the columns ("No invoices match “zzzz”.") with Clear filters as an ink text button | `Ledger.tsx` | §11 an empty section keeps its frame and header |
+| Pager: "1–6 of 14" range (live region) instead of "Page 1 of 3"; 28px outlined Previous/Next | `Ledger.tsx` | §7.8 full list: page with the range shown |
+| Wizard steps: numbered 20px dots joined by hairlines; the current step an ink dot with ink label, done steps a grey dot with a check (and "done" for screen readers), future steps outlined and grey. No brand hue on chrome. `aria-current="step"` kept | `sections/ClientWizard.tsx` | §13 the accent on data, not chrome; §9.4 |
+| Each step gets a 14/500 heading ("Client details", "Billing", "Review and add") with "Step n of 3" for screen readers | `ClientWizard.tsx` | SKILL §9 every section opens with a heading that names it |
+| Fields: labels above, 8px to the 38px field, 16px between fields, "(optional)" in grey regular | `ClientWizard.tsx` | §8.1 |
+| Errors: 13px negative text with a 14px icon, tied by `aria-describedby`; still shown on blur, and they clear the moment the value is fixed (errors are recomputed live once touched) | `ClientWizard.tsx` | §8.1; §11 negative only on a small icon / the fact |
+| Rate field: right-aligned figure, the unit "USD / h" inside the field (follows the currency), and its limit "More than 0, up to 2,000." beside it, tied by `aria-describedby` | `ClientWizard.tsx` | SKILL "a limit that remains stays visible beside the field"; round-1 rate field |
+| A disabled Next says why: a grey line beside it ("Add a client name and a billing email to continue.", computed from what's missing), tied by `aria-describedby` | `ClientWizard.tsx` | §8.1 disabled controls say why |
+| Review is a key-value well (muted tint, radius 8, 32px rows, label left, value right); rate formatted in the chosen currency ("$140.00 / h"); missing values a grey dash; only the email may break anywhere | `ClientWizard.tsx` | §7.9 key-value well; §7.5; type.md overflow-wrap only on emails |
+| Footer: a row rule above it, Cancel ghost at the left, Back outline and Next/Add client primary at the right, one height | `ClientWizard.tsx` | §8.3; round-2 sheet footer |
+| Success stays inside the card on its left edge: a tinted well with a 16px positive check, "{name} is set up" and where invoices go, then "Add another client". No big centred icon | `ClientWizard.tsx` | §11 states inside the block; §4.2 one left edge; round 1 removed icons from states |
+| Discard dialog names the client ("Discard “Juniper & Vale Ceramics”?") and says the consequence; Discard is the outlined-red destructive | `ClientWizard.tsx` | §8.2 destructive confirmation names the object |
+| Round-3 wrapper gutter 16px → 24px | `sections/RoundThree.tsx` | framed-sheet: one gutter |
+
+### Focus (round-2 reviewer finding, plus the same bug in round 3)
+
+The skill's rule is SKILL.md §9 "every control works from the keyboard alone in reading order" and "visible
+focus" (it has no rule specifically about focus after removal; I read losing focus to `<body>` as breaking it).
+
+| Fix | Files |
+| --- | --- |
+| Removing a task moves focus to the next row's remove button (or the previous one, or the "New task" field when the list empties). Undo puts focus on the restored row. Moving a row to the top/bottom (which disables the arrow you pressed) hands focus to the other arrow | `sections/Tasks.tsx` |
+| "Raise by $10" and "Reload" use `aria-disabled` while busy instead of `disabled` (handlers already ignore repeat presses), so pressing them no longer drops focus; Retry and Try again move focus to them before they unmount | `sections/SyncStates.tsx` |
+| Ledger: Clear filters (which leaves with the empty state) returns focus to the search; a pager button that becomes disabled hands focus to the other one | `sections/Ledger.tsx` |
+| Wizard: Next/Back move focus to the new step's heading (Back disappears on step 1, Next is disabled on an empty step); Add client focuses the success heading; Add another client focuses the name field. The viewer's hidden hooks don't move focus | `sections/ClientWizard.tsx` |
+
+No new dependencies.
+
+### Not applied, and why
+
+- **ISO dates** (§7.4 prefers "2024-02-15" for compared rows): the data says "Nov 14" and data must stay the same; kept, right-aligned.
+- **Copy icon after IDs, IDs truncated to 8 characters**: IDs are 6 characters; a copy action would be a new feature.
+- **No pagination / "View all"**: §7.8 bans paging on overviews, but this is the full list and paging is a tested feature; the full-list house rule (range shown) applies instead.
+- **Sticky header row** (full-list rule): the table shows 6 rows a page, so there is nothing to scroll past.
+- **Shortening client names editorially** (§7.4): would change data; truncation with the full name in `title` instead.
+- **Japanese name**: Plex Sans has no CJK; "株式会社" falls back to the system face. Loading Plex Sans JP would be a large new dependency for one cell.
+- **Hours total in the totals row**: the baseline totals only money; left as is.
+- **Wizard "Edit" links on review rows**: new behaviour; Back covers it.

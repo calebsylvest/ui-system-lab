@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react"
-import { ArrowDown, ArrowUp, ArrowUpDown, ChevronLeft, ChevronRight, Search } from "lucide-react"
+import { useMemo, useRef, useState } from "react"
+import { ArrowDown, ArrowUp, ChevronLeft, ChevronRight, Search } from "lucide-react"
 import { ledger, type LedgerRow } from "@/data-r3"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -7,21 +7,34 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { cn } from "@/lib/utils"
 
 type SortKey = "client" | "hours" | "amount" | "due"
 type Sort = { key: SortKey; dir: "asc" | "desc" } | null
 
 const PAGE = 6
+// Fixed decimals per metric (app-screens.md 7.4): money 2, hours 2, thousands separators everywhere,
+// the sign in the text ("-$450.00"), never in the colour (7.5).
 const money = (n: number) => n.toLocaleString("en-US", { style: "currency", currency: "USD" })
-const statusVariant = { Paid: "secondary", Sent: "outline", Overdue: "destructive", Draft: "outline", Credit: "secondary" } as const
+const hoursFmt = (n: number) => n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+// One status mark per row, pale pairs; red only on the overdue fact (7.6, 11 "red is a signal").
+const statusVariant = { Paid: "positive", Sent: "neutral", Overdue: "negative", Draft: "outline", Credit: "neutral" } as const
+const Dash = () => <span className="text-muted-foreground" aria-label="None">—</span>
 
 // Round-3 section: a data table with messy content. Search, status filter, sortable
 // columns, pagination, a no-results state and a totals row.
+// taste-skill (app-screens.md 7): 12px grey sentence-case headers with the sort glyph on the active
+// column only; the client is the identity column (widest, ink, truncated with the full name on hover);
+// IDs in Plex Mono; figures right-aligned in tabular figures on one right edge; a missing value is a grey
+// dash, a real zero is printed. The total is stated above the table and the range beside the pager.
 export function Ledger() {
   const [query, setQuery] = useState("")
   const [status, setStatus] = useState("all")
   const [sort, setSort] = useState<Sort>(null)
   const [page, setPage] = useState(0)
+  const searchRef = useRef<HTMLInputElement>(null)
+  const prevRef = useRef<HTMLButtonElement>(null)
+  const nextRef = useRef<HTMLButtonElement>(null)
 
   const rows = useMemo(() => {
     const q = query.trim().toLowerCase()
@@ -44,21 +57,46 @@ export function Ledger() {
   const current = Math.min(page, pages - 1)
   const visible = rows.slice(current * PAGE, current * PAGE + PAGE)
   const total = rows.reduce((a, r) => a + r.amount, 0)
+  // The subline carries the finding, computed from the rows in view (2.2, 11 "counts follow the view").
+  const overdue = rows.filter((r) => r.status === "Overdue")
+  const overdueSum = overdue.reduce((a, r) => a + r.amount, 0)
+  const filtered = status !== "all" || query.trim() !== ""
 
   function toggleSort(key: SortKey) {
     setPage(0)
     setSort((s) => (!s || s.key !== key ? { key, dir: key === "client" ? "asc" : "desc" } : s.dir === "desc" ? { key, dir: "asc" } : s.dir === "asc" && key === "client" ? { key, dir: "desc" } : null))
   }
   const clear = () => { setQuery(""); setStatus("all"); setSort(null); setPage(0) }
+  // Keyboard stays in reading order (SKILL 9): the Clear button leaves with the empty state, so focus
+  // returns to the search it just cleared; a pager button that becomes disabled hands focus to the other.
+  const clearFromButton = () => { clear(); requestAnimationFrame(() => searchRef.current?.focus()) }
+  function turn(to: number) {
+    setPage(to)
+    requestAnimationFrame(() => {
+      if (to <= 0) nextRef.current?.focus()
+      else if (to >= pages - 1) prevRef.current?.focus()
+    })
+  }
 
-  const SortHead = ({ k, label, className }: { k: SortKey; label: string; className?: string }) => {
+  const SortHead = ({ k, label, numeric, className }: { k: SortKey; label: string; numeric?: boolean; className?: string }) => {
     const active = sort?.key === k
-    const Icon = !active ? ArrowUpDown : sort!.dir === "asc" ? ArrowUp : ArrowDown
+    const Icon = active && sort!.dir === "asc" ? ArrowUp : ArrowDown
     return (
-      <TableHead className={className} aria-sort={active ? (sort!.dir === "asc" ? "ascending" : "descending") : "none"}>
-        <Button variant="ghost" size="sm" className="-ml-3 h-8" data-lab={`ledger-sort-${k}`} onClick={() => toggleSort(k)}>
-          {label} <Icon className={active ? "" : "opacity-40"} />
-        </Button>
+      <TableHead className={cn(numeric && "text-right", className)} aria-sort={active ? (sort!.dir === "asc" ? "ascending" : "descending") : "none"}>
+        <button
+          type="button"
+          data-lab={`ledger-sort-${k}`}
+          onClick={() => toggleSort(k)}
+          className={cn(
+            "focus-visible:ring-ring/50 hover:text-foreground -mx-1 inline-flex h-7 items-center gap-1 rounded-sm px-1 outline-none focus-visible:ring-[3px]",
+            numeric && "flex-row-reverse",
+            active && "text-foreground",
+          )}
+        >
+          {label}
+          {/* A sort glyph on the active column only (7.2). */}
+          {active ? <Icon className="size-3" aria-hidden="true" /> : <span className="w-3" aria-hidden="true" />}
+        </button>
       </TableHead>
     )
   }
@@ -67,16 +105,20 @@ export function Ledger() {
     <Card>
       <CardHeader>
         <CardTitle>Ledger</CardTitle>
-        <CardDescription>All invoices and credits. Search, filter, sort and page through them.</CardDescription>
+        <CardDescription aria-live="polite">
+          {rows.length} {rows.length === 1 ? "entry" : "entries"}{filtered ? " match" : ""}
+          {overdue.length > 0 && <>{" · "}<span className="text-negative">{overdue.length} overdue, {money(overdueSum)}</span></>}
+        </CardDescription>
       </CardHeader>
       <CardContent className="grid gap-4">
+        {/* Toolbar: one search, one filter, one control height (7.8, 8.1). */}
         <div className="flex flex-wrap items-center gap-2">
-          <div className="relative min-w-56 flex-1">
-            <Search className="text-muted-foreground absolute top-1/2 left-2.5 size-4 -translate-y-1/2" />
-            <Input id="ledger-search" value={query} onChange={(e) => { setQuery(e.target.value); setPage(0) }} placeholder="Search client, project or ID" className="pl-8" aria-label="Search ledger" />
+          <div className="relative min-w-56 flex-1 sm:max-w-80">
+            <Search className="text-muted-foreground absolute top-1/2 left-[13px] size-3.5 -translate-y-1/2" aria-hidden="true" />
+            <Input ref={searchRef} id="ledger-search" type="search" value={query} onChange={(e) => { setQuery(e.target.value); setPage(0) }} placeholder="Search client, project or ID" className="h-8 pl-[34px]" aria-label="Search ledger" />
           </div>
           <Select value={status} onValueChange={(v) => { setStatus(v); setPage(0) }}>
-            <SelectTrigger id="ledger-status" className="w-40" aria-label="Status"><SelectValue /></SelectTrigger>
+            <SelectTrigger id="ledger-status" className="h-8 w-40" aria-label="Status"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All statuses</SelectItem>
               {["Paid", "Sent", "Overdue", "Draft", "Credit"].map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
@@ -88,53 +130,81 @@ export function Ledger() {
           <span hidden data-lab="ledger-sort" onClick={() => toggleSort("amount")} />
         </div>
 
-        {rows.length === 0 ? (
-          <div className="flex flex-col items-center gap-2 rounded-md border border-dashed py-10 text-center">
-            <p className="font-medium">No invoices match</p>
-            <p className="text-muted-foreground text-sm">Nothing matches “{query}”{status !== "all" ? ` with status ${status}` : ""}.</p>
-            <Button variant="outline" size="sm" onClick={clear}>Clear filters</Button>
-          </div>
-        ) : (
-          <>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>ID</TableHead>
-                  <SortHead k="client" label="Client" />
-                  <TableHead>Project</TableHead>
-                  <SortHead k="hours" label="Hours" className="text-right" />
-                  <SortHead k="amount" label="Amount" className="text-right" />
-                  <TableHead>Status</TableHead>
-                  <SortHead k="due" label="Due" />
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+        <Table className="min-w-[460px] table-fixed">
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-[76px] sm:w-[84px]">ID</TableHead>
+              <SortHead k="client" label="Client" />
+              <TableHead className="hidden w-[26%] md:table-cell">Project</TableHead>
+              <SortHead k="hours" label="Hours" numeric className="hidden w-[88px] sm:table-cell" />
+              <SortHead k="amount" label="Amount" numeric className="w-[132px]" />
+              <TableHead className="w-[88px]">Status</TableHead>
+              <SortHead k="due" label="Due" numeric className="hidden w-[76px] sm:table-cell" />
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {rows.length === 0 ? (
+              // An empty view keeps its frame and its header: one sentence spanning the block (11).
+              <TableRow className="border-0">
+                <TableCell colSpan={7} className="h-auto px-0 py-3 whitespace-normal">
+                  <div className="border-input flex min-h-[38px] flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border border-dashed px-3 py-1.5 text-sm">
+                    <p className="min-w-0 flex-1 [overflow-wrap:anywhere]">
+                      <span className="font-medium">No invoices match</span>{" "}
+                      <span className="text-muted-foreground">
+                        {query.trim() ? `“${query.trim()}”` : "this filter"}{status !== "all" ? ` with status ${status}` : ""}.
+                      </span>
+                    </p>
+                    <Button variant="ghost" size="sm" className="-my-1 underline-offset-4 hover:underline" onClick={clearFromButton}>Clear filters</Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ) : (
+              <>
                 {visible.map((r) => (
                   <TableRow key={r.id}>
-                    <TableCell className="font-medium">{r.id}</TableCell>
-                    <TableCell className="max-w-56 truncate" title={r.client}>{r.client}</TableCell>
-                    <TableCell className="max-w-48 truncate" title={r.project ?? undefined}>{r.project ?? "—"}</TableCell>
-                    <TableCell className="text-right">{r.hours ?? "—"}</TableCell>
-                    <TableCell className="text-right">{money(r.amount)}</TableCell>
+                    <TableCell className="font-mono text-[13px]">{r.id}{/* taste-skill-ignore: IDs in mono, app-screens.md 7.4 */}</TableCell>
+                    <TableCell className="min-w-0">
+                      {/* Identity in ink, one line, ellipsis, full name on hover; never broken inside a word (7.4). */}
+                      <span className="block truncate font-medium" title={r.client}>{r.client}</span>
+                      {/* Below md the project moves to a grey second line rather than being dropped (12). */}
+                      <span className="text-muted-foreground block truncate text-xs md:hidden" title={r.project ?? undefined}>
+                        {r.project ?? "No project"}{r.due ? <span className="sm:hidden"> · Due {r.due}</span> : null}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-muted-foreground hidden truncate md:table-cell" title={r.project ?? undefined}>{r.project ?? <Dash />}</TableCell>
+                    <TableCell className="text-muted-foreground hidden text-right sm:table-cell">{r.hours == null ? <Dash /> : hoursFmt(r.hours)}</TableCell>
+                    <TableCell className="text-right font-medium">{money(r.amount)}</TableCell>
                     <TableCell><Badge variant={statusVariant[r.status]}>{r.status}</Badge></TableCell>
-                    <TableCell>{r.due ?? "—"}</TableCell>
+                    <TableCell className="text-muted-foreground hidden text-right sm:table-cell">{r.due ?? <Dash />}</TableCell>
                   </TableRow>
                 ))}
-                <TableRow className="hover:bg-transparent">
-                  <TableCell colSpan={4} className="text-muted-foreground">{rows.length} {rows.length === 1 ? "entry" : "entries"}</TableCell>
-                  <TableCell className="text-right font-medium">{money(total)}</TableCell>
-                  <TableCell colSpan={2} />
+                {/* Totals: the strongest rule in the table sits over the sum; the figure on the amount's edge. */}
+                <TableRow className="border-border border-t border-b-0">
+                  <TableCell colSpan={2} className="text-muted-foreground text-[13px]">
+                    Total, {rows.length} {rows.length === 1 ? "entry" : "entries"}{pages > 1 ? " on all pages" : ""}
+                  </TableCell>
+                  <TableCell className="hidden md:table-cell" />
+                  <TableCell className="hidden sm:table-cell" />
+                  <TableCell className="text-right font-semibold">{money(total)}</TableCell>
+                  <TableCell />
+                  <TableCell className="hidden sm:table-cell" />
                 </TableRow>
-              </TableBody>
-            </Table>
-            <div className="flex items-center justify-between gap-2 text-sm">
-              <span className="text-muted-foreground">Page {current + 1} of {pages}</span>
-              <div className="flex gap-1">
-                <Button variant="outline" size="sm" data-lab="ledger-prev" disabled={current === 0} onClick={() => setPage(current - 1)}><ChevronLeft /> Previous</Button>
-                <Button variant="outline" size="sm" data-lab="ledger-next" disabled={current >= pages - 1} onClick={() => setPage(current + 1)}>Next <ChevronRight /></Button>
-              </div>
+              </>
+            )}
+          </TableBody>
+        </Table>
+
+        {rows.length > 0 && (
+          <div className="flex items-center justify-between gap-2 text-sm">
+            {/* The range, not "Page x of y" (7.8 full list screen). */}
+            <span className="text-muted-foreground" aria-live="polite">
+              {current * PAGE + 1}–{current * PAGE + visible.length} of {rows.length}
+            </span>
+            <div className="flex gap-2">
+              <Button ref={prevRef} variant="outline" size="sm" data-lab="ledger-prev" disabled={current === 0} onClick={() => turn(current - 1)}><ChevronLeft /> Previous</Button>
+              <Button ref={nextRef} variant="outline" size="sm" data-lab="ledger-next" disabled={current >= pages - 1} onClick={() => turn(current + 1)}>Next <ChevronRight /></Button>
             </div>
-          </>
+          </div>
         )}
       </CardContent>
     </Card>

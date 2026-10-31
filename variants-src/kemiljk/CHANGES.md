@@ -221,3 +221,54 @@ Same skills as round 1, same tokens (`light-dark()`, `--warning`, `--destructive
 - **Drag to reorder** (fluid-design #3, direct manipulation). The arrow buttons are the keyboard-safe path the brief tests. Drag would need a new dependency or a lot of pointer code.
 - **Native `popover`/`<dialog>` instead of Radix.** Same reasoning as round 1.
 - **Rendered verification.** The build and oxlint pass. No browser was used, so the findings remain `confirmed-source`.
+
+## Round 3
+
+Same skills, tokens (`--success`, `--destructive`, the blue `--ring`), badge variants, 260 ms `cubic-bezier(0.2, 0, 0, 1)` curve and copy voice as rounds 1–2. No new dependencies. All `data-lab` attributes and hidden replay spans are kept on the same actions. `data-r3.ts` is untouched: the messy values are handled in the UI.
+
+### Ledger (`src/sections/Ledger.tsx`)
+- **Absence is deliberate, not a dash everywhere.** The credit's missing project reads "Not tied to a project", its missing due date "No due date", and the draft's "Set when sent". Missing hours stay a muted "—" with sr-only "Not applicable". Zero hours and $0.00 are shown as real values, muted. (real-content-design: distinguish unavailable from not applicable)
+- **Client names wrap instead of truncating behind a `title` tooltip.** The client is the identifying field, and a tooltip doesn't restore it for touch or keyboard. `overflow-wrap: anywhere` lets the unbroken email address break; `text-pretty` handles the long food-bank name; non-ASCII names use `localeCompare` and `toLocaleLowerCase`. Projects wrap too. Body cells are top-aligned so multi-line rows still read across. The table has a `min-width` and scrolls sideways on narrow screens rather than crushing columns. (real-content-design: check truncation against the task)
+- **Numbers.** Every number column uses tabular figures. Hours are formatted ("9,512", "38.25"). Negative amounts use a real minus sign (U+2212), "−$450.00", not a hyphen. (real-content-design: units and comparison)
+- **Badges** use round 1's mapping: Paid soft green, Overdue the only solid red, Draft dashed. Credit is quiet `secondary`. (humane-functionalism: emphasis follows meaning)
+- **Semantics.** sr-only `<caption>` with the live summary, `scope="col"` headers, the invoice ID as a row header (`<th scope="row">`), and the totals row moved into a real `<tfoot>`. The search is a native `<search>` element with an sr-only `<label>` and `type="search"` (native clear button). Pagination is a `<nav aria-label="Ledger pages">`. (semantic-html-first)
+- **Totals say what they cover:** "Total · 14 entries, all pages, net of 1 credit". Before, it was ambiguous whether it summed the page or the whole result. (real-content-design; interaction-contracts: feedback matches reality)
+- **Sorting.**
+  - Sort buttons are right-aligned on numeric columns (icon before the label), so the header lines up with the figures. The active column's label is foreground, inactive ones muted. Icons are `aria-hidden`; `aria-sort` stays on the `th`.
+  - Missing values (no hours, no due date) now sort last in both directions. Before, a blank led every ascending hours sort. (real-content-design)
+  - `SortHead` was a component defined inside render, so every sort remounted the button and dropped keyboard focus. It's now a render helper; focus stays on the pressed header. (interaction-contracts: focus and access)
+- **One polite `role="status"`** announces count, sort and page ("6 of 14 entries, sorted by amount, largest first. Page 1 of 3."). (interaction-contracts)
+- **Pagination** shows "1–6 of 14 invoices and credits" plus the page number. When Previous or Next disables itself at the first or last page, focus moves to the other button instead of falling to `<body>`. (interaction-contracts: focus)
+- **Empty state.** The copy now says what search looks at ("Search looks at client, project and invoice ID"). "Clear filters" returns focus to the search field, since the button unmounts. A "Clear filters" ghost button also appears in the toolbar whenever a filter or sort is active, so you don't have to empty the results to find it. (interaction-contracts; interface-affordances)
+- The card description named the features ("Search, filter, sort and page through them"). It now describes the content: "14 invoices and credits, newest first. Totals include credits." (real-content-design; same fix as rounds 1–2)
+
+### New client (`src/sections/ClientWizard.tsx`)
+- **A real `<form noValidate>`.** Enter advances a step or adds the client. Next is `type="submit"`; Cancel, Back and Edit are `type="button"`. (semantic-html-first)
+- **Validation timing: punish late, reward early.** An error appears when you leave a field or press Next, and clears as soon as the value is valid. Before, once a field was touched, errors reappeared while you were still typing. Errors are linked with `aria-describedby`, and required fields have `aria-required`. (interaction-contracts)
+- **Next is `aria-disabled`, not `disabled`.** It still looks unavailable until the step is valid, but it stays focusable. Pressing it shows every error on the step and moves focus to the first invalid field. A visible hint, "Fill in the required fields to continue.", is linked to the button. Before, a disabled Next gave no reason and couldn't be reached by keyboard. Same approach as round 2's Sync buttons. The step still can't advance while invalid. (interaction-contracts; interface-affordances)
+- **Error copy says what to do, with an example**, in round 1's Settings voice:
+  - The email error is now specific: "Add an @ to the email, like billing@studio.com." / "Add the domain after the @, like studio.com." The old message covered both cases at once.
+  - Non-numeric rates say "Enter the rate as a number, like 140." Before, "abc" got "Rate must be more than 0".
+  - "1,200" and "$140" are accepted.
+  - The too-high check was blocking while saying "looks too high". It now states the real limit: "Enter a rate up to $2,000 an hour. Check for an extra zero." The limit depends on the currency (¥300,000 for JPY), because ¥15,000 an hour is ordinary.
+  
+  (real-content-design: units, locale; interaction-contracts: honest feedback)
+- **Rate field** shows the selected currency's symbol and "/hr" inside the field, like round 1's Settings rate. Currency now comes before the rate, because the rate depends on it. (real-content-design: units)
+- **Steps.** The step list has numbered markers, a check plus sr-only ", done" for finished steps, and `aria-current="step"`. Each step has a heading ("Who is the client?", "How do you bill them?", "Check the details", with sr-only "Step 2 of 3:"). Focus moves to that heading on Next and Back, so screen readers hear the new step and the focused button doesn't vanish. (interaction-contracts: focus; semantic-html-first)
+- **Review step.** Grouped into Details and Billing sections, each with an Edit button that jumps back to its step. The rate is formatted ("$140 an hour"). Empty optional fields read "Not added" / "None" instead of "—". Long names and notes wrap. (real-content-design)
+- **Cancel dialog.** It names the client and says discarding can't be undone. Focus is managed on close: Keep editing returns focus to Cancel, and Discard returns it to the empty Client name field. Before, there was no trigger for Radix to return focus to. (interaction-contracts: cancel vs undo, focus)
+- **Success state.** A soft green check (the `--success` token) and a focused heading, so the outcome is announced. The copy now includes the currency. The duplicate success toast is removed: the card already confirms in place, and two confirmations for one local action is noise. (subtractive-design)
+- The description now states the commit point: "Nothing is saved until you add the client." Autocomplete hints were added (`organization`, `name`, `email`). The email field has `spellCheck={false}`.
+
+### View Transitions scoping (`src/lib/transition.ts`, `src/index.css`, `src/store.tsx`, `src/sections/Tasks.tsx`, `src/sections/Workspace.tsx`)
+- Round 2's reviewer found that every task change also snapshotted the project grid. The cause: project cards always had an inline `view-transition-name`, so any `startViewTransition` captured and animated them.
+- The fix: `withTransition(update, scope)` now takes `"projects"` or `"tasks"` and sets `data-vt` on `<html>` for the length of the transition. A token makes sure only the latest transition clears it. Names are given in CSS only while their scope matches (`:root[data-vt="tasks"] .vt-task { view-transition-name: var(--vt) }`). Each row carries its name in a `--vt` custom property. All 10 call sites pass a scope.
+- This is a small, contained change and doesn't depend on View Transition types, so it works in every engine that has `startViewTransition`. (fluid-design: animate only what changed; modern-css-html)
+
+### Chose not to do
+- **Keep the table at a fixed height across pages** (fluid-design: layout continuity). The last page has 2 rows, so the pagination jumps up. Reserving 6 rows of space would leave a large blank area on that page. Left as is.
+- **Sticky first column / sticky header on narrow screens.** The table only scrolls sideways below about 700px. Sticky cells inside the shadcn `Table` wrapper need changes to the shared component that also renders the Workspace invoices.
+- **Making the scroll container a focusable region.** Current Chrome and Safari make scrollable containers keyboard-focusable on their own. Doing it in markup means changing the shared `table.tsx`.
+- **Treating the email-as-name client specially** (for example, showing a "No company name" note). That would invent a content rule. Wrapping it fully is the honest presentation.
+- **Popover/`<dialog>` instead of the Radix dialog and selects.** Same reasoning as rounds 1–2.
+- **Rendered verification.** `npm run build` passes, and oxlint has no warnings in the new files (it does flag pre-existing nested components elsewhere). No browser was used, so findings remain `confirmed-source`.

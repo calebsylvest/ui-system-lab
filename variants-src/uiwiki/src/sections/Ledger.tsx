@@ -13,6 +13,8 @@ type Sort = { key: SortKey; dir: "asc" | "desc" } | null
 
 const PAGE = 6
 const money = (n: number) => n.toLocaleString("en-US", { style: "currency", currency: "USD" })
+// ux-postels-accept-messy-input: match "zoe angstrom" to "Zoë Ångström" and a typed ' to ’.
+const fold = (v: string) => v.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[‘’]/g, "'").toLowerCase()
 const statusVariant = { Paid: "secondary", Sent: "outline", Overdue: "destructive", Draft: "outline", Credit: "secondary" } as const
 
 // Round-3 section: a data table with messy content. Search, status filter, sortable
@@ -24,10 +26,10 @@ export function Ledger() {
   const [page, setPage] = useState(0)
 
   const rows = useMemo(() => {
-    const q = query.trim().toLowerCase()
+    const q = fold(query.trim())
     let r = ledger.filter((row) =>
       (status === "all" || row.status === status) &&
-      (!q || [row.id, row.client, row.project ?? ""].some((v) => v.toLowerCase().includes(q))))
+      (!q || [row.id, row.client, row.project ?? ""].some((v) => fold(v).includes(q))))
     if (sort) {
       const val = (row: LedgerRow) =>
         sort.key === "client" ? row.client.toLowerCase() : sort.key === "due" ? row.dueOrder : (row[sort.key] ?? -Infinity)
@@ -51,13 +53,13 @@ export function Ledger() {
   }
   const clear = () => { setQuery(""); setStatus("all"); setSort(null); setPage(0) }
 
-  const SortHead = ({ k, label, className }: { k: SortKey; label: string; className?: string }) => {
+  const SortHead = ({ k, label, align = "left" }: { k: SortKey; label: string; align?: "left" | "right" }) => {
     const active = sort?.key === k
     const Icon = !active ? ArrowUpDown : sort!.dir === "asc" ? ArrowUp : ArrowDown
     return (
-      <TableHead className={className} aria-sort={active ? (sort!.dir === "asc" ? "ascending" : "descending") : "none"}>
-        <Button variant="ghost" size="sm" className="-ml-3 h-8" data-lab={`ledger-sort-${k}`} onClick={() => toggleSort(k)}>
-          {label} <Icon className={active ? "" : "opacity-40"} />
+      <TableHead className={align === "right" ? "text-right" : undefined} aria-sort={active ? (sort!.dir === "asc" ? "ascending" : "descending") : "none"}>
+        <Button variant="ghost" size="sm" className={align === "right" ? "-mr-3 h-8" : "-ml-3 h-8"} data-lab={`ledger-sort-${k}`} onClick={() => toggleSort(k)}>
+          {label} <Icon aria-hidden className={"transition-opacity duration-150 ease-out " + (active ? "" : "opacity-40")} />
         </Button>
       </TableHead>
     )
@@ -72,7 +74,7 @@ export function Ledger() {
       <CardContent className="grid gap-4">
         <div className="flex flex-wrap items-center gap-2">
           <div className="relative min-w-56 flex-1">
-            <Search className="text-muted-foreground absolute top-1/2 left-2.5 size-4 -translate-y-1/2" />
+            <Search aria-hidden className="text-muted-foreground pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2" />
             <Input id="ledger-search" value={query} onChange={(e) => { setQuery(e.target.value); setPage(0) }} placeholder="Search client, project or ID" className="pl-8" aria-label="Search ledger" />
           </div>
           <Select value={status} onValueChange={(v) => { setStatus(v); setPage(0) }}>
@@ -89,9 +91,11 @@ export function Ledger() {
         </div>
 
         {rows.length === 0 ? (
-          <div className="flex flex-col items-center gap-2 rounded-md border border-dashed py-10 text-center">
+          <div role="status" className="animate-in fade-in-0 flex flex-col items-center gap-2 rounded-lg border border-dashed py-10 text-center duration-150 ease-out motion-reduce:animate-none">
             <p className="font-medium">No invoices match</p>
-            <p className="text-muted-foreground text-sm">Nothing matches “{query}”{status !== "all" ? ` with status ${status}` : ""}.</p>
+            <p className="text-muted-foreground max-w-sm text-sm break-words">
+              {query.trim() ? <>Nothing matches “{query.trim()}”{status !== "all" ? ` with status ${status}` : ""}.</> : <>No invoices have status {status}.</>}
+            </p>
             <Button variant="outline" size="sm" onClick={clear}>Clear filters</Button>
           </div>
         ) : (
@@ -102,8 +106,8 @@ export function Ledger() {
                   <TableHead>ID</TableHead>
                   <SortHead k="client" label="Client" />
                   <TableHead>Project</TableHead>
-                  <SortHead k="hours" label="Hours" className="text-right" />
-                  <SortHead k="amount" label="Amount" className="text-right" />
+                  <SortHead k="hours" label="Hours" align="right" />
+                  <SortHead k="amount" label="Amount" align="right" />
                   <TableHead>Status</TableHead>
                   <SortHead k="due" label="Due" />
                 </TableRow>
@@ -111,27 +115,27 @@ export function Ledger() {
               <TableBody>
                 {visible.map((r) => (
                   <TableRow key={r.id}>
-                    <TableCell className="font-medium">{r.id}</TableCell>
+                    <TableCell className="font-medium tabular-nums slashed-zero">{r.id}</TableCell>
                     <TableCell className="max-w-56 truncate" title={r.client}>{r.client}</TableCell>
-                    <TableCell className="max-w-48 truncate" title={r.project ?? undefined}>{r.project ?? "—"}</TableCell>
-                    <TableCell className="text-right">{r.hours ?? "—"}</TableCell>
-                    <TableCell className="text-right">{money(r.amount)}</TableCell>
+                    <TableCell className={"max-w-48 truncate" + (r.project ? "" : " text-muted-foreground")} title={r.project ?? undefined}>{r.project ?? <span>—</span>}</TableCell>
+                    <TableCell className="text-right tabular-nums">{r.hours ?? <span className="text-muted-foreground">—</span>}</TableCell>
+                    <TableCell className="text-right tabular-nums">{money(r.amount)}</TableCell>
                     <TableCell><Badge variant={statusVariant[r.status]}>{r.status}</Badge></TableCell>
-                    <TableCell>{r.due ?? "—"}</TableCell>
+                    <TableCell className="tabular-nums">{r.due ?? <span className="text-muted-foreground">—</span>}</TableCell>
                   </TableRow>
                 ))}
-                <TableRow className="hover:bg-transparent">
-                  <TableCell colSpan={4} className="text-muted-foreground">{rows.length} {rows.length === 1 ? "entry" : "entries"}</TableCell>
-                  <TableCell className="text-right font-medium">{money(total)}</TableCell>
+                <TableRow className="border-t hover:bg-transparent">
+                  <TableCell colSpan={4} className="text-muted-foreground tabular-nums">{rows.length} {rows.length === 1 ? "entry" : "entries"}</TableCell>
+                  <TableCell className="text-right font-medium tabular-nums">{money(total)}</TableCell>
                   <TableCell colSpan={2} />
                 </TableRow>
               </TableBody>
             </Table>
             <div className="flex items-center justify-between gap-2 text-sm">
-              <span className="text-muted-foreground">Page {current + 1} of {pages}</span>
+              <span className="text-muted-foreground tabular-nums" aria-live="polite">Page {current + 1} of {pages}</span>
               <div className="flex gap-1">
-                <Button variant="outline" size="sm" data-lab="ledger-prev" disabled={current === 0} onClick={() => setPage(current - 1)}><ChevronLeft /> Previous</Button>
-                <Button variant="outline" size="sm" data-lab="ledger-next" disabled={current >= pages - 1} onClick={() => setPage(current + 1)}>Next <ChevronRight /></Button>
+                <Button variant="outline" size="sm" data-lab="ledger-prev" disabled={current === 0} onClick={() => setPage(current - 1)}><ChevronLeft aria-hidden /> Previous</Button>
+                <Button variant="outline" size="sm" data-lab="ledger-next" disabled={current >= pages - 1} onClick={() => setPage(current + 1)}>Next <ChevronRight aria-hidden /></Button>
               </div>
             </div>
           </>

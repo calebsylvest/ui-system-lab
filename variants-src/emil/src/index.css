@@ -162,6 +162,33 @@
   }
 }
 
+/* Round 3 — wizard step change (occasional, click-initiated). The entering step nudges in
+   from the side of travel: Next from the right, Back from the left. 200ms strong ease-out,
+   opacity + a small translate only. No data-dir (first paint, reset) = no motion. */
+.enter-step[data-dir] {
+  transition:
+    opacity 200ms var(--ease-out),
+    transform 200ms var(--ease-out);
+  @starting-style {
+    opacity: 0;
+    transform: translateX(var(--step-from, 8px));
+  }
+}
+.enter-step[data-dir="back"] {
+  --step-from: -8px;
+}
+/* Round 3 — success mark. Rare moment, so it gets the delight budget: a longer beat, but
+   from scale(0.9) (never scale(0)) with the same strong ease-out. */
+.enter-pop {
+  transition:
+    opacity 300ms var(--ease-out),
+    transform 300ms var(--ease-out);
+  @starting-style {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+}
+
 /* Reduced motion: fewer and gentler, not zero. Keep opacity/color, drop movement. */
 @media (prefers-reduced-motion: reduce) {
   [data-slot="dialog-content"],
@@ -185,7 +212,9 @@
   }
   .enter-rise,
   .enter-row,
-  .enter-message {
+  .enter-message,
+  .enter-step[data-dir],
+  .enter-pop {
     @starting-style {
       transform: none;
     }

@@ -90,3 +90,48 @@ scroll-fade `@property` rules; nothing else changed.
 - `reveal` not installed: its `skeleton` dependency is missing from the offline registry, so the swap/fade is hand-rolled with the same tiers.
 - Task-row hover stays on even though rows can change place; the docs skip-list is about rows moving *while you scroll*, here they move only on an explicit action.
 - No visual check in a browser from this session (no reachable preview); `npm run build` passes.
+
+## Round 3
+
+No new registry items or npm dependencies: everything used (table, select, input-group, badge,
+dialog, button) was already installed in round 1. This also clears the 17 TS errors that came from stock
+shadcn APIs (`outline`/`destructive`/`sm`, `SelectValue`, index-less `SelectItem`, solid badge variants).
+
+### Ledger (`src/sections/Ledger.tsx`)
+| Change | Rule |
+|---|---|
+| Fluid Table: body rows pass `index`, so one highlight glides between rows, the borders around it fade and the lit row's muted cells lift to foreground | Table craft; one hover highlight per list |
+| Totals moved into a `<tfoot>` row with no `index` (never lights up, semibold like header rows, no bottom rule); total in foreground, count in normal weight | Table: header rows semibold via the variable axis; 3 weights only |
+| Sort headers: ghost `compact` Buttons, `active` while sorted, arrow via `trailingIcon` (leading on numeric columns so the label stays flush with right-aligned figures), `-my-1` holds the header on the 36px ladder. `aria-sort` kept | Button icon slots; Sizes ladder |
+| Sort header was a component defined inside `Ledger`, so every sort remounted its button and dropped keyboard focus. Now a render function | a11y |
+| Search: `InputField` with `icon={Search}` and `labelHidden` ("Search ledger" stays the accessible name), `id="ledger-search"` kept | Forms → input-group; inline fields hide the label |
+| Status filter: Fluid `Select`, `variant="bordered"`, indexed items, `aria-label="Status"` | Forms → select |
+| Status: `Badge variant="dot"` with the round-1 `statusColor` map plus `Credit: violet` | Badge dot variant |
+| Numbers: `tabular-nums` + `whitespace-nowrap` on ID, hours, amount and due; long names/emails truncate with `title` | Typography; data density |
+| Missing values: visible "—" is `aria-hidden` with an sr-only "None" | a11y |
+| Empty state: no dashed frame (Fluid surfaces are frameless), title semibold body role, tertiary compact "Clear filters". Copy no longer says *Nothing matches “”* when only the status filter is set ("No invoices have status Credit.") | Typography roles; honest feedback |
+| sr-only `role="status"` line announces the result count / "No invoices match" as you filter | a11y |
+| Pagination: tertiary `compact` with `leadingIcon`/`trailingIcon`; page counter in the caption role | Button variants/sizes; type roles |
+| Table wrapped in an `overflow-x-auto` div, because the Fluid Table has no scroll container of its own and the long names would push the card wider on mobile | Keeps baseline behaviour |
+
+### New client wizard (`src/sections/ClientWizard.tsx`)
+| Change | Rule |
+|---|---|
+| Fields: `InputGroup` / `InputField` (fluid hover between fields, built-in error line; Base UI Field wires label, `aria-invalid` and `aria-describedby`). Errors still appear only after blur (`onBlurCapture`, because InputField's own `onBlur` would otherwise be replaced and the field would stay in its focused look) | Forms → input-group; InputGroup craft |
+| Fields stacked in one column (`max-w-md`) instead of a 2/3-column grid, so each step is one hover list | One highlight per list |
+| Currency / terms: bordered Fluid `Select` with indexed items; labels for Select/Textarea drawn like InputField's (body role, muted, `pl-2.5`) and tied with `htmlFor` | Forms → select; consistent labels |
+| Notes keeps the shadcn Textarea (Fluid has none, as in rounds 1–2) but takes `useSize().field` | Typography: fields get the 16px touch size |
+| Step indicator: current step turns semibold through the ghost-span pattern (no reflow), foreground vs muted; sr-only live "Step 2 of 3: Billing" | Weight without reflow; a11y |
+| Review list and success state through type roles; long values wrap with `overflow-wrap:anywhere` instead of `break-all` | Typography roles |
+| Footer: Cancel ghost, Back tertiary, Next / Add client primary | Button variants; strongest action trailing |
+| Confirm dialog: Fluid `Dialog` `size="sm"`; Keep editing ghost, Discard `secondary` + `Trash2` (Fluid has no destructive variant; same mapping as round 1) | Dialog; Button variants |
+
+### Round-2 reviewer fixes (`src/sections/Tasks.tsx`, one line each)
+- Task titles clipped descenders: the title span combines `truncate` with a `text-box` trim, so overflow:hidden cut below the trimmed box. Added `py-1 -my-1`, the same fix Fluid's Select trigger uses.
+- Reorder ignored reduced motion: `layout` is now `false` when `useReducedMotion()` is true (rows jump into place; the opacity fade stays).
+
+### Not done, and why
+- No `loading` state on "Add client": the add is synchronous, and a fake delay would be dishonest feedback and would change the timing the viewer replays.
+- Sort arrow swaps don't crossfade (the "icon swaps crossfade in one cell" rule): Button's icon slot takes one component, and building a custom two-glyph cell inside a library button would mean editing installed components.
+- Fluid has no stepper, empty-state or textarea component; AskUserQuestions is a stepped *question* flow, not a form, so it wasn't forced in.
+- No visual check in a browser from this session; `npm run build` passes.

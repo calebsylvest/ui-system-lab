@@ -23,7 +23,7 @@ export default function App() {
         <BlurFade delay={0.08}><Stats /></BlurFade>
         <BlurFade delay={0.16}><Workspace /></BlurFade>
         <BlurFade delay={0.24}><RoundTwo /></BlurFade>
-        <BlurFade inView><RoundThree /></BlurFade>
+        <BlurFade delay={0.28}><RoundThree /></BlurFade>
         <BlurFade delay={0.32} className="grid gap-4 lg:grid-cols-2">
           <Controls />
           <Assistant />

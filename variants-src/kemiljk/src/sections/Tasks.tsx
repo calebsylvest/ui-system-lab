@@ -56,7 +56,7 @@ export function Tasks() {
     withTransition(() => {
       setTasks((ts) => [t, ...ts])
       setDraft("")
-    })
+    }, "tasks")
     setAnnounce(`Added “${t.title}”`)
   }
 
@@ -69,14 +69,14 @@ export function Tasks() {
     const pos = order.findIndex((t) => t.id === id)
     const neighbour = order[pos + 1] ?? order[pos - 1]
     focusAfter.current = neighbour ? { id: neighbour.id, control: "check" } : "input"
-    withTransition(() => setTasks((ts) => ts.filter((t) => t.id !== id)))
+    withTransition(() => setTasks((ts) => ts.filter((t) => t.id !== id)), "tasks")
     toast(`Removed “${task.title}”`, {
       action: {
         label: "Undo",
         onClick: () =>
           withTransition(() =>
             setTasks((ts) => (ts.some((t) => t.id === id) ? ts : [...ts.slice(0, index), task, ...ts.slice(index)])),
-          ),
+          "tasks"),
       },
     })
   }
@@ -93,19 +93,19 @@ export function Tasks() {
     withTransition(() => {
       setSorted(false)
       setTasks(copy)
-    })
+    }, "tasks")
     setAnnounce(`Moved “${base[i].title}” to position ${j + 1} of ${base.length}`)
   }
 
   function toggle(id: string) {
     const update = () => setTasks((ts) => ts.map((t) => (t.id === id ? { ...t, done: !t.done } : t)))
     // In sorted view a completed task drops to the bottom, so animate the reflow; otherwise just flip.
-    if (sorted) withTransition(update)
+    if (sorted) withTransition(update, "tasks")
     else update()
   }
 
   function sort() {
-    withTransition(() => setSorted((s) => !s))
+    withTransition(() => setSorted((s) => !s), "tasks")
   }
 
   const first = visible.find((t) => !t.done)
@@ -143,8 +143,8 @@ export function Tasks() {
                 <li
                   key={t.id}
                   data-task={t.id}
-                  style={{ viewTransitionName: `task-${t.id}`, viewTransitionClass: "task" } as CSSProperties}
-                  className={"bg-card flex items-center gap-3 rounded-md border py-1.5 pr-1.5 pl-3 transition-colors " + (t.done ? "bg-muted/40" : "")}
+                  style={{ "--vt": `task-${t.id}` } as CSSProperties}
+                  className={"vt-task bg-card flex items-center gap-3 rounded-md border py-1.5 pr-1.5 pl-3 transition-colors " + (t.done ? "bg-muted/40" : "")}
                 >
                   <Checkbox id={`task-${t.id}`} data-control="check" checked={t.done} onCheckedChange={() => toggle(t.id)} />
                   <label htmlFor={`task-${t.id}`} className={"min-w-0 flex-1 cursor-pointer text-sm text-pretty " + (t.done ? "text-muted-foreground line-through decoration-muted-foreground/60" : "")}>

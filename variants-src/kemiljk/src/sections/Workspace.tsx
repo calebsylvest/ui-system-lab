@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, type CSSProperties } from "react"
 import { Archive, Copy, FolderPlus, MoreHorizontal, Pencil, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 import { invoices, activity, statusVariant, type Project } from "@/data"
@@ -123,7 +123,7 @@ export function Workspace() {
           ) : (
             <ul role="list" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {projects.map((p) => (
-                <li key={p.id} className="grid" style={{ viewTransitionName: `project-${p.id}` }}>
+                <li key={p.id} className="vt-project grid" style={{ "--vt": `project-${p.id}` } as CSSProperties}>
                   <Card className="gap-4">
                     <CardHeader>
                       <CardTitle>{p.name}</CardTitle>

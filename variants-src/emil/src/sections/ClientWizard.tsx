@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Check } from "lucide-react"
 import { toast } from "sonner"
 import { currencies, termsOptions } from "@/data-r3"
@@ -24,6 +24,26 @@ export function ClientWizard() {
   const [touched, setTouched] = useState<Record<string, boolean>>({})
   const [confirm, setConfirm] = useState(false)
   const [done, setDone] = useState(false)
+  // Direction of the last step change, so the entering step nudges in from the side it
+  // came from. null = first paint / reset: no motion.
+  const [dir, setDir] = useState<"fwd" | "back" | null>(null)
+  const cardRef = useRef<HTMLDivElement>(null)
+  // Focus restore (round-2 rule, "unseen details compound"): Back, Add client and "Add
+  // another client" unmount the focused button, and Next becomes disabled on a fresh step,
+  // which drops focus to <body>. Only when focus was inside the wizard: go to the enabled
+  // primary action, else the new step's first field.
+  const refocus = useRef(false)
+  const markFocus = () => { refocus.current = !!cardRef.current?.contains(document.activeElement) }
+  useEffect(() => {
+    if (!refocus.current) return
+    refocus.current = false
+    const card = cardRef.current
+    const active = document.activeElement as HTMLElement | null
+    if (!card || (active && active !== document.body && card.contains(active) && !active.matches(":disabled"))) return
+    const primary = card.querySelector<HTMLElement>("[data-wiz-primary]:not(:disabled)")
+    const field = card.querySelector<HTMLElement>(".enter-step input, .enter-step textarea, .enter-step button")
+    ;(primary ?? field)?.focus({ preventScroll: true })
+  }, [step, done])
 
   const errors: Partial<Record<keyof Form, string>> = {}
   if (!form.name.trim()) errors.name = "Enter the client’s name."
@@ -42,17 +62,19 @@ export function ClientWizard() {
 
   function next() {
     if (!stepValid) return
-    if (step < 2) setStep(step + 1)
+    markFocus()
+    if (step < 2) { setDir("fwd"); setStep(step + 1) }
     else {
       setDone(true)
       toast.success(`Added ${form.name.trim()}`)
     }
   }
-  function reset() { setForm(empty); setStep(0); setTouched({}); setDone(false); setConfirm(false) }
+  function back() { markFocus(); setDir("back"); setStep((s) => Math.max(0, s - 1)) }
+  function reset() { markFocus(); setDir(null); setForm(empty); setStep(0); setTouched({}); setDone(false); setConfirm(false) }
   function cancel() { if (dirty) setConfirm(true); else reset() }
 
   return (
-    <Card>
+    <Card ref={cardRef}>
       <CardHeader>
         <CardTitle>New client</CardTitle>
         <CardDescription>Three steps. Your entries stay until you save or discard them.</CardDescription>
@@ -60,17 +82,21 @@ export function ClientWizard() {
       <span hidden data-lab="wizard-fill" onClick={() => { setDone(false); setForm({ ...empty, name: "Juniper & Vale Ceramics", contact: "Ines Duarte", email: "billing@junipervale.example", rate: "140" }); setStep(0) }} />
       <span hidden data-lab="wizard-invalid" onClick={() => { setDone(false); setStep(0); setForm((f) => ({ ...f, email: "ines.junipervale" })); setTouched((t) => ({ ...t, email: true, name: true })) }} />
       <span hidden data-lab="wizard-next" onClick={next} />
-      <span hidden data-lab="wizard-back" onClick={() => setStep((s) => Math.max(0, s - 1))} />
+      <span hidden data-lab="wizard-back" onClick={back} />
       <span hidden data-lab="wizard-cancel" onClick={cancel} />
 
       {done ? (
         <CardContent className="flex flex-col items-center gap-3 py-8 text-center">
-          <Check className="size-6" />
-          <div>
+          <span className="enter-pop bg-primary text-primary-foreground grid size-10 place-items-center rounded-full" aria-hidden>
+            <Check className="size-5" />
+          </span>
+          <div className="enter-rise" style={{ transitionDelay: "50ms" }}>
             <p className="font-medium">{form.name.trim()} is set up</p>
-            <p className="text-muted-foreground text-sm">Invoices go to {form.email.trim()} on {termsOptions.find((t) => t.value === form.terms)?.label} terms.</p>
+            <p className="text-muted-foreground max-w-[65ch] text-sm break-words">Invoices go to {form.email.trim()} on {termsOptions.find((t) => t.value === form.terms)?.label} terms.</p>
           </div>
-          <Button variant="outline" onClick={reset}>Add another client</Button>
+          <div className="enter-rise" style={{ transitionDelay: "100ms" }}>
+            <Button variant="outline" data-wiz-primary onClick={reset}>Add another client</Button>
+          </div>
         </CardContent>
       ) : (
         <>
@@ -83,12 +109,13 @@ export function ClientWizard() {
               ))}
             </ol>
 
+            <div key={step} data-dir={dir ?? undefined} className="enter-step">
             {step === 0 && (
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="grid gap-2">
                   <Label htmlFor="wiz-name">Client name</Label>
-                  <Input id="wiz-name" value={form.name} onChange={(e) => set("name")(e.target.value)} onBlur={blur("name")} aria-invalid={!!show("name")} />
-                  {show("name") && <p className="text-destructive text-sm">{show("name")}</p>}
+                  <Input id="wiz-name" value={form.name} onChange={(e) => set("name")(e.target.value)} onBlur={blur("name")} aria-invalid={!!show("name")} aria-describedby={show("name") ? "wiz-name-error" : undefined} />
+                  {show("name") && <p id="wiz-name-error" className="enter-fade text-destructive text-sm">{show("name")}</p>}
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="wiz-contact">Contact person (optional)</Label>
@@ -96,8 +123,8 @@ export function ClientWizard() {
                 </div>
                 <div className="grid gap-2 sm:col-span-2">
                   <Label htmlFor="wiz-email">Billing email</Label>
-                  <Input id="wiz-email" type="email" value={form.email} onChange={(e) => set("email")(e.target.value)} onBlur={blur("email")} aria-invalid={!!show("email")} />
-                  {show("email") && <p className="text-destructive text-sm">{show("email")}</p>}
+                  <Input id="wiz-email" type="email" value={form.email} onChange={(e) => set("email")(e.target.value)} onBlur={blur("email")} aria-invalid={!!show("email")} aria-describedby={show("email") ? "wiz-email-error" : undefined} />
+                  {show("email") && <p id="wiz-email-error" className="enter-fade text-destructive text-sm">{show("email")}</p>}
                 </div>
               </div>
             )}
@@ -106,8 +133,8 @@ export function ClientWizard() {
               <div className="grid gap-4 sm:grid-cols-3">
                 <div className="grid gap-2">
                   <Label htmlFor="wiz-rate">Hourly rate</Label>
-                  <Input id="wiz-rate" inputMode="decimal" value={form.rate} onChange={(e) => set("rate")(e.target.value)} onBlur={blur("rate")} aria-invalid={!!show("rate")} />
-                  {show("rate") && <p className="text-destructive text-sm">{show("rate")}</p>}
+                  <Input id="wiz-rate" className="tabular-nums" inputMode="decimal" value={form.rate} onChange={(e) => set("rate")(e.target.value)} onBlur={blur("rate")} aria-invalid={!!show("rate")} aria-describedby={show("rate") ? "wiz-rate-error" : undefined} />
+                  {show("rate") && <p id="wiz-rate-error" className="enter-fade text-destructive text-sm">{show("rate")}</p>}
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="wiz-currency">Currency</Label>
@@ -135,17 +162,18 @@ export function ClientWizard() {
                 <dt className="text-muted-foreground">Client</dt><dd>{form.name || "—"}</dd>
                 <dt className="text-muted-foreground">Contact</dt><dd>{form.contact || "—"}</dd>
                 <dt className="text-muted-foreground">Billing email</dt><dd className="break-all">{form.email || "—"}</dd>
-                <dt className="text-muted-foreground">Rate</dt><dd>{form.rate ? `${form.rate} ${form.currency} / hour` : "—"}</dd>
+                <dt className="text-muted-foreground">Rate</dt><dd className="tabular-nums">{form.rate ? `${form.rate} ${form.currency} / hour` : "—"}</dd>
                 <dt className="text-muted-foreground">Terms</dt><dd>{termsOptions.find((t) => t.value === form.terms)?.label}</dd>
                 <dt className="text-muted-foreground">Notes</dt><dd>{form.notes || "—"}</dd>
               </dl>
             )}
+            </div>
           </CardContent>
           <CardFooter className="justify-between gap-2">
             <Button variant="ghost" data-lab="wizard-cancel-btn" onClick={cancel}>Cancel</Button>
             <div className="flex gap-2">
-              {step > 0 && <Button variant="outline" onClick={() => setStep(step - 1)}>Back</Button>}
-              <Button onClick={next} disabled={!stepValid}>{step === 2 ? "Add client" : "Next"}</Button>
+              {step > 0 && <Button variant="outline" onClick={back}>Back</Button>}
+              <Button data-wiz-primary onClick={next} disabled={!stepValid}>{step === 2 ? "Add client" : "Next"}</Button>
             </div>
           </CardFooter>
         </>

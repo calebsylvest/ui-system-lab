@@ -9,6 +9,7 @@ import { Controls } from "@/sections/Controls"
 import { States } from "@/sections/States"
 import { Assistant } from "@/sections/Assistant"
 import { RoundTwo } from "@/sections/RoundTwo"
+import { RoundThree } from "@/sections/RoundThree"
 
 export default function App() {
   return (
@@ -19,6 +20,7 @@ export default function App() {
         <Stats />
         <Workspace />
         <RoundTwo />
+        <RoundThree />
         <div className="grid gap-4 lg:grid-cols-2">
           <Controls />
           <Assistant />

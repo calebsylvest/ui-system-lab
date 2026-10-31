@@ -72,6 +72,16 @@
     "retry": { lab: "retry", name: /^retry$/i },
     "offline": { lab: "offline" },
     "reload": { lab: "reload", name: /^reload$/i },
+    "ledger-sort": { lab: "ledger-sort" },
+    "ledger-filter": { lab: "ledger-filter" },
+    "ledger-empty": { lab: "ledger-empty" },
+    "ledger-clear": { lab: "ledger-clear" },
+    "ledger-next": { lab: "ledger-next", name: /^next( page)?$/i },
+    "wizard-fill": { lab: "wizard-fill" },
+    "wizard-invalid": { lab: "wizard-invalid" },
+    "wizard-next": { lab: "wizard-next" },
+    "wizard-back": { lab: "wizard-back" },
+    "wizard-cancel": { lab: "wizard-cancel" },
   };
   function accName(el) {
     return (el.getAttribute("aria-label") || el.textContent || "").replace(/\s+/g, " ").trim();

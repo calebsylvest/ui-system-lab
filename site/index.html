@@ -251,6 +251,20 @@ tr.base td { color: var(--muted); }
         <option value="task-remove">Remove a task</option>
         <option value="tab">Next tab</option>
       </optgroup>
+      <optgroup label="Table">
+        <option value="ledger-sort">Sort by amount</option>
+        <option value="ledger-next">Next page</option>
+        <option value="ledger-filter">Search “north”</option>
+        <option value="ledger-empty">Search with no results</option>
+        <option value="ledger-clear">Clear filters</option>
+      </optgroup>
+      <optgroup label="Form">
+        <option value="wizard-fill">Fill in a valid client</option>
+        <option value="wizard-invalid">Enter a bad email</option>
+        <option value="wizard-next">Next step</option>
+        <option value="wizard-back">Previous step</option>
+        <option value="wizard-cancel">Cancel with unsaved changes</option>
+      </optgroup>
       <optgroup label="Feedback">
         <option value="toast">Show a toast</option>
         <option value="save-fail">Save that fails (then Retry)</option>
@@ -608,7 +622,7 @@ document.getElementById("tour").addEventListener("click", async (ev) => {
   const btn = ev.currentTarget;
   if (touring) { touring = false; return; }
   touring = true; btn.textContent = "Stop";
-  const steps = ["dialog", "close", "menu", "close", "sheet", "close", "command", "close", "task-add", "task-complete", "task-sort", "task-remove", "save-fail", "toast", "reload"];
+  const steps = ["dialog", "close", "menu", "close", "sheet", "close", "command", "close", "task-add", "task-complete", "task-sort", "task-remove", "save-fail", "toast", "reload", "ledger-sort", "ledger-empty", "ledger-clear", "wizard-invalid", "wizard-fill", "wizard-next", "wizard-next", "wizard-cancel", "close"];
   const pause = (ms) => new Promise((r) => setTimeout(r, ms / Math.max(state.rate, 0.2) ** 0.5));
   for (const s of steps) {
     if (!touring) break;

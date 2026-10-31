@@ -7,6 +7,7 @@ import { PageHeader } from "@/sections/PageHeader"
 import { Stats } from "@/sections/Stats"
 import { Workspace } from "@/sections/Workspace"
 import { RoundTwo } from "@/sections/RoundTwo"
+import { RoundThree } from "@/sections/RoundThree"
 import { Settings } from "@/sections/Settings"
 import { Controls } from "@/sections/Controls"
 import { States } from "@/sections/States"
@@ -22,6 +23,7 @@ export default function App() {
         <BlurFade delay={0.08}><Stats /></BlurFade>
         <BlurFade delay={0.16}><Workspace /></BlurFade>
         <BlurFade delay={0.24}><RoundTwo /></BlurFade>
+        <BlurFade inView><RoundThree /></BlurFade>
         <BlurFade delay={0.32} className="grid gap-4 lg:grid-cols-2">
           <Controls />
           <Assistant />

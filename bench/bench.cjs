@@ -10,13 +10,20 @@ const [, , id, outDir, runsArg] = process.argv;
 const RUNS = Number(runsArg || 2);
 fs.mkdirSync(outDir, { recursive: true });
 
+// JS counts only files loaded at startup (script tags and modulepreloads in index.html).
+// Chunks split off for on-demand dynamic import are reported separately as lazyJsGz.
 function bundle(dir) {
-  const out = { js: 0, jsGz: 0, css: 0, cssGz: 0, font: 0 };
+  const out = { js: 0, jsGz: 0, lazyJsGz: 0, css: 0, cssGz: 0, font: 0 };
+  const html = fs.readFileSync(path.join(dir, 'index.html'), 'utf8');
+  const initial = new Set([...html.matchAll(/(?:src|href)="\.?\/?([^"]+\.js)"/g)].map((m) => path.normalize(m[1])));
   const walk = (d) => fs.readdirSync(d, { withFileTypes: true }).forEach((e) => {
     const p = path.join(d, e.name);
     if (e.isDirectory()) return walk(p);
     const buf = fs.readFileSync(p);
-    if (/\.js$/.test(e.name) && e.name !== 'lab-bridge.js') { out.js += buf.length; out.jsGz += zlib.gzipSync(buf).length; }
+    if (/\.js$/.test(e.name) && e.name !== 'lab-bridge.js') {
+      if (initial.has(path.relative(dir, p))) { out.js += buf.length; out.jsGz += zlib.gzipSync(buf).length; }
+      else out.lazyJsGz += zlib.gzipSync(buf).length;
+    }
     else if (/\.css$/.test(e.name)) { out.css += buf.length; out.cssGz += zlib.gzipSync(buf).length; }
     else if (/\.(woff2?|ttf|otf)$/.test(e.name)) out.font += buf.length;
   });

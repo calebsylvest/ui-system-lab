@@ -1,5 +1,5 @@
 {
- "summary": "kemiljk ranked first. Its skills treated messy data and edge cases as part of the design: long client names wrap, missing ledger values read 'No due date' or 'Not tied to a project', the total notes 'net of 1 credit', and the benchmark showed no meaningful cost. taste came a close second with the most complete visual rethink, a sidebar app shell and a header summary that leads with what needs attention, and it was the only variant with no sampled contrast failures in either theme; a clipped Add button and truncated phone amounts held its fidelity score down. skills and ui-craft followed, with ui-craft drawing the accessibility judge's top rank but losing points for a phone layout that is 895px wide in a 390px viewport. The systems that helped this app most were rule sets about content, semantics and layout that the agent applied to the existing shadcn components, while motion-only skills (feel-better, emil, uiwiki) left the page looking and scoring like the baseline. The libraries cost the most: Fluid Functionalism added about 233 KB of gzipped JavaScript and 332 KB of fonts and lost input borders and the phone grid, Magic UI added about 54 KB of JavaScript for effects judges did not count as improvements, and the libraries.dev effects raised blocking time from about 1 s to about 23 s and kept roughly a third of the main thread busy at idle. For a working app UI, start with a content and behavior skill such as kemiljk or skills, add a visual-direction skill like taste if the product needs a new look, and check the phone layout and font weight it adds before shipping.",
+ "summary": "kemiljk ranked first. Its skills treated messy data and edge cases as part of the design: long client names wrap, missing ledger values read 'No due date' or 'Not tied to a project', the total notes 'net of 1 credit', and the benchmark showed no meaningful cost. taste came a close second with the most complete visual rethink, a sidebar app shell and a header summary that leads with what needs attention, and it was the only variant with no sampled contrast failures in either theme; a clipped Add button and truncated phone amounts held its fidelity score down. skills and ui-craft followed, with ui-craft drawing the accessibility judge's top rank but losing points for a phone layout that is 895px wide in a 390px viewport. The systems that helped this app most were rule sets about content, semantics and layout that the agent applied to the existing shadcn components, while motion-only skills (feel-better, emil, uiwiki) left the page looking and scoring like the baseline. The libraries cost the most: Fluid Functionalism added about 108 KB of gzipped JavaScript at load and 332 KB of fonts and lost input borders and the phone grid, Magic UI added about 54 KB of JavaScript for effects judges did not count as improvements, and the libraries.dev effects raised blocking time from about 1 s to about 23 s and kept roughly a third of the main thread busy at idle. For a working app UI, start with a content and behavior skill such as kemiljk or skills, add a visual-direction skill like taste if the product needs a new look, and check the phone layout and font weight it adds before shipping.",
  "method": "One Fieldwork page (React, Tailwind and default shadcn/ui) was rebuilt eleven times, each by a separate AI agent that read only one system's documentation. Three blind judges, a product designer, a design engineer and an accessibility and UX-writing specialist, scored anonymized builds on five axes against the unchanged baseline at 3. Performance was measured in headless Chromium with a 4x CPU throttle and no GPU and scored relative to the baseline.",
  "ranking": [
   "kemiljk",
@@ -46,7 +46,7 @@
    "ids": [
     "fluid"
    ],
-   "note": "Replaced shadcn components with the library's own. Largest change, largest bundle, and the only system all three judges ranked last."
+   "note": "Replaced shadcn components with the library's own. Largest change, heaviest download once fonts are counted, and the only system all three judges ranked last."
   },
   {
    "label": "Effect packs",
@@ -110,7 +110,7 @@
    "bestFor": "Giving an app a new, coherent visual direction",
    "highlights": [
     "Sidebar shell and a header summary that leads with at-risk and overdue items",
-    "Ledger header reads '14 entries \u00b7 3 overdue' with the total owed",
+    "Ledger header reads '14 entries · 3 overdue' with the total owed",
     "280ms FLIP reorder and zero-duration motion under reduced motion",
     "Phone ledger tucks the project under the client name"
    ],
@@ -177,7 +177,7 @@
    "bestFor": "Form guidance, error copy and accessibility on desktop",
    "highlights": [
     "Numbered wizard stepper with next-step hints and an error icon",
-    "Ledger total labeled 'Total \u00b7 all 14 entries' with credits and negatives clearly marked",
+    "Ledger total labeled 'Total · all 14 entries' with credits and negatives clearly marked",
     "Consistent 2px focus rings",
     "No-results empty state that tells you how to recover"
    ],
@@ -215,7 +215,7 @@
     "Heading structure and alertdialog for discard"
    ],
    "issues": [
-    "Task titles truncate to a few characters on phone ('Send cat\u2026')",
+    "Task titles truncate to a few characters on phone ('Send cat…')",
     "Dark-theme At risk, Overdue and Delete badges remain about 2.89:1"
    ],
    "effort": "small (19 files, about 235 lines changed), no new dependencies",
@@ -388,14 +388,14 @@
     "accessibility": 2.0,
     "fidelity": 2.0,
     "productFit": 2.0,
-    "performanceCost": 2.0
+    "performanceCost": 3.0
    },
    "judgeRanks": [
     11,
     11,
     11
    ],
-   "verdict": "All three judges ranked it last. Swapping in the library's components gave fast 80ms transitions, dot status badges and good failed-save copy, but inputs lost their borders, the delete action lost its destructive color, settings labels were rearranged, and the phone project grid stays at three columns. It is also the heaviest build.",
+   "verdict": "All three judges ranked it last. Swapping in the library's components gave fast 80ms transitions, dot status badges and good failed-save copy, but inputs lost their borders, the delete action lost its destructive color, settings labels were rearranged, and the phone project grid stays at three columns. It is also the heaviest download once fonts are counted.",
    "bestFor": "New projects built on the library from the start",
    "highlights": [
     "Dot-style status badges in the ledger and on project cards",
@@ -407,7 +407,7 @@
     "Phone project grid stays three columns at 390px and titles break per word",
     "Delete rendered neutral gray; reduced motion not honored; several focus stops lack a visible ring"
    ],
-   "effort": "large (50 files, about 13,000 lines changed), adds Base UI, 10 Radix packages, motion, Inter Variable and pdfjs-dist (+233 KB gzipped JS, 332 KB fonts, LCP 2236 ms vs 1404 ms)",
+   "effort": "large (50 files, about 13,000 lines changed), adds Base UI, 10 Radix packages, motion and Inter Variable (+108 KB gzipped JS at load, 332 KB fonts, LCP 2236 ms vs 1404 ms). pdf.js is also bundled but only loads when someone attaches a PDF.",
    "improve": [
     "Start a new project on the library rather than swapping it into an existing shadcn app; most problems came from mixing the two.",
     "Restore visible input borders and a responsive project grid before shipping.",

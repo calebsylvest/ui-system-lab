@@ -6,7 +6,7 @@ data = {
  "TAKEAWAYS": [
   {"icon": "trophy", "k": "Most improved", "v": "kemiljk skills", "d": "Handled messy data and edge cases in plain language, with no added weight. Two of three judges put it in their top two."},
   {"icon": "sparkles", "k": "Best redesign", "v": "taste-skill", "d": "The only system that gave the app a new look: a sidebar shell, a summary that leads with what needs attention, and clean contrast."},
-  {"icon": "alert", "k": "Costliest", "v": "libraries.dev and Fluid", "d": "libraries.dev kept about a third of the main thread busy at idle. Fluid more than doubled the JavaScript and lost input borders."},
+  {"icon": "alert", "k": "Costliest", "v": "libraries.dev and Fluid", "d": "libraries.dev kept about a third of the main thread busy at idle. Fluid added about 108 KB of JavaScript and 332 KB of fonts, and lost input borders."},
  ],
  "SETUP": [
   {"icon": "page", "title": "The test page", "items": ["Fieldwork, a fictional studio tool built with React, Tailwind and stock shadcn/ui.", "Dashboard cards, tabs, a task list, overlays, async states, a messy data table, a 3-step form, an AI chat panel and settings.", "Same data and features in every version."]},
@@ -17,7 +17,7 @@ data = {
   {"icon": "shield", "title": "Constraints and choices", "items": ["Built in a sandbox that couldn’t reach some sites, so registries were served from their GitHub sources.", "Agents couldn’t see the rendered page; judges did the visual checks.", "Scores are judgement: treat differences under about 0.2 as ties."]},
  ],
  "PERF_COLS": [
-  {"k": "js", "label": "JS (gzip)", "tip": "Compressed JavaScript the page downloads. The original is 152 KB."},
+  {"k": "js", "label": "JS (gzip)", "tip": "Compressed JavaScript the page loads at startup. The original is 152 KB. Code split off to load only on demand, like Fluid’s pdf.js, isn’t counted."},
   {"k": "font", "label": "Font files", "tip": "Size of the font files the system added. Browsers only load the subsets a page uses."},
   {"k": "lcp", "label": "LCP", "tip": "Largest Contentful Paint: when the biggest visible element finished drawing. Lower is better."},
   {"k": "tbt", "label": "Blocking time", "tip": "Total time the main thread was blocked by long tasks during load, so the page couldn’t respond. Lower is better."},

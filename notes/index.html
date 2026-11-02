@@ -676,7 +676,7 @@ function buildReport() {
       col("eye", "Look for", r.highlights || [], "look") +
       col("alert", "Problems found", (r.issues && r.issues.length ? r.issues : ["None verified."]), "prob") +
       col("wrench", "How to improve", r.improve || [], "fix") +
-      '</div><div class="note-foot"><span class="sub">Change size: ' + esc(r.effort) + ' · Judges ranked it ' + (r.judgeRanks || []).join(", ") + '</span><button type="button" class="open" data-open="' + id + '">Compare with original</button></div></article>';
+      '</div><div class="note-foot"><span class="sub">Change size: ' + esc(r.effort) + ' · Judges ranked it ' + (r.judgeRanks || []).join(", ") + '</span><button type="button" class="open" data-open="' + id + '">Compare to Baseline</button></div></article>';
   }).join("") + "</div></section>";
 
   h += '<section><h2>Not included</h2><div class="panel tbl-wrap"><table><tbody>' + [

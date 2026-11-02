@@ -85,7 +85,12 @@
     "Wrapped client names make very tall ledger rows on phone, and top-nav search squeezes to 'Search p' at 390px",
     "Small muted counts measure about 4.35:1 in the light theme"
    ],
-   "effort": "small (17 files, about 800 lines changed), no new dependencies"
+   "effort": "small (17 files, about 800 lines changed), no new dependencies",
+   "improve": [
+    "Pair it with a motion skill and ask the agent to add a prefers-reduced-motion path for every animation it adds.",
+    "Set a line-clamp or a minimum column width for very long names on narrow screens, and give the nav search a fixed minimum width.",
+    "Darken the muted text token slightly so small counts clear 4.5:1."
+   ]
   },
   "taste": {
    "scores": {
@@ -105,7 +110,7 @@
    "bestFor": "Giving an app a new, coherent visual direction",
    "highlights": [
     "Sidebar shell and a header summary that leads with at-risk and overdue items",
-    "Ledger header reads '14 entries · 3 overdue' with the total owed",
+    "Ledger header reads '14 entries \u00b7 3 overdue' with the total owed",
     "280ms FLIP reorder and zero-duration motion under reduced motion",
     "Phone ledger tucks the project under the client name"
    ],
@@ -114,7 +119,12 @@
     "Phone ledger amounts clip to '$1,...' and need horizontal scroll",
     "Retry in the failed-save state reads as plain text"
    ],
-   "effort": "medium (30 files), adds IBM Plex Sans and Mono (about 570 KB of fonts)"
+   "effort": "medium (30 files), adds IBM Plex Sans and Mono (about 570 KB of fonts)",
+   "improve": [
+    "Check every changed card at 1280px and 390px before accepting; the Add button and the phone ledger both needed a second pass.",
+    "Give tables a phone layout (stacked rows or a hidden secondary column) instead of clipping amounts.",
+    "Style inline actions like Retry as buttons or links so they read as clickable."
+   ]
   },
   "skills": {
    "scores": {
@@ -139,11 +149,15 @@
     "Wizard Next marks invalid fields and focuses the first one"
    ],
    "issues": [
-    "Settings billing-email error no longer shown on load",
     "Next looks enabled while the form is invalid",
     "Some 2000ms animations still run under reduced motion"
    ],
-   "effort": "medium (28 files, about 340 lines changed), no new dependencies"
+   "effort": "medium (28 files, about 340 lines changed), no new dependencies",
+   "improve": [
+    "Keep Next disabled-looking until the step is valid, or keep it enabled and say so in a hint, but don't mix the two.",
+    "Add a reduced-motion pass for its longer animations.",
+    "Combine with a visual-direction skill if the product needs a new look; on its own it keeps the baseline style."
+   ]
   },
   "ui-craft": {
    "scores": {
@@ -163,7 +177,7 @@
    "bestFor": "Form guidance, error copy and accessibility on desktop",
    "highlights": [
     "Numbered wizard stepper with next-step hints and an error icon",
-    "Ledger total labeled 'Total · all 14 entries' with credits and negatives clearly marked",
+    "Ledger total labeled 'Total \u00b7 all 14 entries' with credits and negatives clearly marked",
     "Consistent 2px focus rings",
     "No-results empty state that tells you how to recover"
    ],
@@ -172,7 +186,12 @@
     "Sort icons removed from all but the active column header",
     "Sections lose their h2 headings"
    ],
-   "effort": "medium (26 files, about 400 lines changed), adds Instrument Sans; slower interaction response in the benchmark (INP 744 ms vs 392 ms)"
+   "effort": "medium (26 files, about 400 lines changed), adds Instrument Sans; slower interaction response in the benchmark (INP 744 ms vs 392 ms)",
+   "improve": [
+    "Test at 390px: one wide element pushes the whole page to 895px. Find it with a layout check before shipping.",
+    "Keep sort icons visible on every sortable column so people can see which columns sort.",
+    "Restore section headings (h2) so the page structure works for screen readers."
+   ]
   },
   "ibelick": {
    "scores": {
@@ -196,10 +215,15 @@
     "Heading structure and alertdialog for discard"
    ],
    "issues": [
-    "Task titles truncate to a few characters on phone ('Send cat…')",
+    "Task titles truncate to a few characters on phone ('Send cat\u2026')",
     "Dark-theme At risk, Overdue and Delete badges remain about 2.89:1"
    ],
-   "effort": "small (19 files, about 235 lines changed), no new dependencies"
+   "effort": "small (19 files, about 235 lines changed), no new dependencies",
+   "improve": [
+    "Let task titles wrap to two lines on phone instead of truncating.",
+    "Raise the dark-theme badge colors to at least 3:1 against their background.",
+    "Run it alongside a visual skill; it fixes semantics but changes little you can see."
+   ]
   },
   "uiwiki": {
    "scores": {
@@ -227,7 +251,12 @@
     "Adds an 'Interface sounds' setting the product did not ask for",
     "Reduced motion not honored; dark badge contrast unchanged at about 2.89:1"
    ],
-   "effort": "medium (25 files, about 310 lines changed), no new dependencies"
+   "effort": "medium (25 files, about 310 lines changed), no new dependencies",
+   "improve": [
+    "Tell the agent to skip product features the rules suggest but the product doesn't need, such as the sounds setting.",
+    "Make the stepper label one unit (\"Step 1 of 3\") that doesn't break across lines.",
+    "Add reduced-motion handling and fix the dark badge contrast."
+   ]
   },
   "feel-better": {
    "scores": {
@@ -253,7 +282,12 @@
     "Three 400ms fade-in-up animations re-run alongside every sampled action",
     "Reorder has no motion"
    ],
-   "effort": "medium (22 files, about 175 lines changed), no new dependencies"
+   "effort": "medium (22 files, about 175 lines changed), no new dependencies",
+   "improve": [
+    "Scope entrance animations to elements that actually changed so they don't replay on every action.",
+    "Add positional motion for reorder and sort if list movement matters to the product.",
+    "Use it as a finishing pass after a content or visual skill, not as the main system."
+   ]
   },
   "emil": {
    "scores": {
@@ -278,7 +312,11 @@
    "issues": [
     "Side panel still takes 500ms to enter"
    ],
-   "effort": "small (20 files, about 240 lines changed), no new dependencies"
+   "effort": "small (20 files, about 240 lines changed), no new dependencies",
+   "improve": [
+    "Shorten the side panel's enter to about 300ms for a work tool; keep the longer timing for marketing surfaces.",
+    "Pair it with a content or accessibility skill; its motion work is solid but judges saw few visible changes."
+   ]
   },
   "magicui": {
    "scores": {
@@ -304,7 +342,12 @@
     "600ms add and remove animations are slow for a work tool",
     "19 animations under reduced motion versus 13 in the baseline"
    ],
-   "effort": "small (9 files, about 490 lines added), adds motion and next-themes (+54 KB gzipped JS, LCP 2144 ms vs 1404 ms)"
+   "effort": "small (9 files, about 490 lines added), adds motion and next-themes (+54 KB gzipped JS, LCP 2144 ms vs 1404 ms)",
+   "improve": [
+    "Use its components only where motion helps people follow a change, and keep durations under about 300ms in app screens.",
+    "Respect prefers-reduced-motion in every component you add; some don't by default.",
+    "Budget for motion's extra JavaScript or load the effects lazily."
+   ]
   },
   "libraries": {
    "scores": {
@@ -331,7 +374,12 @@
     "Field errors have no aria-describedby",
     "Raises the simulated assistant reply wait from 1.6 s to 3.2 s to fit the package's rules"
    ],
-   "effort": "small (7 files, about 180 lines changed), adds border-beam, bot-avatars, img-fx, liquid-gooey, thinking-orbs, three and voice-glow (+251 KB gzipped JS)"
+   "effort": "small (7 files, about 180 lines changed), adds border-beam, bot-avatars, img-fx, liquid-gooey, thinking-orbs, three and voice-glow (+251 KB gzipped JS)",
+   "improve": [
+    "Keep these effects off everyday app screens; use them on a landing page or a showcase where they can run alone.",
+    "Pause canvas effects when they're off screen or the tab is idle to cut the idle CPU.",
+    "Don't change product behavior (like the reply delay) just to make an effect fit."
+   ]
   },
   "fluid": {
    "scores": {
@@ -359,7 +407,12 @@
     "Phone project grid stays three columns at 390px and titles break per word",
     "Delete rendered neutral gray; reduced motion not honored; several focus stops lack a visible ring"
    ],
-   "effort": "large (50 files, about 13,000 lines changed), adds Base UI, 10 Radix packages, motion, Inter Variable and pdfjs-dist (+233 KB gzipped JS, 332 KB fonts, LCP 2236 ms vs 1404 ms)"
+   "effort": "large (50 files, about 13,000 lines changed), adds Base UI, 10 Radix packages, motion, Inter Variable and pdfjs-dist (+233 KB gzipped JS, 332 KB fonts, LCP 2236 ms vs 1404 ms)",
+   "improve": [
+    "Start a new project on the library rather than swapping it into an existing shadcn app; most problems came from mixing the two.",
+    "Restore visible input borders and a responsive project grid before shipping.",
+    "Keep a distinct destructive style for Delete, honor reduced motion and check every focus ring."
+   ]
   }
  }
 }

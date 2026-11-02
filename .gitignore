@@ -3,3 +3,5 @@ dist
 .DS_Store
 _to_delete
 .lab
+_site
+*.full.html

@@ -39,7 +39,7 @@ export default function App() {
       </main>
       <footer className="border-t">
         <div className="mx-auto flex max-w-[1200px] flex-wrap justify-between gap-2 px-4 py-5 text-xs text-muted-foreground sm:px-6">
-          <span>Fieldwork Studio · Plano, TX</span>
+          <span>Fieldwork Studio · Alder Bay</span>
           <span>Variant: taste-skill</span>
         </div>
       </footer>

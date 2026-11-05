@@ -30,7 +30,7 @@ export default function App() {
       </main>
       <footer className="border-t">
         <div className="mx-auto flex max-w-6xl flex-wrap justify-between gap-2 px-4 py-6 text-sm text-muted-foreground">
-          <span>Fieldwork Studio · Plano, TX</span>
+          <span>Fieldwork Studio · Alder Bay</span>
           <span>Variant: olzn/ui-craft</span>
         </div>
       </footer>

@@ -3,6 +3,7 @@ final = json.load(open("review/final.json"))
 js = open("bench/report-v2.js").read()
 css = open("bench/report-v2.css").read()
 data = {
+ "XLINKS": {"baseline": "shadcn", "kemiljk": "_kejk", "taste": "lexnlin", "skills": "jakubkrehel", "feel-better": "jakubkrehel", "ibelick": "ibelick", "uiwiki": "raphaelsalaja", "emil": "emilkowalski", "magicui": "dillionverma", "libraries": "jakubantalik", "fluid": "micka_design"},
  "TAKEAWAYS": [
   {"icon": "trophy", "k": "Most improved", "v": "kemiljk skills", "d": "Handled messy data and edge cases in plain language, with no added weight. Two of three judges put it in their top two."},
   {"icon": "sparkles", "k": "Best redesign", "v": "taste-skill", "d": "The only system that gave the app a new look: a sidebar shell, a summary that leads with what needs attention, and clean contrast."},

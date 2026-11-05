@@ -73,3 +73,5 @@ table.scores thead th, table.perf thead th { position: relative; }
 .open { font: inherit; background: var(--chip); color: var(--fg); border: 1px solid var(--line); border-radius: 6px; padding: 6px 12px; cursor: pointer; }
 .open:hover { border-color: var(--accent); }
 .note-title .chip { justify-self: start; }
+.update-note { display: flex; gap: 8px; align-items: flex-start; padding: 10px 12px; border-radius: 8px; background: color-mix(in srgb, var(--accent) 10%, transparent); color: var(--fg); line-height: 1.5; max-width: 95ch; }
+.update-note .ico { color: var(--accent); margin-top: 1px; }

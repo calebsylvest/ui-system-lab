@@ -24,7 +24,7 @@ export function Controls() {
           <Button variant="secondary">Secondary</Button>
           <Button variant="tertiary">Tertiary</Button>
           <Button variant="ghost">Ghost</Button>
-          <Button variant="secondary" leadingIcon={Trash2}>Delete</Button>
+          <Button variant="destructive" leadingIcon={Trash2}>Delete</Button>
           <Button variant="primary" disabled>Disabled</Button>
           <Button variant="primary" loading>Loading</Button>
         </div>

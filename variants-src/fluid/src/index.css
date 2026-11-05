@@ -76,6 +76,11 @@
   --info: #3B82F6;
   --success: #22C55E;
   --warning: #F59E0B;
+  --z-sticky: 30;
+  --z-overlay: 40;
+  --z-modal: 50;
+  --z-popover: 60;
+  --z-tooltip: 70;
 }
 
 .dark {
@@ -251,6 +256,11 @@
   --color-warning: var(--warning);
   --color-success: var(--success);
   --color-info: var(--info);
+  --z-tooltip: var(--z-tooltip);
+  --z-popover: var(--z-popover);
+  --z-modal: var(--z-modal);
+  --z-overlay: var(--z-overlay);
+  --z-sticky: var(--z-sticky);
   @keyframes sf-reveal-start {
   from {
     --sf-start: 1;
@@ -449,3 +459,29 @@ body { font-family: var(--font-sans); }
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
 }
+  @property --sf-start {
+    syntax: "<number>";
+    inherits: false;
+    initial-value: 1;
+}
+  @property --sf-end {
+    syntax: "<number>";
+    inherits: false;
+    initial-value: 1;
+}
+  @property --sf-start {
+    syntax: "<number>";
+    inherits: false;
+    initial-value: 1;
+}
+  @property --sf-end {
+    syntax: "<number>";
+    inherits: false;
+    initial-value: 1;
+}
+
+/* Fluid's destructive button and thinking indicator use light-dark(), which follows
+   color-scheme. Fluid's own site sets it; the registry install does not, and without it
+   Vite's CSS minifier output leaves those colors unset. */
+:root { color-scheme: light; }
+.dark { color-scheme: dark; }

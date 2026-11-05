@@ -9,7 +9,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Card, CardAction, CardContent, CardDescription, CardFooter, CardGroup, CardHeader, CardTitle } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Progress } from "@/components/ui/progress"
-import { Tabs, TabsList, TabItem, TabPanel } from "@/components/ui/tabs"
+import { Tabs, TabsItem, TabsPanel } from "@/components/ui/tabs"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { DropdownContent, DropdownMenu, DropdownSeparator, DropdownTrigger } from "@/components/ui/dropdown"
 import { MenuItem } from "@/components/ui/menu-item"
@@ -33,17 +33,18 @@ function ProjectMenu({ name }: { name: string }) {
 
 export function Workspace() {
   const [selected, setSelected] = useState<string[]>([])
+  const [tab, setTab] = useState(0)
   const toggle = (n: string) => setSelected((s) => (s.includes(n) ? s.filter((x) => x !== n) : [...s, n]))
 
   return (
-    <Tabs defaultValue="projects" className="flex flex-col gap-3">
-      <TabsList className="w-fit">
-        <TabItem value="projects" label="Projects" />
-        <TabItem value="invoices" label="Invoices" />
-        <TabItem value="activity" label="Activity" />
-      </TabsList>
+    <div className="flex flex-col gap-3">
+      <Tabs selectedIndex={tab} onSelect={setTab} idPrefix="workspace" className="w-fit">
+        <TabsItem index={0} label="Projects" />
+        <TabsItem index={1} label="Invoices" />
+        <TabsItem index={2} label="Activity" />
+      </Tabs>
 
-      <TabPanel value="projects">
+      <TabsPanel index={0} selectedIndex={tab} idPrefix="workspace">
         <CardGroup columns={3} border="outlined" separated>
           {projects.map((p) => (
             <Card key={p.id}>
@@ -70,9 +71,9 @@ export function Workspace() {
             </Card>
           ))}
         </CardGroup>
-      </TabPanel>
+      </TabsPanel>
 
-      <TabPanel value="invoices">
+      <TabsPanel index={1} selectedIndex={tab} idPrefix="workspace">
         <div className="rounded-xl border p-2">
           {selected.length > 0 && (
             <div className="flex items-center gap-2 px-2 py-2 text-sm">
@@ -107,9 +108,9 @@ export function Workspace() {
             </TableBody>
           </Table>
         </div>
-      </TabPanel>
+      </TabsPanel>
 
-      <TabPanel value="activity">
+      <TabsPanel index={2} selectedIndex={tab} idPrefix="workspace">
         <div className="grid gap-4 rounded-xl border p-6">
           {activity.map((a, i) => (
             <div key={i} className="flex items-start gap-3">
@@ -121,7 +122,7 @@ export function Workspace() {
             </div>
           ))}
         </div>
-      </TabPanel>
-    </Tabs>
+      </TabsPanel>
+    </div>
   )
 }

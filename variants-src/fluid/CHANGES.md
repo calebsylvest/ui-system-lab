@@ -135,3 +135,20 @@ shadcn APIs (`outline`/`destructive`/`sm`, `SelectValue`, index-less `SelectItem
 - Sort arrow swaps don't crossfade (the "icon swaps crossfade in one cell" rule): Button's icon slot takes one component, and building a custom two-glyph cell inside a library button would mean editing installed components.
 - Fluid has no stepper, empty-state or textarea component; AskUserQuestions is a stepped *question* flow, not a form, so it wasn't forced in.
 - No visual check in a browser from this session; `npm run build` passes.
+
+## Update, Nov 5 2026 — library at mickadesign/fluid-functionalism 65dc5bf
+Re-installed every Fluid component from the latest registry (`--overwrite`) after the
+creator's fixes for the feedback in this lab.
+- **Text fields:** InputGroup fields now keep a hairline ring at rest (fix for invisible fields).
+  The new Field, Input and Textarea replace the shadcn Input/Textarea that were kept before.
+- **Destructive button:** Delete (Controls) and Discard (unsaved-client dialog) use the new
+  `variant="destructive"` instead of secondary + trash icon. MenuItem has no destructive style yet,
+  so the project menu's Delete stays neutral.
+- **Tabs:** the segmented Tabs was replaced upstream by the former TabsSubtle API
+  (`selectedIndex` / `onSelect`, `TabsItem`, `TabsPanel`); Workspace was migrated.
+- **pdf.js worker:** File Thumbnail now has `setPdfWorkerSrc` for self-hosted workers. Not used here,
+  since the page never renders a PDF.
+- **Install gap found:** the destructive button and thinking indicator use `light-dark()`, which
+  depends on `color-scheme`. The registry doesn't set it, and in a Vite build the colors came out
+  unset (Delete rendered in the text color in both themes). Added `color-scheme` to `:root` / `.dark`.
+- `tabs-subtle.tsx` is now unused (left in place; tree-shaken out of the build).

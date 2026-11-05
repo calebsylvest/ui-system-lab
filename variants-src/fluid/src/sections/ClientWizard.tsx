@@ -186,7 +186,7 @@ export function ClientWizard() {
           </DialogHeader>
           <DialogFooter>
             <Button variant="ghost" onClick={() => setConfirm(false)}>Keep editing</Button>
-            <Button variant="secondary" leadingIcon={Trash2} onClick={reset}>Discard</Button>
+            <Button variant="destructive" leadingIcon={Trash2} onClick={reset}>Discard</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

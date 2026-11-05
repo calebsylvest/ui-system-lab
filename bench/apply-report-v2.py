@@ -6,7 +6,7 @@ data = {
  "TAKEAWAYS": [
   {"icon": "trophy", "k": "Most improved", "v": "kemiljk skills", "d": "Handled messy data and edge cases in plain language, with no added weight. Two of three judges put it in their top two."},
   {"icon": "sparkles", "k": "Best redesign", "v": "taste-skill", "d": "The only system that gave the app a new look: a sidebar shell, a summary that leads with what needs attention, and clean contrast."},
-  {"icon": "alert", "k": "Costliest", "v": "libraries.dev and Fluid", "d": "libraries.dev kept about a third of the main thread busy at idle. Fluid added about 108 KB of JavaScript and 332 KB of fonts, and lost input borders."},
+  {"icon": "alert", "k": "Costliest", "v": "libraries.dev and Fluid", "d": "libraries.dev kept about a third of the main thread busy at idle. Fluid added about 108 KB of JavaScript at load and lost input borders."},
  ],
  "SETUP": [
   {"icon": "page", "title": "The test page", "items": ["Fieldwork, a fictional studio tool built with React, Tailwind and stock shadcn/ui.", "Dashboard cards, tabs, a task list, overlays, async states, a messy data table, a 3-step form, an AI chat panel and settings.", "Same data and features in every version."]},
@@ -18,7 +18,7 @@ data = {
  ],
  "PERF_COLS": [
   {"k": "js", "label": "JS (gzip)", "tip": "Compressed JavaScript the page loads at startup. The original is 152 KB. Code split off to load only on demand, like Fluid’s pdf.js, isn’t counted."},
-  {"k": "font", "label": "Font files", "tip": "Size of the font files the system added. Browsers only load the subsets a page uses."},
+  {"k": "font", "label": "Fonts loaded", "tip": "Font data the browser actually downloaded. Builds often ship every language subset, but a page only fetches the ones it uses."},
   {"k": "lcp", "label": "LCP", "tip": "Largest Contentful Paint: when the biggest visible element finished drawing. Lower is better."},
   {"k": "tbt", "label": "Blocking time", "tip": "Total time the main thread was blocked by long tasks during load, so the page couldn’t respond. Lower is better."},
   {"k": "p95", "label": "p95 frame", "tip": "95th-percentile frame time during the scripted session. 17 ms is a smooth 60 fps; 33 ms means some dropped frames under the 4× CPU slowdown."},

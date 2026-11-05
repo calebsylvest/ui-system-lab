@@ -1,5 +1,5 @@
 {
- "summary": "kemiljk ranked first. Its skills treated messy data and edge cases as part of the design: long client names wrap, missing ledger values read 'No due date' or 'Not tied to a project', the total notes 'net of 1 credit', and the benchmark showed no meaningful cost. taste came a close second with the most complete visual rethink, a sidebar app shell and a header summary that leads with what needs attention, and it was the only variant with no sampled contrast failures in either theme; a clipped Add button and truncated phone amounts held its fidelity score down. skills and ui-craft followed, with ui-craft drawing the accessibility judge's top rank but losing points for a phone layout that is 895px wide in a 390px viewport. The systems that helped this app most were rule sets about content, semantics and layout that the agent applied to the existing shadcn components, while motion-only skills (feel-better, emil, uiwiki) left the page looking and scoring like the baseline. The libraries cost the most: Fluid Functionalism added about 108 KB of gzipped JavaScript at load and 332 KB of fonts and lost input borders and the phone grid, Magic UI added about 54 KB of JavaScript for effects judges did not count as improvements, and the libraries.dev effects raised blocking time from about 1 s to about 23 s and kept roughly a third of the main thread busy at idle. For a working app UI, start with a content and behavior skill such as kemiljk or skills, add a visual-direction skill like taste if the product needs a new look, and check the phone layout and font weight it adds before shipping.",
+ "summary": "kemiljk ranked first. Its skills treated messy data and edge cases as part of the design: long client names wrap, missing ledger values read 'No due date' or 'Not tied to a project', the total notes 'net of 1 credit', and the benchmark showed no meaningful cost. taste came a close second with the most complete visual rethink, a sidebar app shell and a header summary that leads with what needs attention, and it was the only variant with no sampled contrast failures in either theme; a clipped Add button and truncated phone amounts held its fidelity score down. skills and ui-craft followed, with ui-craft drawing the accessibility judge's top rank but losing points for a phone layout that is 895px wide in a 390px viewport. The systems that helped this app most were rule sets about content, semantics and layout that the agent applied to the existing shadcn components, while motion-only skills (feel-better, emil, uiwiki) left the page looking and scoring like the baseline. The libraries cost the most: Fluid Functionalism added about 108 KB of gzipped JavaScript at load and lost input borders and the phone grid, Magic UI added about 54 KB of JavaScript for effects judges did not count as improvements, and the libraries.dev effects raised blocking time from about 1 s to about 23 s and kept roughly a third of the main thread busy at idle. For a working app UI, start with a content and behavior skill such as kemiljk or skills, add a visual-direction skill like taste if the product needs a new look, and check the phone layout and font weight it adds before shipping.",
  "method": "One Fieldwork page (React, Tailwind and default shadcn/ui) was rebuilt eleven times, each by a separate AI agent that read only one system's documentation. Three blind judges, a product designer, a design engineer and an accessibility and UX-writing specialist, scored anonymized builds on five axes against the unchanged baseline at 3. Performance was measured in headless Chromium with a 4x CPU throttle and no GPU and scored relative to the baseline.",
  "ranking": [
   "kemiljk",
@@ -46,7 +46,7 @@
    "ids": [
     "fluid"
    ],
-   "note": "Replaced shadcn components with the library's own. Largest change, heaviest download once fonts are counted, and the only system all three judges ranked last."
+   "note": "Replaced shadcn components with the library's own. Largest change, and the only system all three judges ranked last."
   },
   {
    "label": "Effect packs",
@@ -99,7 +99,7 @@
     "accessibility": 4.33,
     "fidelity": 3.33,
     "productFit": 4.33,
-    "performanceCost": 4.5
+    "performanceCost": 5.0
    },
    "judgeRanks": [
     1,
@@ -119,7 +119,7 @@
     "Phone ledger amounts clip to '$1,...' and need horizontal scroll",
     "Retry in the failed-save state reads as plain text"
    ],
-   "effort": "medium (30 files), adds IBM Plex Sans and Mono (about 570 KB of fonts)",
+   "effort": "medium (30 files), adds IBM Plex Sans and Mono (about 84 KB of fonts downloaded; 570 KB shipped across all subsets)",
    "improve": [
     "Check every changed card at 1280px and 390px before accepting; the Add button and the phone ledger both needed a second pass.",
     "Give tables a phone layout (stacked rows or a hidden secondary column) instead of clipping amounts.",
@@ -388,14 +388,14 @@
     "accessibility": 2.0,
     "fidelity": 2.0,
     "productFit": 2.0,
-    "performanceCost": 3.0
+    "performanceCost": 3.5
    },
    "judgeRanks": [
     11,
     11,
     11
    ],
-   "verdict": "All three judges ranked it last. Swapping in the library's components gave fast 80ms transitions, dot status badges and good failed-save copy, but inputs lost their borders, the delete action lost its destructive color, settings labels were rearranged, and the phone project grid stays at three columns. It is also the heaviest download once fonts are counted.",
+   "verdict": "All three judges ranked it last. Swapping in the library's components gave fast 80ms transitions, dot status badges and good failed-save copy, but inputs lost their borders, the delete action lost its destructive color, settings labels were rearranged, and the phone project grid stays at three columns. It also adds the most JavaScript of any rule set or library apart from libraries.dev.",
    "bestFor": "New projects built on the library from the start",
    "highlights": [
     "Dot-style status badges in the ledger and on project cards",
@@ -403,16 +403,17 @@
     "Failed-save message with a clear title and Retry"
    ],
    "issues": [
-    "Form inputs have 0px borders and transparent backgrounds, so wizard and settings fields look like plain text (WCAG 1.4.11)",
-    "Phone project grid stays three columns at 390px and titles break per word",
-    "Delete rendered neutral gray; reduced motion not honored; several focus stops lack a visible ring"
+    "Fixed Nov 5: text fields had no visible boundary at rest (by design), so form fields read as plain text (WCAG 1.4.11)",
+    "Phone project grid stays three columns at 390px and titles break per word (CardGroup takes a fixed column count)",
+    "Fixed Nov 5: Delete was neutral gray (no destructive variant). Still open: reduced motion not honored; several focus stops lack a visible ring"
    ],
-   "effort": "large (50 files, about 13,000 lines changed), adds Base UI, 10 Radix packages, motion and Inter Variable (+108 KB gzipped JS at load, 332 KB fonts, LCP 2236 ms vs 1404 ms). pdf.js is also bundled but only loads when someone attaches a PDF.",
+   "effort": "large (50 files, about 13,000 lines changed), adds Base UI, 10 Radix packages, motion and Inter Variable (+108 KB gzipped JS at load, 71 KB of fonts downloaded, LCP 2236 ms vs 1404 ms). pdf.js is also bundled but only loads when someone attaches a PDF.",
    "improve": [
     "Start a new project on the library rather than swapping it into an existing shadcn app; most problems came from mixing the two.",
-    "Restore visible input borders and a responsive project grid before shipping.",
-    "Keep a distinct destructive style for Delete, honor reduced motion and check every focus ring."
-   ]
+    "Pick CardGroup's column count from the screen width (it takes a fixed number), so phone cards don't squeeze into three columns.",
+    "Set color-scheme on :root and .dark: the destructive button's light-dark() colors don't resolve without it. Then check reduced motion and every focus ring."
+   ],
+   "update": "Nov 5 update: the creator shipped fixes for this feedback. Text fields now show a hairline at rest, Button has a destructive variant (used for Delete and Discard), and File Thumbnail can use a self-hosted pdf.js worker. The Compare view shows the updated build; the scores above are from the original blind judging."
   }
  }
 }

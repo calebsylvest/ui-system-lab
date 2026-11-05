@@ -5,7 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const zlib = require('zlib');
 
-const BASE = 'http://localhost:4174/variants/';
+const BASE = process.env.BASE || 'http://localhost:4174/variants/';
 const [, , id, outDir, runsArg] = process.argv;
 const RUNS = Number(runsArg || 2);
 fs.mkdirSync(outDir, { recursive: true });
@@ -52,6 +52,9 @@ async function run(browser, collectShots) {
   await cdp.send('Emulation.setCPUThrottlingRate', { rate: 4 });
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
+  // Font bytes actually downloaded (browsers fetch only the subsets a page uses).
+  const fonts = new Map();
+  page.on('response', async (r) => { if (/\.(woff2?|ttf|otf)(\?|$)/.test(r.url())) { try { fonts.set(r.url(), (await r.body()).length); } catch (e) {} } });
   const t0 = Date.now();
   await page.goto(BASE + id + '/index.html', { waitUntil: 'load' });
   await page.waitForTimeout(3000);
@@ -121,7 +124,8 @@ async function run(browser, collectShots) {
     await shot('phone.png', 'light', 390);
   }
   await ctx.close();
-  return { load, inter, cpu, steps: log, errors, wall: Date.now() - t0 };
+  const fontLoaded = [...fonts.values()].reduce((a, b) => a + b, 0);
+  return { load, inter, cpu, steps: log, errors, fontLoaded, wall: Date.now() - t0 };
 }
 
 (async () => {
@@ -131,7 +135,7 @@ async function run(browser, collectShots) {
   await browser.close();
   const med = (get) => { const v = runs.map(get).filter((x) => x != null).sort((a, b) => a - b); return v.length ? v[Math.floor((v.length - 1) / 2)] : null; };
   const result = {
-    id, bundle: bundle(path.join(__dirname, '..', 'site', 'variants', id)),
+    id, fontLoadedKB: Math.round(med((r) => r.fontLoaded) / 1024), bundle: bundle(path.join(__dirname, '..', 'site', 'variants', id)),
     load: { fcp: med((r) => r.load.fcp), lcp: med((r) => r.load.lcp), cls: med((r) => r.load.cls), tbt: med((r) => r.load.tbt) },
     interaction: { avgFrame: med((r) => r.inter.avgFrame), p95Frame: med((r) => r.inter.p95Frame), jank: med((r) => r.inter.jank), longTaskMs: med((r) => r.inter.longTaskMs), inpProxy: med((r) => r.inter.inpProxy), maxEvent: med((r) => r.inter.maxEvent) },
     cpu: { script: med((r) => r.cpu.ScriptDuration), layout: med((r) => r.cpu.LayoutDuration), style: med((r) => r.cpu.RecalcStyleDuration), loadScript: med((r) => r.cpu.loadScript), heapMB: med((r) => r.cpu.jsHeapMB) },
